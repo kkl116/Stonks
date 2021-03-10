@@ -1,0 +1,18 @@
+PLANNING 
+features I want/need/need to learn about:
+1. what are some KPIs for stocks? 
+2. do I want a website for this or some kind of GUI?
+3. What to visualize? 
+4. ways to stream data continously and update visualizations live
+5. single place to access multiple data sources
+6. sentiment analysis? 
+
+(Just Do 1 thing at a time! Take it slow, but build something that you'd find useful)
+
+current TODO:
+- first start with basic visuaizations of historic price getting data from somewhere, 
+then automatically visualizing it on a GUI? or webpage honestly but I feel building
+a website is some insane effort '''
+
+-if making website can think about django/flask - python web development framework..
+-learn how to write simple tests!
