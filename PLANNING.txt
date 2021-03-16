@@ -16,3 +16,16 @@ a website is some insane effort '''
 
 -if making website can think about django/flask - python web development framework..
 -learn how to write simple tests!
+
+sections:
+
+- Home (maybe just the live tracker there and brief summary for stock searches)
+- About? (simple intro)
+- Create account 
+^ portfolio page 
+^ watchlist 
+
+analysis section:
+- charts 
+- news
+- analyse 
