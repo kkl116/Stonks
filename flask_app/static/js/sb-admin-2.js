@@ -57,12 +57,12 @@
 
 // js for homepage welcome animation
 // function([string1, string2],target id,[color1,color2])    
-consoleText(['Welcome! :)'], 'text',['#274156', '#1C6E8C', '#605856', '#D0CCD0']);
+consoleText(['Welcome!'], 'text',['#274156', '#1C6E8C', '#605856', '#D0CCD0']);
 
 var link = document.createElement('link');
 link.setAttribute('rel', 'stylesheet');
 link.setAttribute('type', 'text/css');
-link.setAttribute('href', 'https://fonts.googleapis.com/css2?family=Lekton:wght@700&display=swap');
+link.setAttribute('href', 'https://fonts.googleapis.com/css2?family=Lekton&display=swap');
 
 var link = document.createElement('link');
 link.setAttribute('rel', 'stylesheet');
@@ -71,7 +71,7 @@ link.setAttribute('href', 'https://fonts.googleapis.com/css2?family=Source+Code+
 
 document.head.appendChild(link)
 
-function consoleText(words, id, colors) {
+function consoleText(words, id, colors, Font) {
   if (colors === undefined) colors = ['#fff'];
   var visible = true;
   var con = document.getElementById('console');
@@ -79,9 +79,7 @@ function consoleText(words, id, colors) {
   var x = 1;
   var waiting = false;
   var target = document.getElementById(id)
-  var Font = 'Lekton'
   target.setAttribute('style', 'color:' + colors[0]);
-  target.style.fontFamily = Font;
   window.setInterval(function() {
 
     if (letterCount === 0 && waiting === false) {
@@ -94,7 +92,6 @@ function consoleText(words, id, colors) {
         words.push(usedWord);
         x = 1;
         target.setAttribute('style', 'color:' + colors[0])
-        target.style.fontFamily = Font;
         letterCount += x;
         waiting = false;
       }, 1000)

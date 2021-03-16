@@ -11255,9 +11255,9 @@ body {
 .hidden {
   opacity:0;
 }
+
 .console-container {
- 
-  font-family:'Lekton';
+  font-family: 'Lekton';
   font-size:4em;
   text-align:center;
   height:200px;
