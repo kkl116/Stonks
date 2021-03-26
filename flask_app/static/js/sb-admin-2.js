@@ -59,17 +59,6 @@
 // function([string1, string2],target id,[color1,color2])    
 consoleText(['Welcome!'], 'text',['#274156', '#1C6E8C', '#605856', '#D0CCD0']);
 
-var link = document.createElement('link');
-link.setAttribute('rel', 'stylesheet');
-link.setAttribute('type', 'text/css');
-link.setAttribute('href', 'https://fonts.googleapis.com/css2?family=Lekton&display=swap');
-
-var link = document.createElement('link');
-link.setAttribute('rel', 'stylesheet');
-link.setAttribute('type', 'text/css');
-link.setAttribute('href', 'https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@200&display=swap');
-
-document.head.appendChild(link)
 
 function consoleText(words, id, colors, Font) {
   if (colors === undefined) colors = ['#fff'];

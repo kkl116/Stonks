@@ -1,9 +1,18 @@
 {% extends "layout.html" %}
 
-
 {% block content %}
-<link rel="preconnect" href="https://fonts.gstatic.com">
-<link href="https://fonts.googleapis.com/css2?family=Lekton&display=swap" rel="stylesheet">
+
+<div class="index-flash">
+    {% with messages = get_flashed_messages(with_categories=true)%}
+    {% if messages %}
+        {% for category, message in messages%}
+            <div class="alert alert-{{category}}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+</div>
 
 <div class='console-container'>
     <i class="far fa-smile"></i>
@@ -11,8 +20,11 @@
     <div class='console-underscore' id='console'>&#95;</div>
 </div>
 
+<!-- need to add <a> tag here for create an account button-->
+<!-- also if logged in then should be a slighly different page-->
 <div class='homepage-text-container'>
     <button type="button" class="btn btn-outline-primary">Create an account</button>
      or search for a stock to get started!
 </div>
+
 {% endblock %}

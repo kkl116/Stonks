@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+
+<!-- 400 error could be because of wrong script -- check cdnjs for script tags to replace-->
+{% block head %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js" integrity="sha512-74AKPNm8Tfd5E9c4otg7XNkIVfIe5ynON7wehpX/9Tv5VYcZvXZBAlcgOAjLHg6HeWyLujisAnle6+iKnyWd9Q==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous"></script>
+<script src="https://code.highcharts.com/stock/highstock.js"></script>
+<script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
+
+{% endblock %}
+
+{% block content %}
+<h1 class="search-title">{{ q }}</h1>
+<div class="live-Quote">
+    <div id="liveQuote"></canvas>
+</div>
+<script src="../static/js/render-live-quotes.js"></script>
+<script>
+    let quote_route = '{{ quote_route }}';
+    let q = '{{ q }}';
+    let prev_close = '{{ prev_close }}'
+    $(document).ready( function () {
+        renderLiveQuote(quote_route, prev_close, q)
+    })
+</script>
+
+{% endblock %}
