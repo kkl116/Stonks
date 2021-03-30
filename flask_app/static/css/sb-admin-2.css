@@ -2011,9 +2011,8 @@ textarea.form-control {
 }
 
 .form-check-input {
-  position: absolute;
-  margin-top: 0.3rem;
-  margin-left: -1.25rem;
+  position: relative;
+  margin: 0rem 0rem 1.5rem;
 }
 
 .form-check-input[disabled] ~ .form-check-label,
@@ -2143,7 +2142,7 @@ textarea.form-control {
 .invalid-feedback {
   display: none;
   width: 100%;
-  margin-top: 0.25rem;
+  margin: 0.5rem;
   font-size: 80%;
   color: #e74a3b;
 }
@@ -11297,3 +11296,4 @@ body {
   position: relative;
   top: 0em;
 }
+

@@ -7,11 +7,11 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 from get_all_tickers import get_tickers
 
-def get_live_quotes(ticker_name, test=False, interval = 10):
+def get_live_quotes(ticker_name, testing=False, interval = 10):
     while True:
         "expects yahoo finance stock symbols"
         stock = stockquotes.Stock(ticker_name)
-        if test:
+        if testing:
             value = random.random()
         else:
             value = stock.current_price
@@ -22,10 +22,10 @@ def get_live_quotes(ticker_name, test=False, interval = 10):
         yield f"data:{json_data}\n\n"
         time.sleep(interval)
 
-def get_previous_close(ticker_name, test=False):
+def get_previous_close(ticker_name, testing=False):
     "expects yahoo finance stock symbols"
     stock = stockquotes.Stock(ticker_name)
-    if test:
+    if testing:
         value = 0.5
     else:
         value = stock.historical[0]['close']
