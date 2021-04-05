@@ -11292,8 +11292,8 @@ body {
 }
 
 .index-flash {
-  width: 60%;
   position: relative;
   top: 0em;
+  display: inline-block;
 }
 

@@ -62,7 +62,7 @@
                           </div>
                           <div class="error"></div>
                           <div class="form loginBox">
-                              <form method="POST" action="{{ url_for('login') }}" accept-charset="UTF-8" id="login-form">
+                              <form method="POST" action="{{ url_for('users.login') }}" accept-charset="UTF-8" id="login-form">
                                 {{ login_form.csrf_token(id="login-csrf") }}
 
                                 {{ login_form.email_username(class="form-control") }}
@@ -82,7 +82,7 @@
                   <div class="box">
                       <div class="content registerBox" style="display:none;">
                         <div class="form">
-                                <form method="POST" html="{:multipart=>true}" action="{{ url_for('register') }}" accept-charset="UTF-8" id='register-form'>
+                                <form method="POST" html="{:multipart=>true}" action="{{ url_for('users.register') }}" accept-charset="UTF-8" id='register-form'>
                                     {{ register_form.csrf_token(id="register-csrf") }}
 
                                     {{ register_form.username(class="form-control") }}
@@ -126,7 +126,7 @@
         <ul class="navbar-nav sidebar sidebar-dark accordion bg-sidebar" id="accordionSidebar">
 
             <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{url_for('index')}}">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{url_for('main.index')}}">
                 <div class="sidebar-brand-icon">
                     <img src="static/assets/doglion_real.png" width="64" class="logo">
                 </div>
@@ -138,7 +138,7 @@
 
             <!-- Nav Item - Dashboard -->
             <li class="nav-item">
-                <a class="nav-link" href="{{url_for('index')}}">
+                <a class="nav-link" href="{{url_for('main.index')}}">
                     <i class="fas fa-home"></i>
                     <span>Home</span></a>
             </li>
@@ -273,7 +273,7 @@
                             <input type="search" class="form-control bg-light border-0 small" placeholder="Search for a stock... (e.g. AAPL)"
                                 aria-label="Search" aria-describedby="basic-addon2" name="q">
                             <div class="input-group-append">
-                                <button class="btn btn-primary" type="submit">
+                                <button class="btn btn-primary" type="submit" formaction="{{ url_for('searches.search') }}">
                                     <i class="fas fa-search-dollar"></i>
                                 </button>
                             </div>
@@ -494,14 +494,8 @@
 
     <script>
         //script to reopen modal if any form errors are found
-        let registerUsernameError = '{{ register_form.username.errors }}';
-        let registerEmailError = '{{ register_form.email.errors }}';
-        let registerPasswordError = '{{ register_form.password.errors }}';
-        let registerConfirmPasswordError = '{{ register_form.confirm_password.errors }}';
-        let urlRegister = "{{ url_for('register') }}"
-        let urlLogin = "{{ url_for('login') }}"
-        errors = checkErrorString([registerUsernameError, registerEmailError, registerPasswordError, registerConfirmPasswordError]);
-        anyError = errors.reduce(add, 0) > 0;
+        let urlRegister = "{{ url_for('users.register') }}"
+        let urlLogin = "{{ url_for('users.login') }}"
         $(document).ready(function() {
             //this is previous function to reopen modal if any form errors were found
             registerAjax(urlRegister);

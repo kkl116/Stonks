@@ -10,11 +10,9 @@ features I want/need/need to learn about:
 (Just Do 1 thing at a time! Take it slow, but build something that you'd find useful)
 
 current TODO:
-- do register and login MODAL!
 - see if you can restructure using blueprints
 
 side TODO (nicer looking features in the future):
-- login and register modal submit without refresh
 
 -if making website can think about django/flask - python web development framework..
 -learn how to write simple tests!

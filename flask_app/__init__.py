@@ -3,7 +3,6 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
-from flask_socketio import SocketIO
 
 # if testing=True auto delete and create db if db file doesn't exist
 testing = True
@@ -19,7 +18,7 @@ db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 
 login_manager = LoginManager(app)
-login_manager.login_view = 'login'
+login_manager.login_view = 'users.login'
 login_manager.login_message_category = 'info'
 
 if testing and init_db:
@@ -29,4 +28,10 @@ if testing and init_db:
     db.create_all()
     print('***** db file deleted and reinitialized *****')
 
-from flask_app import routes
+from flask_app.users.routes import users
+from flask_app.main.routes import main 
+from flask_app.searches.routes import searches
+
+app.register_blueprint(users)
+app.register_blueprint(main)
+app.register_blueprint(searches)

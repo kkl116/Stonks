@@ -68,6 +68,8 @@ function checkErrorString(errors) {
     return errors
 }
 
+//js code from here: https://blog.carsonevans.ca/2019/08/20/validating-ajax-requests-with-wtforms-in-flask/
+
 function registerAjax(url) {
     const form = document.getElementById('register-form');
     //put a const here to reference to a success flash message - called after modal closed
@@ -113,6 +115,8 @@ function registerAjax(url) {
             })
         });
 
+        console.log(response)
+
         if (response.ok) {
             //disable modal and populate succses message
             $('#loginModal').modal('hide');
@@ -121,12 +125,18 @@ function registerAjax(url) {
             document.getElementById('login-register-success').innerHTML = 'Your account has been created!';
             //clear form fields
         } else {
+            //remove the errors from the previous submit 
             let errors = await response.json();
-            Object.keys(errors).forEach((key) => {
+
+            Object.keys(fields).forEach((key) => {
                 if (key != 'csrf_token') {
-                    //console.log(key)
-                    fields[key].input.classList.add('is-invalid');
-                    fields[key].error.innerHTML = errors[key][0];
+                    if (Object.keys(errors).includes(key)) {
+                        fields[key].input.classList.add('is-invalid');
+                        fields[key].error.innerHTML = errors[key][0];
+                    } else {
+                        fields[key].input.classList.remove('is-invalid');
+                        fields[key].error.innerHTML = null
+                    }
                 }
             })
             shakeModal();
@@ -185,13 +195,22 @@ function loginAjax(url){
                 let key = 'email_username';
                 fields[key].input.classList.add('is-invalid');
                 fields[key].error.innerHTML = errors[key][0];
+                fields['password'].error.innerHTML = null;
+                fields['password'].input.classList.remove('is-invalid');
             } else {
                 let key = 'password';
                 fields[key].input.classList.add('is-invalid');
                 fields[key].error.innerHTML = errors[key][0];   
+                fields['email_username'].error.innerHTML = null;
+                fields['email_username'].input.classList.remove('is-invalid')
+
             }
             shakeModal();
         }
     })
 }
 
+//create an account button to trigger modal 
+$('#create-account-button').click(function() {
+    openRegisterModal();
+})
