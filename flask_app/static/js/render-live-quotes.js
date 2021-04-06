@@ -3,6 +3,7 @@ function renderLiveQuote(quote_route, prev_close, q){
     $(document).ready(function (){
         //get previous close data from json 
         prev_close = +prev_close
+        console.log(prev_close)
         //create chart
         const chart = Highcharts.stockChart('liveQuote', {
             series: [{

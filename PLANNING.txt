@@ -10,7 +10,7 @@ features I want/need/need to learn about:
 (Just Do 1 thing at a time! Take it slow, but build something that you'd find useful)
 
 current TODO:
-- see if you can restructure using blueprints
+- setup some unit tests
 
 side TODO (nicer looking features in the future):
 
@@ -34,3 +34,4 @@ COMPLETED:
 - layout.html
 - live chart that updates current price... although have to do something about 
 storing quotes somewhere once market opens.
+- see if you can restructure using blueprints

@@ -19,7 +19,8 @@ def search():
             #SSE
             quote_route = '/_live-quote-' + q
             _r = get_live_quote_data(q) #create a Response engine for the quote here
-            prev_close = get_previous_close(q)
+            prev_close = get_previous_close(q, testing=testing)
+            print(prev_close)
             return _render_template('search_result.html', quote_route=quote_route, q=q, prev_close=prev_close)
         else:
             flash('Stock symbol entered is not valid. Please try again.', 'warning')
