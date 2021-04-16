@@ -159,7 +159,7 @@
     text-align: center;
     width: 100%;
 }
-.login .btn-login, .registerBox .btn-register{
+.login .btn-login, .registerBox .btn-register, .requestResetBox .btn-requestReset{
     background-color: #00BBFF;
     border-color: #00BBFF;
     border-width: 0;
@@ -170,7 +170,7 @@
     text-transform: uppercase;
     width: 100%;
 }
-.login .btn-login:hover, .registerBox .btn-register:hover{
+.login .btn-login:hover, .registerBox .btn-register:hover, .requestResetBox .btn-requestReset:hover{
     background-color: #00A4E4;
     color: #FFFFFF;
 }
@@ -233,7 +233,7 @@
 }
 
 .modal-header {
-    text-align:center;
+    text-align:left;
     margin: 0 auto;
     padding: 0;
     vertical-align: middle;
@@ -244,3 +244,9 @@
     right: 9px;
 }
 
+.doglion-center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+}

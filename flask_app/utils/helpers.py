@@ -1,5 +1,6 @@
 from flask import request, redirect, url_for, render_template
-from flask_app.users.forms import LoginForm, RegisterationForm
+from flask_app.accounts.forms import (LoginForm, RegisterationForm, 
+                                    RequestResetForm, ResetPasswordForm)
 import ast
 
 def get_request_form_keys(request, omit_keys = ['remember', 'submit']):
@@ -38,11 +39,15 @@ def _render_template(*args, **kwargs):
     Bit of an ugly hack for the modal forms!"""
     register_form = RegisterationForm()
     login_form = LoginForm()
+    request_reset_form = RequestResetForm()
+    reset_password_form = ResetPasswordForm()
     kwargs['register_form'] = register_form
     kwargs['login_form'] = login_form
+    kwargs['request_reset_form'] = request_reset_form
+    kwargs['reset_password_form'] = reset_password_form
 
     return render_template(*args, **kwargs)
 
-def render_next_page():
+def redirect_next_page():
     next_page = request.args.get('next')
     return redirect(next_page) if next_page else redirect(url_for('main.index'))
