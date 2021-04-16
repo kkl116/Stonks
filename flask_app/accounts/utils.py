@@ -20,7 +20,7 @@ def username_email_query(email_username_data, User=User, return_user=True):
 
 def send_reset_email(user):
     """external returns absolute vs relative url"""
-    token = user.get_reset_token()
+    token = user.get_reset_token(expires_sec=84600)
     msg = Message('Password Reset Request', sender='noreply@bibstonks.com',
                 recipients=[user.email])
     msg.body = f'''To reset your password, please visit the following link:

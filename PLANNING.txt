@@ -10,8 +10,6 @@ features I want/need/need to learn about:
 (Just Do 1 thing at a time! Take it slow, but build something that you'd find useful)
 
 current TODO:
-- flash message fontawesome icons 
-- password reset ajax
 - set up profile pages, then start with doing portfolio management
 - setup some unit tests
 
@@ -40,3 +38,4 @@ storing quotes somewhere once market opens.
 - see if you can restructure using blueprints
 - password reset 
 - email verification
+- password reset ajax

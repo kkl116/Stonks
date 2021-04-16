@@ -269,7 +269,7 @@ function requestResetAjax(url){
 }
 
 function resetPasswordAjax(url){
-    const form = document.getElementById('password-reset-form');
+    const form = document.getElementById('reset-password-form');
     //put a const here to reference to a success flash message - called after modal closed
     const fields = {
         csrf_token: {
@@ -285,10 +285,8 @@ function resetPasswordAjax(url){
             error: document.getElementById('reset-confirm-password-error')
         }
     }
-
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-
         const response = await fetch(url, {
             method: 'POST',
             headers: {
@@ -301,16 +299,15 @@ function resetPasswordAjax(url){
             })
         });
         if (response.ok) {
-            //disable modal and populate succses message
-            $('#loginModal').modal('hide');
-            form.reset();
-            document.getElementById('login-register-success').classList.add("alert", 'alert-success');
-            document.getElementById('login-register-success').innerHTML = 'Your password has been updated!';
-            //clear form fields
+            //pass
+            let success = await response.json();
+            if (success.redirect) {
+                window.location.href = success.redirect;
+            }
         } else {
             //remove the errors from the previous submit 
             let errors = await response.json();
-
+            console.log(errors);
             Object.keys(fields).forEach((key) => {
                 if (key != 'csrf_token') {
                     if (Object.keys(errors).includes(key)) {
@@ -322,7 +319,6 @@ function resetPasswordAjax(url){
                     }
                 }
             })
-            shakeModal();
         }
     })
 }

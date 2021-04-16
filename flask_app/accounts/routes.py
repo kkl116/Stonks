@@ -43,7 +43,6 @@ def login():
             login_form.email_username.data = ''
             return redirect_next_page()
         else:
-            print('jsonifying')
             return jsonify(login_form.errors), 400
     return redirect_next_page()
 
@@ -67,11 +66,9 @@ def request_reset():
             user = username_email_query(request_reset_form.email_username.data, return_user=True)
             if user:
                 send_reset_email(user)
-            return redirect_next_page()
-        return redirect_next_page()
     return redirect_next_page()
 
-@accounts.route('/reset_password/<token>', methods=["GET", 'POST'])
+@accounts.route('/reset_password/<token>', methods=["GET", "POST"])
 def reset_password(token):
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
@@ -79,14 +76,21 @@ def reset_password(token):
     if user is None:
         flash('The token is invalid or has expired.', 'warning')
         return redirect_next_page()
+
     reset_password_form = ResetPasswordForm()
-    if reset_password_form.validate_on_submit():
-        hashed_password = bcrypt.generate_password_hash(reset_password_form.password.data)
-        user.password = hashed_password
-        db.session.commit()
-        flash('Password has been updated!', 'success')
-        return redirect(url_for('main.index'))
+    if request.method == "POST":
+        if reset_password_form.validate_on_submit():
+            print('reset form submitted')
+            hashed_password = bcrypt.generate_password_hash(reset_password_form.password.data)
+            user.password = hashed_password
+            db.session.commit()
+            flash('Password has been updated!', 'success')
+            #redirect does not work with ajax, so instead return json then use js to switch url
+            return jsonify({"redirect": url_for('main.index')})
+        else:
+            return jsonify(reset_password_form.errors), 400
     return _render_template('reset_password.html')
+
 
 @accounts.route('/email_verification/<token>', methods=["GET", "POST"])
 def email_verification(token):

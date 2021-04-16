@@ -29,8 +29,6 @@ def confirm_post_request_form(request, form):
     form_fields.sort()
     request_keys = get_request_form_keys(request)
     request_keys.sort()
-    print(form_fields)
-    print(request_keys)
     check = form_fields == request_keys
     return check
 

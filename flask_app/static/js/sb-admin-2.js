@@ -108,3 +108,5 @@ function consoleText(words, id, colors, Font) {
     }
   }, 400)
 }
+
+//cool close button

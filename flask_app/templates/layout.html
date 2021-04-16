@@ -20,6 +20,8 @@
     <link href="/static/css/sb-admin-2.css" rel="stylesheet">
     <!-- Custom style for login and register modals -->
     <link href="/static/css/login-register.css" rel="stylesheet">
+    <!-- other custom styles-->
+    <link href="/static/css/other-styles.scss" rel="stylesheet">
     <!-- bootstrap icons stylesheet -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.0/font/bootstrap-icons.css">
 
@@ -39,7 +41,9 @@
         <div class="modal-dialog login animated">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <a data-dismiss="modal" style="text-decoration: none; font-size: 25px; " href="#" aria-hidden="true">
+                        <i class="fas fa-paw"></i>
+                    </a>
                 </div>
               <div class="modal-body">
                   <div class="box">
@@ -457,7 +461,12 @@
                             {% if messages %}
                                 {% for category, message in messages%}
                                     <div class="alert alert-{{category}}">
-                                        {{ message }}
+                                        <span> {{ message }} 
+                                            <a data-dismiss="alert" style="text-decoration: none; font-size: 15px;" href="#" aria-hidden="true">
+                                                <i class="fas fa-paw"></i>
+                                            </a>
+                                        </span>
+
                                     </div>
                                 {% endfor %}
                             {% endif %}
@@ -535,17 +544,21 @@
 
     <script>
         //script to reopen modal if any form errors are found
-        let urlRegister = "{{ url_for('accounts.register') }}"
-        let urlLogin = "{{ url_for('accounts.login') }}"
-        let urlRequestReset = "{{ url_for('accounts.request_reset') }}"
+        let urlRegister = "{{ url_for('accounts.register') }}";
+        let urlLogin = "{{ url_for('accounts.login') }}";
+        let urlRequestReset = "{{ url_for('accounts.request_reset') }}";
+
         $(document).ready(function() {
             //this is previous function to reopen modal if any form errors were found
             registerAjax(urlRegister);
             loginAjax(urlLogin);
-            requestResetAjax(urlRequestReset)
+            requestResetAjax(urlRequestReset);
 
         })
     </script>
+
+    {% block scripts %}
+    {% endblock %}
 </body>
 
 </html>
