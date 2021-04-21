@@ -1,5 +1,5 @@
 from flask import request, redirect, url_for, render_template
-from flask_app.accounts.forms import (LoginForm, RegisterationForm, 
+from ..accounts.forms import (LoginForm, RegisterationForm, 
                                     RequestResetForm, ResetPasswordForm)
 import ast
 
@@ -48,4 +48,15 @@ def _render_template(*args, **kwargs):
 
 def redirect_next_page():
     next_page = request.args.get('next')
-    return redirect(next_page) if next_page else redirect(url_for('main.index'))
+    return redirect(next_page) if next_page else redirect(url_for('main.home'))
+
+def check_ticker_exists(ticker):
+    """takes ticker name and checks on yahoo finance to see if it exists.
+    returns a boolean
+    """
+    url = f'https://uk.finance.yahoo.com/quote/{ticker}?p={ticker}&.tsrc=fin-srch'
+    page = requests.get(url)
+    if page.url == url:
+        return True
+    else:
+        return False

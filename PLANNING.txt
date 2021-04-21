@@ -10,13 +10,16 @@ features I want/need/need to learn about:
 (Just Do 1 thing at a time! Take it slow, but build something that you'd find useful)
 
 current TODO:
-- set up profile pages, then start with doing portfolio management
-- setup some unit tests
+- watchlist page - 
+- after login should be another page -- 
+- profile pages - set sayyyy default currency and change account settings 
+- add git ignore to hide files such as db
 
 side TODO (nicer looking features in the future):
 
--if making website can think about django/flask - python web development framework..
--learn how to write simple tests!
+- learn how to write simple tests!
+- write some macros to clean up layout.html
+- bundle js and css to page loads faster? (process into minjs and mincss)
 
 sections:
 

@@ -1,4 +1,4 @@
-from flask_app import db, login_manager
+from . import db, login_manager
 from flask_login import UserMixin
 from itsdangerous import TimedJSONWebSignatureSerializer as TimedSerializer
 from itsdangerous import JSONWebSignatureSerializer as Serializer

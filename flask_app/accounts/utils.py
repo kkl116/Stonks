@@ -1,7 +1,7 @@
-from flask_app.models import User
-from flask_app import mail
+from ..models import User
+from .. import mail
 from flask_mail import Message
-from flask import url_for
+from flask import url_for, jsonify
 from string import punctuation, digits
 
 def username_email_query(email_username_data, User=User, return_user=True):
@@ -62,4 +62,10 @@ def password_check(password):
         return False
     else:
         return True
+
+def redirect_json(route='main.home'):
+    return jsonify({"redirect": url_for(route)})
+
+def form_errors_400(form):
+    return jsonify(form.errors), 400
 

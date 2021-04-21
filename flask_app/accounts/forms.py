@@ -1,11 +1,11 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from flask_login import current_user
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField
 from wtforms.validators import DataRequired, Length, EqualTo, Email, ValidationError
-from flask_app.models import User
-from flask_app import bcrypt
-from flask_app.accounts.utils import username_email_query, password_check
+from ..models import User
+from .. import bcrypt
+from .utils import username_email_query, password_check
 
 class RegisterationForm(FlaskForm):
     username = StringField('Username',

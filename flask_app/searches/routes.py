@@ -1,7 +1,7 @@
 from flask import Blueprint, request, flash, Response
-from flask_app.utils.helpers import _render_template, redirect_next_page
-from flask_app.searches.utils import get_live_quotes, check_ticker_exists, get_previous_close
-from flask_app import testing
+from ..utils.helpers import _render_template, redirect_next_page, check_ticker_exists
+from .utils import get_live_quotes, get_previous_close
+from .. import testing
 
 searches = Blueprint('searches', __name__)
 
@@ -21,7 +21,7 @@ def search():
             _r = get_live_quote_data(q) #create a Response engine for the quote here
             prev_close = get_previous_close(q, testing=testing)
             print(prev_close)
-            return _render_template('search_result.html', quote_route=quote_route, q=q, prev_close=prev_close)
+            return _render_template('searches/search_result.html', quote_route=quote_route, q=q, prev_close=prev_close)
         else:
             flash('Stock symbol entered is not valid. Please try again.', 'warning')
     return redirect_next_page()
