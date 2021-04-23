@@ -3,11 +3,11 @@ from .forms import (LoginForm, RegisterationForm,
                                     RequestResetForm, ResetPasswordForm)
 from ..models import User
 from .. import db, bcrypt, login_manager
-from ..utils.helpers import redirect_next_page, confirm_post_request_form, _render_template
+from ..utils.helpers import (redirect_next_page, confirm_post_request_form, _render_template, 
+                            redirect_json, form_errors_400)
 from flask_login import login_user, logout_user, login_required, current_user
 from .utils import (username_email_query, send_reset_email, 
-                    send_verification_email, account_is_activated,
-                    redirect_json, form_errors_400)
+                    send_verification_email, account_is_activated)
 
 accounts = Blueprint('accounts', __name__)
 
@@ -23,9 +23,8 @@ def register():
             db.session.commit()
             send_verification_email(user)
             #clear form fields
-            register_form.email.data = ''
-            register_form.username.data = ''
-            return redirect_next_page()
+            flash('Your account has been created! Please activate your account before logging in.', 'success')
+            return redirect_json(route="main.home")
         else:
             return form_errors_400(register_form)
     return redirect_next_page()
@@ -40,9 +39,8 @@ def login():
             print('login validated')
             user = username_email_query(login_form.email_username.data, return_user=True)
             login_user(user, remember=login_form.remember.data)
-            #just clearing form fields... but also did it in js 
-            login_form.email_username.data = ''
-            return redirect_json()
+            flash('You have logged in successfully!', 'success')
+            return redirect_json(route="main.home")
         else:
             return form_errors_400(login_form)
     return redirect_next_page()
@@ -87,7 +85,7 @@ def reset_password(token):
             db.session.commit()
             flash('Password has been updated!', 'success')
             #redirect does not work with ajax, so instead return json then use js to switch url
-            return redirect_json()
+            return redirect_json(route="main.home")
         else:
             return form_errors_400(reset_password_form)
     return _render_template('accounts/reset_password.html')

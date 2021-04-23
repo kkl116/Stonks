@@ -444,17 +444,17 @@
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
                     <div class="index-flash">
-                        <div id="login-register-success"></div> 
+                        <div id="register-success"></div> 
                         {% with messages = get_flashed_messages(with_categories=true)%}
                             {% if messages %}
                                 {% for category, message in messages%}
-                                    <div class="alert alert-{{category}}">
-                                        <span> {{ message }} 
+                                    <div class="alert alert-{{category}}" id="">
+                                        <span> 
+                                            {{ message }} 
                                             <a data-dismiss="alert" style="text-decoration: none; font-size: 15px;" href="#" aria-hidden="true">
                                                 <i class="fas fa-paw"></i>
                                             </a>
                                         </span>
-
                                     </div>
                                 {% endfor %}
                             {% endif %}
@@ -532,9 +532,9 @@
 
     <script>
         //script to reopen modal if any form errors are found
-        let urlRegister = "{{ url_for('accounts.register') }}";
-        let urlLogin = "{{ url_for('accounts.login') }}";
-        let urlRequestReset = "{{ url_for('accounts.request_reset') }}";
+        const urlRegister = "{{ url_for('accounts.register') }}";
+        const urlLogin = "{{ url_for('accounts.login') }}";
+        const urlRequestReset = "{{ url_for('accounts.request_reset') }}";
 
         $(document).ready(function() {
             //this is previous function to reopen modal if any form errors were found

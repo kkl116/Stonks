@@ -25,9 +25,9 @@ def send_reset_email(user):
                 recipients=[user.email])
     msg.body = f'''To reset your password, please visit the following link:
 
-    {url_for('accounts.reset_password', token=token, _external=True)}
+{url_for('accounts.reset_password', token=token, _external=True)}
     
-    If you did not make this request please ignore this email! :)
+If you did not make this request please ignore this email! :)
     '''
     mail.send(msg)
 
@@ -38,9 +38,9 @@ def send_verification_email(user):
                 recipients=[user.email])
     msg.body = f""" To activate your account, please visit the following link:
 
-    {url_for('accounts.email_verification', token=token, _external=True)}
+{url_for('accounts.email_verification', token=token, _external=True)}
 
-    If you did not register an account with Bib Stonks, please ignore this email! :)
+If you did not register an account with Bib Stonks, please ignore this email! :)
     """
     mail.send(msg)
 
@@ -63,9 +63,5 @@ def password_check(password):
     else:
         return True
 
-def redirect_json(route='main.home'):
-    return jsonify({"redirect": url_for(route)})
 
-def form_errors_400(form):
-    return jsonify(form.errors), 400
 

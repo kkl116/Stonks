@@ -1,6 +1,7 @@
-from flask import request, redirect, url_for, render_template
+from flask import request, redirect, url_for, render_template, jsonify
 from ..accounts.forms import (LoginForm, RegisterationForm, 
                                     RequestResetForm, ResetPasswordForm)
+import requests
 import ast
 
 def get_request_form_keys(request, omit_keys = ['remember', 'submit']):
@@ -54,9 +55,27 @@ def check_ticker_exists(ticker):
     """takes ticker name and checks on yahoo finance to see if it exists.
     returns a boolean
     """
+    ticker = ticker.strip().upper()
     url = f'https://uk.finance.yahoo.com/quote/{ticker}?p={ticker}&.tsrc=fin-srch'
     page = requests.get(url)
     if page.url == url:
         return True
     else:
         return False
+
+def redirect_json(route=None, url=None):
+    """returns the json for ajax refresh - provide one of url or route"""
+    if route and url:
+        raise Exception('Both route and url provided, please provide one only.')
+    elif not route and not url:
+        raise Exception('Neither route or url has been provided, please provide either one.')
+    elif route:
+        url = url_for(route)
+    elif url:
+        pass
+
+    return jsonify({"redirect": url})
+
+
+def form_errors_400(form):
+    return jsonify(form.errors), 400

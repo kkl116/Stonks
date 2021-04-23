@@ -10,10 +10,11 @@ features I want/need/need to learn about:
 (Just Do 1 thing at a time! Take it slow, but build something that you'd find useful)
 
 current TODO:
-- watchlist page - 
+- watchlist page - delete function
+- watchlist page - group function
+- change search to yfinance - can load up more information in one go 
 - after login should be another page -- 
 - profile pages - set sayyyy default currency and change account settings 
-- add git ignore to hide files such as db
 
 side TODO (nicer looking features in the future):
 
@@ -42,3 +43,6 @@ storing quotes somewhere once market opens.
 - password reset 
 - email verification
 - password reset ajax
+- add git ignore to hide files such as db
+- watchlist page - add function
+

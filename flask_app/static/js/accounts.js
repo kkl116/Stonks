@@ -8,6 +8,7 @@
  * Web script: http://creative-tim.com
  * 
  */
+
 function showRegisterForm(){
     fadeSpeed = 400;
     $('.loginBox').fadeOut(fadeSpeed,function(){
@@ -88,19 +89,6 @@ function shakeModal(){
     setTimeout(removeShake, 1000); 
 }
 
-//use in form error check 
-function add(accumulator, a) {
-    return accumulator + a;
-}
-
-function checkErrorString(errors) {
-    let i;
-    for (i = 0; i < errors.length; i++) {
-        errors[i] = errors[i] != '()' && errors[i] != '[]'
-    }
-    return errors
-}
-
 //js code from here: https://blog.carsonevans.ca/2019/08/20/validating-ajax-requests-with-wtforms-in-flask/
 
 function registerAjax(url) {
@@ -153,8 +141,10 @@ function registerAjax(url) {
             //disable modal and populate succses message
             $('#loginModal').modal('hide');
             form.reset();
-            document.getElementById('login-register-success').classList.add("alert", 'alert-success');
-            document.getElementById('login-register-success').innerHTML = 'Your account has been created!';
+            let success = await response.json();
+            if (success.redirect) {
+                window.location.href = success.redirect;
+            }
             //clear form fields
         } else {
             //remove the errors from the previous submit 
@@ -216,8 +206,6 @@ function loginAjax(url){
             if (success.redirect) {
                 window.location.href = success.redirect;
             }
-
-
             //refresh page 
             //clear form fields
         } else {

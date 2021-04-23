@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 
 {% block head %}
-<link href="/static/css/watchlist.scss" rel="stylesheet">
+<link href="/static/css/watchlist.css" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -9,9 +9,45 @@
 <div>
     {{ table }}
 
-    <button class="btn btn-outline-primary" style="font-size: 7.5px; padding:7.5px;"> 
-        <i class="fas fa-plus"></i>
-    </button>
+    {% if empty %}
+        <p id="empty-message" style="text-align: center;">
+            Your watchlist is currently empty!
+        </p>
+    {% endif %}    
+
+    <!--put form here so that + button displays it?-->
+    <div class="box" style="width: 50%;">
+        <div class="content">
+            <div class="form">
+                <form method="POST" accept-charset="UTF-8" id='add-form'>
+                    {{ add_form.csrf_token(id="add-csrf") }}
+                    <div class="input-group offset-md-6">
+                        {{ add_form.ticker_name(class="form-control bg-light border-1 small", style="font-size: 12px;") }}
+                        <div class="input-group-append">
+                            <button type=submit class="btn btn-primary btn-reset input-group-append align-items-center" style="font-size:12px;"
+                            id="add-submit">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="ticker-name-error" class="invalid-feedback" style="margin-left:50%;"></div>
+
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/watchlist.js"></script>
+<script>
+    let urlAdd = "{{ url_for('watchlist.add') }}";
+    $(document).ready(function() {
+            //this is previous function to reopen modal if any form errors were found
+            addAjax(urlAdd);
+        })
+
+</script>
 {% endblock %}
