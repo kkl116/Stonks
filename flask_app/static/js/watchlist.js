@@ -33,7 +33,7 @@ function addAjax(url){
                 emptyMessage.style.display="none"
             }
             console.log(success)
-            table.insertAdjacentHTML('afterbegin', success.newItem)
+            table.insertAdjacentHTML('afterbegin', success.newItem);
             
             //remove error message and clear search bar
             fields['ticker_name'].input.value = ''
@@ -56,3 +56,32 @@ function addAjax(url){
         }
     })
 }
+
+//delete button function
+function delete_row(clicked){
+    const id = clicked.id;
+    const ticker = id.split('-')[0];
+    const url = $(clicked).data('targ-url');
+    $.ajax({
+            url: url,
+            type: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            data: JSON.stringify({
+                ticker: ticker,
+            }),
+            success: function(result){
+                console.log(result);
+                row_id = '#' + ticker;
+                //delete row here
+                $(row_id).fadeOut('slow', function(){
+                    $(this).remove();
+                })
+            },
+            error: function(result){
+                console.log(result);
+            }
+    });
+}
+

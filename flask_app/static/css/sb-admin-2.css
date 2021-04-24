@@ -11308,3 +11308,7 @@ body {
   display: inline-block;
 }
 
+.del-btn:hover {
+  color: black;
+  transition: color 0.5s;
+}

@@ -1,5 +1,6 @@
 import os 
-from flask_app import create_app, db
+from flask_app import create_app, db, bcrypt
+from flask_app.models import User
 
 if __name__ == '__main__':
     #check if db file already exists
@@ -15,3 +16,10 @@ if __name__ == '__main__':
     with app.app_context():
         db.create_all()
 
+    #add a dummy user 
+    with app.app_context():
+        password='abcd!234'
+        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+        user = User(username='test', password=hashed_password, email='bibstonkspage@gmail.com', verified=True)
+        db.session.add(user)
+        db.session.commit()

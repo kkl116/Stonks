@@ -3,6 +3,7 @@ from flask_login import current_user
 from wtforms import StringField, TextAreaField, SubmitField
 from wtforms.validators import DataRequired, ValidationError
 from ..utils.helpers import check_ticker_exists
+from .utils import format_ticker_name
 from ..models import WatchlistItem
 
 class AddForm(FlaskForm):
@@ -12,12 +13,14 @@ class AddForm(FlaskForm):
                             'id': 'ticker-name'})
     def validate_ticker_name(self, ticker_name):
         """check that ticker exists and that it has not been added to the database by that user"""
-        exists = check_ticker_exists(ticker_name.data)
+        ticker_name = format_ticker_name(ticker_name.data)
+        exists = check_ticker_exists(ticker_name)
         if not exists:
             raise ValidationError("This ticker does not exist! Please try again.")
-        added = len(WatchlistItem.query.filter_by(user=current_user, ticker_name=ticker_name.data).all())
+        added = len(WatchlistItem.query.filter_by(user=current_user, ticker_name=ticker_name).all())
         if added:
             raise ValidationError("This ticker has already been added! Please try again.")
+
 
 
 
