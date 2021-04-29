@@ -37,6 +37,7 @@ function addAjax(url){
             
             //remove error message and clear search bar
             fields['ticker_name'].input.value = ''
+            document.getElementById('ticker-name').classList.remove('is-invalid')
             document.getElementById("ticker-name-error").style.display="none";
         } else {
             //remove the errors from the previous submit 
@@ -57,11 +58,27 @@ function addAjax(url){
     })
 }
 
+function escapeSpecialChars(id){
+    //escape special chars in ticker name so that jquery can still find it in the DOM
+    const special = '!@#$^&%*()+=-[]{}|:<>?,.';
+    let newString = '';
+    for (var i = 0; i < id.length; i++){
+        if (special.includes(id[i])){
+            newString = newString + '\\' + id[i]
+        } else {
+            newString = newString + id[i]
+        }
+    }
+    return newString;
+}
+
 //delete button function
-function delete_row(clicked){
+function deleteRow(clicked){
     const id = clicked.id;
     const ticker = id.split('-')[0];
     const url = $(clicked).data('targ-url');
+    const processedTicker = escapeSpecialChars(ticker)
+
     $.ajax({
             url: url,
             type: 'POST',
@@ -73,7 +90,7 @@ function delete_row(clicked){
             }),
             success: function(result){
                 console.log(result);
-                row_id = '#' + ticker;
+                row_id = '#' + processedTicker;
                 //delete row here
                 $(row_id).fadeOut('slow', function(){
                     $(this).remove();
@@ -85,3 +102,39 @@ function delete_row(clicked){
     });
 }
 
+//toggle notes btn function
+function toggleNotes(clicked){
+    const id = clicked.id;
+    const ticker = id.split('-')[0];
+    const processedTicker = escapeSpecialChars(ticker)
+    const notesId = processedTicker + '-notes';
+
+    $("#" + notesId).toggle();
+}
+
+function saveNotes(clicked){
+    const id = clicked.id;
+    const ticker = id.split('-')[0];
+    const processedTicker = escapeSpecialChars(ticker)
+    const notesTextId = processedTicker + '-text-area';
+    const url = $(clicked).data('targ-url');
+
+    $.ajax({
+        url: url,
+        type: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        data: JSON.stringify({
+            ticker: ticker,
+            notes: $('#' + notesTextId).val()
+        }),
+        success: function(result){
+            console.log(result);
+        },
+        error: function(result){
+            console.log(result)
+        }
+    })
+
+}

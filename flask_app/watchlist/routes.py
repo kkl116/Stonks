@@ -22,6 +22,7 @@ def main():
         table_items = query_to_table_items(query_items)
         table = WatchlistTable(items=table_items)
         empty = False
+    
     return _render_template('watchlist/main.html', add_form=add_form, table=table, empty=empty)
 
 @watchlist.route('/add', methods=["GET", "POST"])
@@ -48,14 +49,24 @@ def delete():
         try:
             del_ticker = request.json['ticker']
             item = WatchlistItem.query.filter_by(user=current_user, ticker_name=del_ticker).first()
-            if item.user != current_user:
-                abort(403)
             db.session.delete(item)
             db.session.commit()
             return jsonify({'message': 'ticker has been deleted'})
         except Exception as e:
-            print(WatchlistItem.query.filter_by(user=current_user).all())
             return jsonify({'message': str(e)})
     return redirect_next_page()
 
-
+@watchlist.route('/save_notes', methods=["GET", "POST"])
+@login_required
+def save_notes():
+    if request.method == "POST":
+        try:
+            ticker = request.json['ticker']
+            ticker_notes = request.json['notes']
+            item = WatchlistItem.query.filter_by(user=current_user, ticker_name=ticker).first()
+            item.notes = ticker_notes
+            db.session.commit()
+            return jsonify({'message': 'notes have been added'})
+            
+        except Exception as e:
+            return jsonify({'message': str(e)})

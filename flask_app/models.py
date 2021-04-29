@@ -52,8 +52,8 @@ class User(db.Model, UserMixin):
 #just create 1-many like post, then set on delete cascade for watchlisttickers
 class WatchlistItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    ticker_name = db.Column(db.String(20), unique=True, nullable=False)
-    notes = db.Column(db.String(500), nullable=False, default='')
+    ticker_name = db.Column(db.String(), unique=True, nullable=False)
+    notes = db.Column(db.String(), nullable=False, default='')
     date_added = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete="CASCADE"), nullable=False)
 
