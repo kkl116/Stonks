@@ -10,9 +10,8 @@ features I want/need/need to learn about:
 (Just Do 1 thing at a time! Take it slow, but build something that you'd find useful)
 
 current TODO:
-- watchlist page - group function
-- change search to yfinance - can load up more information in one go 
-- after login should be another page -- 
+- change search to yfinance - can load up more information in one go / try dash to make interactive app embedded into flask
+- after login should be another welcome page -- 
 - profile pages - set sayyyy default currency and change account settings 
 
 side TODO (nicer looking features in the future):
@@ -20,6 +19,7 @@ side TODO (nicer looking features in the future):
 - learn how to write simple tests!
 - write some macros to clean up layout.html
 - bundle js and css to page loads faster? (process into minjs and mincss)
+- watchlist page - group function
 
 sections:
 
