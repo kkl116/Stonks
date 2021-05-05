@@ -1,6 +1,6 @@
-from flask import Blueprint, request, flash, Response
+from flask import Blueprint, request, flash, Response, jsonify
 from ..utils.helpers import _render_template, redirect_next_page, check_ticker_exists
-from .utils import get_hist_vol_json
+from .utils import get_hist_vol_json, get_dropdown_items, get_chart_json
 from .. import testing
 
 searches = Blueprint('searches', __name__)
@@ -14,7 +14,20 @@ def search():
         if check_ticker_exists(q):
             #SSE
             price_chart_json = get_hist_vol_json(q)
-            return _render_template('searches/search_result.html', q=q, price_chart_json=price_chart_json)
+            dropdowns = get_dropdown_items()
+            return _render_template('searches/search_result.html', q=q, price_chart_json=price_chart_json, dropdowns=dropdowns)
         else:
             flash('Stock symbol entered is not valid. Please try again.', 'warning')
+    return redirect_next_page()
+
+@searches.route('/add_chart', methods=["GET", "POST"])
+def add_chart():
+    if request.method == "POST":
+        try:
+            item = request.json['addItem']
+            ticker = request.json['ticker']
+            json = get_chart_json(ticker, item)
+            return json
+        except Exception as e:
+            return jsonify({'message': str(e)})
     return redirect_next_page()
