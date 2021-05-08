@@ -46,7 +46,7 @@ def get_hist_vol_json(ticker_name, testing=False, period="max", col="Close"):
 
 def get_dropdown_items():
     items = list(dir(yf.Ticker))
-    ignore = ['__', '_', 'get', 'isin', 'history', 'info', 'balancesheet', 'option_chain']
+    ignore = ['__', '_', 'get', 'isin', 'history', 'info', 'balancesheet', 'option_chain', 'sustainability']
     items = [i for i in items if not any(i.startswith(string) for string in ignore)]
     display_string = [format_attr_string(i) for i in items]
 

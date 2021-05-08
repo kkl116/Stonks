@@ -10,7 +10,6 @@ features I want/need/need to learn about:
 (Just Do 1 thing at a time! Take it slow, but build something that you'd find useful)
 
 current TODO:
-- change search to yfinance - can load up more information in one go / try dash to make interactive app embedded into flask
 - after login should be another welcome page -- 
 - profile pages - set sayyyy default currency and change account settings 
 
@@ -45,5 +44,8 @@ storing quotes somewhere once market opens.
 - add git ignore to hide files such as db
 - watchlist page - add function
 - watchlist page - delete function
+- change search to yfinance - can load up more information in one go / try dash to make interactive app embedded into flask
+- delete button for tables in search
+
 
 
