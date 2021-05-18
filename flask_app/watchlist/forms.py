@@ -1,9 +1,8 @@
 from flask_wtf import FlaskForm
 from flask_login import current_user
-from wtforms import StringField, TextAreaField, SubmitField
+from wtforms import StringField
 from wtforms.validators import DataRequired, ValidationError
-from ..utils.helpers import check_ticker_exists
-from .utils import format_ticker_name
+from ..utils.helpers import check_ticker_exists, format_ticker_name
 from ..models import WatchlistItem
 
 class AddForm(FlaskForm):

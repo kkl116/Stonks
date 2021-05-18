@@ -15,10 +15,17 @@ def search():
             #SSE
             price_chart_json = get_hist_vol_json(q)
             dropdowns = get_dropdown_items()
-            return _render_template('searches/search_result.html', q=q, price_chart_json=price_chart_json, dropdowns=dropdowns)
+            return _render_template('searches/main.html', q=q, price_chart_json=price_chart_json, dropdowns=dropdowns)
         else:
             flash('Stock symbol entered is not valid. Please try again.', 'warning')
     return redirect_next_page()
+
+@searches.route('/search/<q>')
+def search_redirect(q):
+    q = q.strip().upper()
+    price_chart_json = get_hist_vol_json(q)
+    dropdowns = get_dropdown_items()
+    return _render_template('searches/main.html', q=q, price_chart_json=price_chart_json, dropdowns=dropdowns)
 
 @searches.route('/add_chart', methods=["GET", "POST"])
 def add_chart():

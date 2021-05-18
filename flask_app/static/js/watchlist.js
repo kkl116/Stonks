@@ -1,4 +1,9 @@
 //use prepend method to add a td element to the table (append/prepend is inside - before and after is well before and after)
+import { escapeSpecialChars, tickerFromId } from "./helpers.js";
+//to use import statements, requires script to be a module
+//modules' functions reside within script itself, and cannot be accessed from html directly
+//not the best practice, but can set functions as global var so that it can be called directly. 
+
 function addAjax(url){
     const form = document.getElementById('add-form');
     //put a const here to reference to a success flash message - called after modal closed
@@ -25,7 +30,6 @@ function addAjax(url){
         });
         if (response.ok) {
             const success = await response.json();
-            //pass
             //append item to table - 
             const emptyMessage = document.getElementById('empty-message')
             const table = document.getElementById('watchlist-table')
@@ -36,8 +40,8 @@ function addAjax(url){
             table.insertAdjacentHTML('afterbegin', success.newItem);
             
             //remove error message and clear search bar
-            fields['ticker_name'].input.value = ''
-            document.getElementById('ticker-name').classList.remove('is-invalid')
+            fields['ticker_name'].input.value = '';
+            document.getElementById('ticker-name').classList.remove('is-invalid');
             document.getElementById("ticker-name-error").style.display="none";
         } else {
             //remove the errors from the previous submit 
@@ -58,24 +62,11 @@ function addAjax(url){
     })
 }
 
-function escapeSpecialChars(id){
-    //escape special chars in ticker name so that jquery can still find it in the DOM
-    const special = '!@#$^&%*()+=-[]{}|:<>?,.';
-    let newString = '';
-    for (var i = 0; i < id.length; i++){
-        if (special.includes(id[i])){
-            newString = newString + '\\' + id[i]
-        } else {
-            newString = newString + id[i]
-        }
-    }
-    return newString;
-}
 
 //delete button function
 function deleteRow(clicked){
     const id = clicked.id;
-    const ticker = id.split('-')[0];
+    const ticker = tickerFromId(id, 1);
     const url = $(clicked).data('targ-url');
     const processedTicker = escapeSpecialChars(ticker)
 
@@ -105,7 +96,7 @@ function deleteRow(clicked){
 //toggle notes btn function
 function toggleNotes(clicked){
     const id = clicked.id;
-    const ticker = id.split('-')[0];
+    const ticker = tickerFromId(id, 1);
     const processedTicker = escapeSpecialChars(ticker)
     const notesId = processedTicker + '-notes';
 
@@ -114,7 +105,7 @@ function toggleNotes(clicked){
 
 function saveNotes(clicked){
     const id = clicked.id;
-    const ticker = id.split('-')[0];
+    const ticker = tickerFromId(id, 2);
     const processedTicker = escapeSpecialChars(ticker)
     const notesTextId = processedTicker + '-text-area';
     const url = $(clicked).data('targ-url');
@@ -133,8 +124,15 @@ function saveNotes(clicked){
             console.log(result);
         },
         error: function(result){
-            console.log(result)
+            console.log(result);
         }
     })
 
 }
+
+window.addAjax=addAjax;
+window.deleteRow=deleteRow;
+window.toggleNotes=toggleNotes;
+window.saveNotes=saveNotes;
+
+

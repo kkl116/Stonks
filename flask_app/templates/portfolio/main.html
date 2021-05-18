@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+
+{% block head %}
+{% endblock %}
+
+{% block content %}
+<div>
+    {{ table }}
+    {% if empty %}
+    <p id="empty-message" style="text-align:center;">
+        Your portfolio is currently empty!
+    </p>
+    {% endif %}
+</div>
+<form method="POST", accept-charset="UTF-8" id="add-form">
+    {{ add_form.csrf_token(id="add-csrf") }}
+    <div class="form-row justify-content-center">
+        <div class="col-auto">
+            {{ add_form.ticker_name(class="form-control border-1 small", style="font-size: 14px;") }}
+            <div id="ticker-name-error" class="invalid-feedback"></div>
+        </div>
+        <div class="col-auto">
+            {{ add_form.purchase_price(class="form-control border-1 small", style="font-size: 14px;")}}
+            <div id="purchase-price-error" class="invalid-feedback"></div>
+        </div>
+        <div class="col-auto">
+            {{ add_form.quantity(class="form-control border-1 small", style="font-size: 14px;")}}
+            <div id="quantity-error" class="invalid-feedback"></div>
+        </div>
+
+        <div class="col-auto">
+            <button type="submit" class="btn btn-dark" style="font-size:14px;" id="add-submit">
+                <i class="fas fa-plus-square"></i>
+            </button>
+        </div>
+        
+    </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/portfolio.js"></script>
+<script>
+    //initialize addform ajax
+    let urlAdd = "{{ url_for('portfolio.add') }}"
+    $(document).ready(function() {
+        addAjax(urlAdd);
+    })
+</script>
+{% endblock %}

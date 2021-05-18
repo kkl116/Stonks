@@ -35,13 +35,16 @@ def create_app(config_class=Config):
     login_manager.init_app(app)
     mail.init_app(app)
 
+
     from .accounts.routes import accounts
     from .main.routes import main 
     from .searches.routes import searches
     from .watchlist.routes import watchlist
+    from .portfolio.routes import portfolio
     app.register_blueprint(accounts)
     app.register_blueprint(main)
     app.register_blueprint(searches)    
     app.register_blueprint(watchlist)
+    app.register_blueprint(portfolio)
 
     return app 

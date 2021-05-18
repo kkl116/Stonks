@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request, flash, redirect, url_for
 from .forms import (LoginForm, RegisterationForm, 
                                     RequestResetForm, ResetPasswordForm)
-from ..models import User
+from ..models import User, Portfolio
 from .. import db, bcrypt, login_manager
 from ..utils.helpers import (redirect_next_page, confirm_post_request_form, _render_template, 
                             redirect_json, form_errors_400)
@@ -18,6 +18,7 @@ def register():
         if register_form.validate_on_submit():
             hashed_password = bcrypt.generate_password_hash(register_form.password.data).decode('utf-8')
             user = User(username=register_form.username.data, password=hashed_password, email=register_form.email.data)
+            portfolio = Portfolio(user=user)
             #add email verification here 
             db.session.add(user)
             db.session.commit()

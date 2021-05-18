@@ -20,9 +20,13 @@ class User(db.Model, UserMixin):
     image_file= db.Column(db.String(20), nullable=False, default='static/assets/doglion_real.png')
     password = db.Column(db.String(60), nullable=False)
     verified = db.Column(db.Boolean(), nullable=False, default=False)
+
     """here lazily load b/c no need to load it unless in the watchlist page..."""
     watchlistItems = db.relationship('WatchlistItem', backref='user', lazy=True,
                                         cascade="all, delete, delete-orphan", passive_deletes=True)
+    portfolio = db.relationship('Portfolio', backref='user', lazy=True,
+                                cascade="all, delete, delete-orphan", passive_deletes=True)
+    
     
     def get_reset_token(self, expires_sec=1800):
         s = TimedSerializer(current_app.config['SECRET_KEY'], expires_sec)
@@ -54,9 +58,32 @@ class WatchlistItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     ticker_name = db.Column(db.String(), unique=True, nullable=False)
     notes = db.Column(db.String(), nullable=False, default='')
-    date_added = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    date_added = db.Column(db.DateTime, nullable=False, default=datetime.today())
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete="CASCADE"), nullable=False)
 
     def __repr__(self):
         return f"WatchlistTicker('{self.ticker_name}', '{self.date_added})"
+
+class PortfolioItem(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    ticker_name = db.Column(db.String(), unique=False, nullable=False)
+    purchase_price = db.Column(db.String(), nullable=False)
+    quantity = db.Column(db.String(), nullable=False)
+    currency = db.Column(db.String(), nullable=False)
+    portfolio_id = db.Column(db.Integer, db.ForeignKey('portfolio.id', ondelete="CASCADE"), nullable=False)
+
+    def __repr__(self):
+        return f"PortfolioItem('{self.ticker_name}', '{self.price}', '{self.quantity}', '{self.purchase_date}')"
+
+class Portfolio(db.Model):
+    """in the future maybe allow multiple portfolios... but for now each user only has one"""
+    id = db.Column(db.Integer, primary_key=True)
+    currency = db.Column(db.String(), nullable=False, default='GBP')
+    current_market_value = db.Column(db.Float(), nullable=False, default=0)
+    overall_profit_loss = db.Column(db.Float(), nullable=False, default=0)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete="CASCADE"), nullable=False, unique=True)
+    portfolioItems = db.relationship('PortfolioItem', backref='portfolio', lazy=True,
+                                        cascade="all, delete, delete-orphan", passive_deletes=True)
+    def __repr__(self):
+        return f"Portfolio('{self.user_id}', '{self.market_value}')"
 

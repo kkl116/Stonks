@@ -10,6 +10,13 @@ features I want/need/need to learn about:
 (Just Do 1 thing at a time! Take it slow, but build something that you'd find useful)
 
 current TODO:
+- create ajax template function
+- Portfolio page - setup the add and delete ticker system, then maybe add a little something extra like level of diversity or something
+    - portfolio todos:
+        -delete button
+        -portfolio performance stuff
+        
+- watchlistitems and portfolio items custom tags?
 - after login should be another welcome page -- 
 - profile pages - set sayyyy default currency and change account settings 
 

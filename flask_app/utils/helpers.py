@@ -79,3 +79,7 @@ def redirect_json(route=None, url=None):
 
 def form_errors_400(form):
     return jsonify(form.errors), 400
+
+def format_ticker_name(ticker_name):
+    return ticker_name.strip().upper()
+

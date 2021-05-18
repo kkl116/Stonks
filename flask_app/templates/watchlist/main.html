@@ -21,11 +21,11 @@
                 <form method="POST" accept-charset="UTF-8" id='add-form'>
                     {{ add_form.csrf_token(id="add-csrf") }}
                     <div class="input-group offset-md-6">
-                        {{ add_form.ticker_name(class="form-control bg-light border-1 small", style="font-size: 12px;") }}
+                        {{ add_form.ticker_name(class="form-control border-1 small", style="font-size: 14px;") }}
                         <div class="input-group-append">
-                            <button type=submit class="btn btn-primary btn-reset input-group-append align-items-center" style="font-size:12px;"
+                            <button type="submit" class="btn btn-dark btn-reset input-group-append align-items-center" style="font-size:12px;"
                             id="add-submit">
-                                <i class="fas fa-plus"></i>
+                            <i class="fas fa-plus-square"></i>                            
                             </button>
                         </div>
                     </div>
@@ -40,7 +40,7 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="/static/js/watchlist.js"></script>
+<script type="module" src="/static/js/watchlist.js"></script>
 <script>
     let urlAdd = "{{ url_for('watchlist.add') }}";
     $(document).ready(function() {
