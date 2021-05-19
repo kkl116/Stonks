@@ -25,6 +25,69 @@ function tickerFromId(id, pop_n){
     }
 }
 
-function formAjaxTemplate()
+function formAjax(url=null, formId=null, fieldIds=[], successFunc=null, errorFunc=null,
+    keyFunc=null){
+    /*
+    formAjax template: 
+        url
+        form id
+        field ids (array)
+        success func - takes response json and does something
+        error func - takes response json and does something
+        key func - processes key values of fields object to match wtforms field names
+    */
+   function dataFromFields(fields){
+       let data = {};
+       Object.keys(fields).forEach((key) => {
+           let value = keyFunc(key);
+           data[value] = fields[key].input.value
+       })
+       return data
+   }
 
-export {escapeSpecialChars, tickerFromId}
+    const form = document.getElementById(formId);
+    const fields = {};
+    fieldIds.forEach((id) => {
+        if (id.includes('csrf')) {
+            fields['csrf_token'] = {input: document.getElementById(id)}
+        } else {
+            fields[id] = {input: document.getElementById(id),
+                        error: document.getElementById(id + '-error')
+                    }
+        }
+    });
+
+    form.addEventListener('submit', async(e) => {
+        e.preventDefault();
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(
+                dataFromFields(fields)
+            )
+        })
+
+        if (response.ok){
+            const success = await response.json();
+            successFunc(success, fields, form)
+        } else {
+            const errors = await response.json();
+            errorFunc(errors, fields)
+        }
+    })
+}
+
+function modifyErrorKeys(errors, modFunc){
+    let errorKeys = Object.keys(errors);
+    let modErrors = {};
+    errorKeys.forEach((key) => {
+        let modKey = modFunc(key)
+        modErrors[modKey] = errors[key]
+    })
+    return modErrors
+}
+
+export {escapeSpecialChars, tickerFromId, formAjax,
+        modifyErrorKeys}

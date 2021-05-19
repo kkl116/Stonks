@@ -39,7 +39,7 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="/static/js/portfolio.js"></script>
+<script type="module" src="/static/js/portfolio.js"></script>
 <script>
     //initialize addform ajax
     let urlAdd = "{{ url_for('portfolio.add') }}"

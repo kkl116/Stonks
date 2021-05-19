@@ -66,6 +66,7 @@ def request_reset():
             user = username_email_query(request_reset_form.email_username.data, return_user=True)
             if user:
                 send_reset_email(user)
+            return jsonify({'message': 'done!'})
     return redirect_next_page()
 
 @accounts.route('/reset_password/<token>', methods=["GET", "POST"])

@@ -1,5 +1,7 @@
 //const express = require("express");
 
+import { formAjax, modifyErrorKeys } from './helpers.js';
+
 /*
  *
  * login-register modal
@@ -10,7 +12,7 @@
  */
 
 function showRegisterForm(){
-    fadeSpeed = 400;
+    let fadeSpeed = 400;
     $('.loginBox').fadeOut(fadeSpeed,function(){
         $('.social').fadeIn(fadeSpeed);
         $('.division').fadeIn(fadeSpeed);
@@ -23,7 +25,7 @@ function showRegisterForm(){
        
 }
 function showLoginForm(){
-    fadeSpeed = 400;
+    let fadeSpeed = 400;
     $('#loginModal .registerBox').fadeOut(fadeSpeed,function(){
         $('.resetSubmittedBox').fadeOut(fadeSpeed);
         $('.requestResetBox').fadeOut(fadeSpeed);
@@ -40,7 +42,7 @@ function showLoginForm(){
 }
 
 function showRequestResetForm(){
-        fadeSpeed = 400;
+    let fadeSpeed = 400;
     $('.loginBox').fadeOut(fadeSpeed, function(){
         $('.social').fadeOut(fadeSpeed);
         $('.division').fadeOut(fadeSpeed);
@@ -56,7 +58,7 @@ function showRequestResetForm(){
 }
 
 function showRequestResetSubmitted(){
-    fadeSpeed = 400;
+    let fadeSpeed = 400;
     $('.requestResetBox').fadeOut(fadeSpeed, function(){
         $('.resetSubmittedBox').fadeIn(fadeSpeed);
     })
@@ -91,229 +93,152 @@ function shakeModal(){
 
 //js code from here: https://blog.carsonevans.ca/2019/08/20/validating-ajax-requests-with-wtforms-in-flask/
 
-function registerAjax(url) {
-    const form = document.getElementById('register-form');
-    //put a const here to reference to a success flash message - called after modal closed
-    const fields = {
-        csrf_token: {
-            input: document.getElementById('register-csrf'),
-        },
-        username: {
-            input: document.getElementById('register-username'),
-            error: document.getElementById('register-username-error')
-        },
-        email: {
-            input: document.getElementById('register-email'),
-            error: document.getElementById('register-email-error')
-        },
-        
-        password: {
-            input: document.getElementById('register-password'),
-            error: document.getElementById('register-password-error')
-        },
-        
-        confirm_password: {
-            input: document.getElementById('register-confirm-password'),
-            error: document.getElementById('register-confirm-password-error')
+function registerAjax(url){
+    function successFunc(success, fields, form){
+        $('#loginModal').modal('hide');
+        form.reset();
+        if (success.redirect) {
+            window.location.href = success.redirect;
         }
     }
-
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                csrf_token: fields.csrf_token.input.value,
-                username: fields.username.input.value,
-                email: fields.email.input.value,
-                password: fields.password.input.value, 
-                confirm_password: fields.confirm_password.input.value
-            })
-        });
-
-        console.log(response)
-
-        if (response.ok) {
-            //disable modal and populate succses message
-            $('#loginModal').modal('hide');
-            form.reset();
-            let success = await response.json();
-            if (success.redirect) {
-                window.location.href = success.redirect;
-            }
-            //clear form fields
-        } else {
-            //remove the errors from the previous submit 
-            let errors = await response.json();
-
-            Object.keys(fields).forEach((key) => {
-                if (key != 'csrf_token') {
-                    if (Object.keys(errors).includes(key)) {
-                        fields[key].input.classList.add('is-invalid');
-                        fields[key].error.innerHTML = errors[key][0];
-                    } else {
-                        fields[key].input.classList.remove('is-invalid');
-                        fields[key].error.innerHTML = null
-                    }
+    function errorFunc(errors, fields){
+        let modErrors = modifyErrorKeys(errors, function(key){
+            key = 'register-' + key
+            return key.replace('_', '-')
+        })
+        console.log(modErrors)
+        Object.keys(fields).forEach((key) => {
+            if (key != 'csrf_token') {
+                if (Object.keys(modErrors).includes(key)) {
+                    fields[key].input.classList.add('is-invalid');
+                    fields[key].error.innerHTML = modErrors[key][0];
+                } else {
+                    fields[key].input.classList.remove('is-invalid');
+                    fields[key].error.innerHTML = null
                 }
-            })
-            shakeModal();
-        }
-    })
+            }
+        })
+        shakeModal();
+    }
+    function keyFunc(key){
+        key = key.replace('register-', '')
+        return key.replace('-', '_')
+    }
+
+    let formId = 'register-form'
+    let fieldIds = ['register-csrf', 'register-username', 'register-email',
+                    'register-password', 'register-confirm-password']
+
+    formAjax(url=url, formId=formId,
+        fieldIds=fieldIds, successFunc=successFunc, errorFunc=errorFunc,
+        keyFunc=keyFunc);
 }
 
 function loginAjax(url){
-    const form = document.getElementById('login-form');
-    //put a const here to reference to a success flash message - called after modal closed
-    const fields = {
-        csrf_token: {
-            input: document.getElementById('login-csrf'),
-        },
-        email_username: {
-            input: document.getElementById('login-email-username'),
-        },
-        password: {
-            input: document.getElementById('login-password'),
-            error: document.getElementById('login-password-error')
-        },
-        remember: {
-            input: document.getElementById('login-remember')
+    function successFunc(success, fields, form){
+        $('#loginModal').modal('hide');
+        form.reset();
+        if (success.redirect) {
+            window.location.href = success.redirect;
         }
     }
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                csrf_token: fields.csrf_token.input.value,
-                email_username: fields.email_username.input.value,
-                password: fields.password.input.value,
-                remember: fields.remember.input.value
-            })
-        });
-        if (response.ok) {
-            //disable modal and populate succses message
-            $('#loginModal').modal('hide');
-            form.reset();
-            let success = await response.json();
-            if (success.redirect) {
-                window.location.href = success.redirect;
-            }
-            //refresh page 
-            //clear form fields
-        } else {
-            // only print email_username error if exists else print -- 
-            let errors = await response.json();
-            if (Object.keys(errors).includes('password')){
-                let key = 'password';
+    function errorFunc(errors, fields){
+        // only print email_username error if exists else print -- 
+        let modErrors = modifyErrorKeys(errors, function(key){
+            key = 'login-' + key
+            return key.replace('_', '-')
+        })
+        console.log(Object.keys(modErrors))
+        console.log(fields)
+        Object.keys(fields).forEach((key) => {
+            if (Object.keys(modErrors).includes(key)){
+                let key = 'login-password';
                 fields[key].input.classList.add('is-invalid');
-                fields['email_username'].input.classList.add('is-invalid')
-                fields[key].error.innerHTML = errors[key][0];   
+                fields['login-email-username'].input.classList.add('is-invalid')
+                fields[key].error.innerHTML = modErrors[key][0];   
             }
-            shakeModal();
-        }
-    })
+        })
+        shakeModal();
+    }
+
+    function keyFunc(key){
+        key = key.replace('login-', '')
+        return key.replace('-', '_')
+    }
+
+    let formId = 'login-form';
+    let fieldIds = ['login-csrf', 'login-email-username', 'login-password',
+                    'login-remember'];
+    formAjax(url=url, formId=formId,
+        fieldIds=fieldIds, successFunc=successFunc, errorFunc=errorFunc,
+        keyFunc=keyFunc);
 }
 
 function requestResetAjax(url){
-    const form = document.getElementById('request-reset-form');
-    //put a const here to reference to a success flash message - called after modal closed
-    const fields = {
-        csrf_token: {
-            input: document.getElementById('request-reset-csrf'),
-        },
-        email_username: {
-            input: document.getElementById('request-reset-email-username'),
-        }
+    function successFunc(success, fields){
+        //disable modal and populate succses message
+        console.log(success)
+        showRequestResetSubmitted();
+        //clear form fields
+        fields.email_username.input.value = '';
     }
+    function errorFunc(errors, fields){
+        console.log(errors)
+        // open request submitted modal regardless
+        showRequestResetSubmitted();
+        fields.email_username.input.value = '';
+    }
+    function keyFunc(key){
+        key = key.replace('request-reset-', '');
+        return key.replace('-', '_')
+    }
+    let formId = 'request-reset-form';
+    let fieldIds = ['request-reset-csrf', 'request-reset-email-username'];
 
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                csrf_token: fields.csrf_token.input.value,
-                email_username: fields.email_username.input.value,
-            })
-        });
-        if (response.ok) {
-            //disable modal and populate succses message
-            showRequestResetSubmitted();
-            //clear form fields
-            fields.email_username.input.value = ''
-        } else {
-            // open request submitted modal regardless
-            showRequestResetSubmitted();
-            fields.email_username.input.value = ''
-        }
-    })
+    formAjax(url=url, formId=formId,
+        fieldIds=fieldIds, successFunc=successFunc, errorFunc=errorFunc,
+        keyFunc=keyFunc);
 }
+
 
 function resetPasswordAjax(url){
-    const form = document.getElementById('reset-password-form');
-    //put a const here to reference to a success flash message - called after modal closed
-    const fields = {
-        csrf_token: {
-            input: document.getElementById('reset-password-csrf'),
-        },
-        password: {
-            input: document.getElementById('reset-password'),
-            error: document.getElementById('reset-password-error')
-        },
-        
-        confirm_password: {
-            input: document.getElementById('reset-confirm-password'),
-            error: document.getElementById('reset-confirm-password-error')
+    function successFunc(success, fields){
+        //pass
+        if (success.redirect) {
+            window.location.href = success.redirect;
         }
     }
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                csrf_token: fields.csrf_token.input.value,
-                password: fields.password.input.value, 
-                confirm_password: fields.confirm_password.input.value
-            })
-        });
-        if (response.ok) {
-            //pass
-            let success = await response.json();
-            if (success.redirect) {
-                window.location.href = success.redirect;
-            }
-        } else {
-            //remove the errors from the previous submit 
-            let errors = await response.json();
-            console.log(errors);
-            Object.keys(fields).forEach((key) => {
-                if (key != 'csrf_token') {
-                    if (Object.keys(errors).includes(key)) {
-                        fields[key].input.classList.add('is-invalid');
-                        fields[key].error.innerHTML = errors[key][0];
-                    } else {
-                        fields[key].input.classList.remove('is-invalid');
-                        fields[key].error.innerHTML = null
-                    }
+    function errorFunc(errors, fields){
+        //remove the errors from the previous submit 
+        let modErrors = modifyErrorKeys(errors, function(key){
+            key = 'reset-' + key
+            return key.replace('_', '-')
+        })
+        console.log(modErrors);
+        Object.keys(fields).forEach((key) => {
+            if (key != 'csrf_token') {
+                if (Object.keys(modErrors).includes(key)) {
+                    fields[key].input.classList.add('is-invalid');
+                    fields[key].error.innerHTML = modErrors[key][0];
+                } else {
+                    fields[key].input.classList.remove('is-invalid');
+                    fields[key].error.innerHTML = null
                 }
-            })
-        }
-    })
+            }
+        })
+    }
+
+    function keyFunc(key){
+        key = key.replace('reset-', '')
+        return key.replace('-', '_')
+    }
+    let formId = 'reset-password-form'
+    let fieldIds = ['reset-password-csrf', 'reset-password', 'reset-confirm-password']
+    formAjax(url=url, formId=formId,
+        fieldIds=fieldIds, successFunc=successFunc, errorFunc=errorFunc,
+        keyFunc=keyFunc);
 }
+
 
 //create an account button to trigger modal 
 $('#create-account-button').click(function() {
@@ -323,3 +248,13 @@ $('#create-account-button').click(function() {
 $('#please-login-button').click(function(){
     openLoginModal();
 })
+
+window.registerAjax=registerAjax;
+window.loginAjax=loginAjax;
+window.showLoginForm=showLoginForm;
+window.requestResetAjax=requestResetAjax;
+window.showRequestResetForm=showRequestResetForm;
+window.resetPasswordAjax=resetPasswordAjax;
+window.openLoginModal=openLoginModal;
+window.openRegisterModal=openRegisterModal;
+window.showRegisterForm=showRegisterForm;

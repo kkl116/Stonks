@@ -36,6 +36,7 @@ def add():
     if request.method == 'POST':
         if add_form.validate_on_submit():
             ticker_name = format_ticker_name(add_form.ticker_name.data)
+            #If ticker exists, then simply change the current ticker's entry!
             item = PortfolioItem(portfolio=get_user_portfolio(current_user),
             ticker_name=ticker_name, purchase_price=add_form.purchase_price.data,
             quantity=add_form.quantity.data, currency=get_ticker_currency(ticker_name))
