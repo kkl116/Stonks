@@ -1,11 +1,11 @@
-from flask import Blueprint, request
+from flask import Blueprint, request, jsonify
 from ..utils.helpers import _render_template, format_ticker_name, form_errors_400
 from ..utils.table_helpers import query_to_table_items, new_item_json
 from ..models import PortfolioItem, Portfolio
 from .forms import AddForm
 from .utils import (PortfolioTable, TickerItem_Portfolio, 
                     get_portfolio_items, get_user_portfolio,
-                    get_ticker_currency)
+                    get_ticker_currency, add_update_portfolio)
 from datetime import datetime
 from flask_login import current_user, login_required
 from flask_app import db
@@ -37,13 +37,25 @@ def add():
         if add_form.validate_on_submit():
             ticker_name = format_ticker_name(add_form.ticker_name.data)
             #If ticker exists, then simply change the current ticker's entry!
-            item = PortfolioItem(portfolio=get_user_portfolio(current_user),
-            ticker_name=ticker_name, purchase_price=add_form.purchase_price.data,
-            quantity=add_form.quantity.data, currency=get_ticker_currency(ticker_name))
-            db.session.add(item)
-            db.session.commit()
-            return new_item_json(TickerItem_Portfolio(ticker_name), PortfolioTable)
+            item = add_update_portfolio(add_form, ticker_name)
+            #return new_item_json or no? b/c if updating table then not inserting a new row
+            return new_item_json(TickerItem_Portfolio(ticker_name), PortfolioTable, include_id=True)
         else:
             return form_errors_400(add_form)
     else:
         redirect_next_page()
+
+@portfolio.route('/portfolio/delete', methods=["GET", "POST"])
+@login_required
+def delete():
+    if request.method == "POST":
+        try:
+            del_ticker = request.json['ticker']
+            item = PortfolioItem.query.filter_by(portfolio=get_user_portfolio(current_user),
+            ticker_name=del_ticker).first()
+            db.session.delete(item)
+            db.session.commit()
+            return jsonify({'message': 'ticker has been deleted'})
+        except Exception as e:
+            return jsonify({'message': str(e)})
+    return redirect_next_page()

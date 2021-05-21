@@ -1,5 +1,5 @@
 //use prepend method to add a td element to the table (append/prepend is inside - before and after is well before and after)
-import { escapeSpecialChars, tickerFromId, formAjax, modifyErrorKeys} from "./helpers.js";
+import { escapeSpecialChars, tickerFromId, formAjax, modifyErrorKeys, deleteRow } from "./helpers.js";
 //to use import statements, requires script to be a module
 //modules' functions reside within script itself, and cannot be accessed from html directly
 //not the best practice, but can set functions as global var so that it can be called directly. 
@@ -54,35 +54,6 @@ function addAjax(url){
 }
 
 
-//delete button function
-function deleteRow(clicked){
-    const id = clicked.id;
-    const ticker = tickerFromId(id, 1);
-    const url = $(clicked).data('targ-url');
-    const processedTicker = escapeSpecialChars(ticker)
-
-    $.ajax({
-            url: url,
-            type: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            data: JSON.stringify({
-                ticker: ticker,
-            }),
-            success: function(result){
-                console.log(result);
-                let row_id = '#' + processedTicker;
-                //delete row here
-                $(row_id).fadeOut('slow', function(){
-                    $(this).remove();
-                })
-            },
-            error: function(result){
-                console.log(result);
-            }
-    });
-}
 
 //toggle notes btn function
 function toggleNotes(clicked){

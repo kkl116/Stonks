@@ -1,4 +1,4 @@
-import { formAjax, modifyErrorKeys } from './helpers.js';
+import { formAjax, modifyErrorKeys, deleteRow } from './helpers.js';
 
 function addAjax(url){
     function successFunc(success, fields){
@@ -10,7 +10,12 @@ function addAjax(url){
         }
         //append item to table - 
         //actually here it's a bit different - replaces original row if it's the same ticker
+        let row = document.getElementById(success.id)
+        if (row){
+            row.remove();
+        }
         table.insertAdjacentHTML('afterbegin', success.newItem);
+
         //remove error messages and clear fields
         Object.keys(fields).forEach((key) => {
             if (key != 'csrf_token'){
@@ -47,4 +52,6 @@ function addAjax(url){
         keyFunc=keyFunc);
 }
 
+
 window.addAjax=addAjax
+window.deleteRow=deleteRow

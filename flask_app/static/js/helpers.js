@@ -15,10 +15,11 @@ function escapeSpecialChars(id){
 function tickerFromId(id, pop_n){
     //pop_n is how many elements to ignore at the end
     let split = id.split('-');
+    let i = 0;
     if (split.length == 2){
         return split[0]
     } else if (split.length > 2){
-        for (i=0; i<pop_n; i++){
+        for (i; i<pop_n; i++){
             split.pop();
         }
         return split.join('-')
@@ -89,5 +90,35 @@ function modifyErrorKeys(errors, modFunc){
     return modErrors
 }
 
+//delete button function
+function deleteRow(clicked){
+    const id = clicked.id;
+    const ticker = tickerFromId(id, 1);
+    const url = $(clicked).data('targ-url');
+    const processedTicker = escapeSpecialChars(ticker)
+
+    $.ajax({
+            url: url,
+            type: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            data: JSON.stringify({
+                ticker: ticker,
+            }),
+            success: function(result){
+                console.log(result);
+                let row_id = '#' + processedTicker;
+                //delete row here
+                $(row_id).fadeOut('slow', function(){
+                    $(this).remove();
+                })
+            },
+            error: function(result){
+                console.log(result);
+            }
+    });
+}
+
 export {escapeSpecialChars, tickerFromId, formAjax,
-        modifyErrorKeys}
+        modifyErrorKeys, deleteRow}

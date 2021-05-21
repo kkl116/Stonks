@@ -1,4 +1,4 @@
-from flask_table import Col
+from flask_table import Col, Table
 from flask_table.html import element
 from flask import Markup, jsonify, url_for
 import stockquotes
@@ -111,8 +111,20 @@ class Col_(Col):
         update_attr_dict(self.th_html_attrs, {"style": "color: rgba(0, 0, 0, 0);"})
 
 
-def new_item_json(item, table_class):
-    return jsonify({'newItem': table_class(items=[]).tr(item)})
+class Table_(Table):
+    def __init__(self, *args, **kwargs):
+        super(Table_, self).__init__(*args, **kwargs)
+
+    @staticmethod
+    def get_tr_attrs(item):
+        return {'id': f"{item.ticker}"}
+
+
+def new_item_json(item, table_class, include_id=False):
+    item_dict = {'newItem': table_class(items=[]).tr(item)}
+    if include_id:
+        item_dict.update({'id': item.item.ticker_name})
+    return jsonify(item_dict)
 
 def query_to_table_items(query_items, item_class):
     """converts db items (which just involves ticker_name, date_posted) to TickerItem object"""

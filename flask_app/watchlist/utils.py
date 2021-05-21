@@ -1,21 +1,21 @@
-from flask_table import Table, Col
+from flask_table import Col
 from flask_table.html import _format_attrs, element
 from flask import url_for
 from flask_login import current_user
 import itertools
 from ..models import WatchlistItem
-from ..utils.table_helpers import Col_, TickerItem
+from ..utils.table_helpers import Col_, TickerItem, Table_
 
 class TickerItem_Watchlist(TickerItem):
     """object to pass to flask table"""
     def __init__(self, *args, **kwargs):
         super(TickerItem_Watchlist, self).__init__(*args, **kwargs)
-        self.day_gain = self.empty_or_attr(self.ticker_obj.increase_dollars)
-        self.percent_gain = self.empty_or_attr(self.ticker_obj.increase_percent)
-        self.tag_icon = self.empty_or_attr(self.tag_icon())
-        self.add_notes = self.empty_or_attr(self.add_notes_btn())
-        self.notes = self.empty_or_attr(WatchlistItem.query.filter_by(user=current_user, ticker_name=self.ticker).first().notes)
-        self.delete = self.empty_or_attr(self.delete_btn(url_for('watchlist.delete')))
+        self.day_gain = self.empty_or_attr(attr=[self.ticker_obj, 'increase_dollars'], func=getattr)
+        self.percent_gain = self.empty_or_attr(attr=[self.ticker_obj, 'increase_percent'], func=getattr)
+        self.tag_icon = self.empty_or_attr(attr=[], func=self.tag_icon)
+        self.add_notes = self.empty_or_attr(attr=[], func=self.add_notes_btn)
+        self.notes = self.empty_or_attr(attr=[current_user, self.ticker], func=self.get_ticker_notes)
+        self.delete = self.empty_or_attr(attr=[url_for('watchlist.delete')], func=self.delete_btn)
         try:
             self.update_html_attrs(self.color_style())
         except:
@@ -46,9 +46,12 @@ class TickerItem_Watchlist(TickerItem):
                 color = self.red_hex
         return {'style': f"color: {color} !important;"}
 
+    @staticmethod
+    def get_ticker_notes(user, ticker_name):
+        return WatchlistItem.query.filter_by(user=user, ticker_name=ticker_name).first().notes
 
 
-class WatchlistTable(Table):
+class WatchlistTable(Table_):
     def __init__(self, *args, use_item_notes=True , **kwargs):
         super(WatchlistTable, self).__init__(*args, **kwargs)
         self.use_item_notes = use_item_notes
@@ -62,10 +65,6 @@ class WatchlistTable(Table):
     add_notes = Col_('ADD_NOTES', hide_header=True)
     delete = Col_('DELETE', hide_header=True)
     table_id = 'watchlist-table'
-
-    @staticmethod
-    def get_tr_attrs(item):
-        return {'id': f"{item.ticker}"}
 
     @staticmethod
     def save_notes_btn(item):

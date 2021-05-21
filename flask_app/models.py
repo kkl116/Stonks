@@ -66,7 +66,7 @@ class WatchlistItem(db.Model):
 
 class PortfolioItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    ticker_name = db.Column(db.String(), unique=False, nullable=False)
+    ticker_name = db.Column(db.String(), unique=True, nullable=False)
     purchase_price = db.Column(db.String(), nullable=False)
     quantity = db.Column(db.String(), nullable=False)
     currency = db.Column(db.String(), nullable=False)
