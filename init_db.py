@@ -1,6 +1,6 @@
 import os 
 from flask_app import create_app, db, bcrypt
-from flask_app.models import User, WatchlistItem, PortfolioItem, Portfolio
+from flask_app.models import User, WatchlistItem, PortfolioItem
 
 clear_database = True
 
@@ -33,8 +33,7 @@ if __name__ == '__main__':
         if clear_database:
             hashed_password = bcrypt.generate_password_hash(test_password).decode('utf-8')
             user = User(username=test_username, password=hashed_password, email=test_email, verified=True)
-            portfolio = Portfolio(user=user)
-            db.session.add_all([user, portfolio])
+            db.session.add_all([user])
             db.session.commit()
             #commit all the watchlist items and portfolio items 
             watchlist_items = [WatchlistItem(ticker_name=item.ticker_name, user=user) for item in watchlist]

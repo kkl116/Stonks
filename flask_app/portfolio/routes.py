@@ -1,11 +1,11 @@
 from flask import Blueprint, request, jsonify
 from ..utils.helpers import _render_template, format_ticker_name, form_errors_400
-from ..utils.table_helpers import query_to_table_items, new_item_json
-from ..models import PortfolioItem, Portfolio
+from ..utils.table_helpers import ticker_name_to_table_items, new_item_json
+from ..models import PortfolioItem
 from .forms import AddForm
-from .utils import (PortfolioTable, TickerItem_Portfolio, 
-                    get_portfolio_items, get_user_portfolio,
-                    get_ticker_currency, add_update_portfolio)
+from .utils import (PortfolioTable, TickerItem_Portfolio,
+                    get_ticker_currency, get_unique_ticker_names,
+                    get_summary_row)
 from datetime import datetime
 from flask_login import current_user, login_required
 from flask_app import db
@@ -17,13 +17,15 @@ portfolio = Blueprint('portfolio', __name__)
 def main():
     add_form = AddForm()
     #order by name right now... but later on can order by other things like value or sector etc.
-    #do a little updating for portfolio stats here as well
-    query_items = get_portfolio_items({'user': current_user})
+    query_items = PortfolioItem.query.filter_by(user=current_user).all()
     if len(query_items) == 0:
         table = PortfolioTable(items=[TickerItem_Portfolio('empty')])
         empty = True
     else:
-        table_items = query_to_table_items(query_items, TickerItem_Portfolio)
+        #update porfolio stats
+        table_items = ticker_name_to_table_items(get_unique_ticker_names(query_items), TickerItem_Portfolio)
+        #create an empty item, then update attrs to make summary row
+        table_items.append(get_summary_row(query_items))
         table = PortfolioTable(items=table_items)
         empty = False
         
@@ -36,9 +38,13 @@ def add():
     if request.method == 'POST':
         if add_form.validate_on_submit():
             ticker_name = format_ticker_name(add_form.ticker_name.data)
-            #If ticker exists, then simply change the current ticker's entry!
-            item = add_update_portfolio(add_form, ticker_name)
-            #return new_item_json or no? b/c if updating table then not inserting a new row
+            #just add entry here
+            item = PortfolioItem(user=current_user,
+            ticker_name=ticker_name, purchase_price=add_form.purchase_price.data,
+            quantity=add_form.quantity.data, currency=get_ticker_currency(ticker_name))
+            db.session.add(item)
+            db.session.commit()
+
             return new_item_json(TickerItem_Portfolio(ticker_name), PortfolioTable, include_id=True)
         else:
             return form_errors_400(add_form)
@@ -51,11 +57,12 @@ def delete():
     if request.method == "POST":
         try:
             del_ticker = request.json['ticker']
-            item = PortfolioItem.query.filter_by(portfolio=get_user_portfolio(current_user),
-            ticker_name=del_ticker).first()
-            db.session.delete(item)
+            item = PortfolioItem.query.filter_by(user=current_user,
+            ticker_name=del_ticker).delete()
             db.session.commit()
             return jsonify({'message': 'ticker has been deleted'})
         except Exception as e:
             return jsonify({'message': str(e)})
     return redirect_next_page()
+
+

@@ -1,7 +1,6 @@
 import json 
 import time
 import random
-import stockquotes 
 import yfinance as yf
 import requests
 from bs4 import BeautifulSoup

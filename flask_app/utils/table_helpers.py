@@ -123,10 +123,13 @@ class Table_(Table):
 def new_item_json(item, table_class, include_id=False):
     item_dict = {'newItem': table_class(items=[]).tr(item)}
     if include_id:
-        item_dict.update({'id': item.item.ticker_name})
+        item_dict.update({'id': item.ticker})
     return jsonify(item_dict)
 
 def query_to_table_items(query_items, item_class):
     """converts db items (which just involves ticker_name, date_posted) to TickerItem object"""
     return [item_class(ticker_name) for ticker_name in [q.ticker_name for q in query_items]]
+
+def ticker_name_to_table_items(ticker_names, item_class):
+    return [item_class(ticker_name) for ticker_name in ticker_names]
 

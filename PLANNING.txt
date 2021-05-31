@@ -15,7 +15,6 @@ current TODO:
         -portfolio performance stuff
         -portfolio history
         -sell button
-        
 - watchlistitems and portfolio items custom tags?
 - after login should be another welcome page -- 
 - profile pages - set sayyyy default currency and change account settings 
@@ -26,6 +25,8 @@ side TODO (nicer looking features in the future):
 - write some macros to clean up layout.html
 - bundle js and css to page loads faster? (process into minjs and mincss)
 - watchlist page - group function
+- modify stockquotes so only fetching needed data? 
+
 
 sections:
 
