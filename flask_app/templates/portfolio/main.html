@@ -4,40 +4,42 @@
 {% endblock %}
 
 {% block content %}
-
-<h1 class="search-title">Portfolio</h1>
 <div>
-    {{ table }}
-    {% if empty %}
-    <p id="empty-message" style="text-align:center;" style="margin-top: 2%;">
-        Your portfolio is currently empty!
-    </p>
-    {% endif %}
-</div>
-<form method="POST", accept-charset="UTF-8" id="add-form" style="margin-top: 2%;">
-    {{ add_form.csrf_token(id="add-csrf") }}
-    <div class="form-row justify-content-center">
-        <div class="col-auto">
-            {{ add_form.ticker_name(class="form-control border-1 small", style="font-size: 14px;") }}
-            <div id="ticker-name-error" class="invalid-feedback"></div>
-        </div>
-        <div class="col-auto">
-            {{ add_form.purchase_price(class="form-control border-1 small", style="font-size: 14px;")}}
-            <div id="purchase-price-error" class="invalid-feedback"></div>
-        </div>
-        <div class="col-auto">
-            {{ add_form.quantity(class="form-control border-1 small", style="font-size: 14px;")}}
-            <div id="quantity-error" class="invalid-feedback"></div>
-        </div>
-
-        <div class="col-auto">
-            <button type="submit" class="btn btn-dark" style="font-size:14px;" id="add-submit">
-                <i class="fas fa-plus-square"></i>
-            </button>
-        </div>
-        
+    <h1 class="search-title">Portfolio</h1>
+    <div>
+        {{ table }}
+        {% if empty %}
+        <p id="empty-message" style="text-align:center;" style="margin-top: 2%;">
+            Your portfolio is currently empty!
+        </p>
+        {% endif %}
     </div>
-</form>
+    <form method="POST", accept-charset="UTF-8" id="add-form" style="margin-top: 2%;">
+        {{ add_form.csrf_token(id="add-csrf") }}
+        <div class="form-row justify-content-center">
+            <div class="col-auto">
+                {{ add_form.ticker_name(class="form-control border-1 small", style="font-size: 14px;") }}
+                <div id="ticker-name-error" class="invalid-feedback"></div>
+            </div>
+            <div class="col-auto">
+                {{ add_form.purchase_price(class="form-control border-1 small", style="font-size: 14px;")}}
+                <div id="purchase-price-error" class="invalid-feedback"></div>
+            </div>
+            <div class="col-auto">
+                {{ add_form.quantity(class="form-control border-1 small", style="font-size: 14px;")}}
+                <div id="quantity-error" class="invalid-feedback"></div>
+            </div>
+
+            <div class="col-auto">
+                <button type="submit" class="btn btn-dark" style="font-size:14px;" id="add-submit">
+                    <i class="fas fa-plus-square"></i>
+                </button>
+            </div>
+            
+        </div>
+    </form>
+</div>
+
 {% endblock %}
 
 {% block scripts %}
@@ -47,12 +49,14 @@
 <script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap4.min.js"></script>
 <script>
     //initialize addform ajax
-    let urlAdd = "{{ url_for('portfolio.add') }}"
+    let urlAdd = "{{ url_for('portfolio.add') }}";
+
     $(document).ready(function() {
         addAjax(urlAdd);
         $('#portfolio-table').DataTable({
                 "order": [],
             });
-    })
+    });
+
 </script>
 {% endblock %}

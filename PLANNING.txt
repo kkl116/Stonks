@@ -14,9 +14,13 @@ current TODO:
     - portfolio todos:
         -portfolio history
         -sell button
-- watchlistitems and portfolio items custom tags?
+        -portfolio tags and sectors --------
+- watchlistitems and portfolio items custom tags? (which goes into grouping function sort of)
 - after login should be another welcome page -- 
 - profile pages - set sayyyy default currency and change account settings 
+- 404 error page 
+- loading animation for adding tickers - 
+add_notes button dynamically adding the notes row when toggled - 
 
 side TODO (nicer looking features in the future):
 
@@ -55,6 +59,9 @@ storing quotes somewhere once market opens.
 - delete button for tables in search
 - create ajax template function
 - fix portfolio system a little - if it's the same ticker then modify existing entry, not create a new one
+- watchlist table items right now notes are considered a row (but not displayed) - consider changing it to 
+- loading gif? -- bit trickier b/c it's waiting for server side to finish the functions - basically direct to loading route, then ajax to main page,
+and refresh after the page is done loading
 
 
 

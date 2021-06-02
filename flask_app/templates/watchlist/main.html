@@ -4,35 +4,37 @@
 {% endblock %}
 
 {% block content %}
-<h1 class="search-title">Watchlist</h1>
-
 <div>
-    {{ table }}
+    <h1 class="search-title">Watchlist</h1>
 
-    {% if empty %}
-        <p id="empty-message" style="text-align: center;">
-            Your watchlist is currently empty!
-        </p>
-    {% endif %}    
+    <div>
+        {{ table }}
 
-    <!--put form here so that + button displays it?-->
-    <div class="box" style="width: 50%; margin-top: 2%;">
-        <div class="content">
-            <div class="form">
-                <form method="POST" accept-charset="UTF-8" id='add-form'>
-                    {{ add_form.csrf_token(id="add-csrf") }}
-                    <div class="input-group offset-md-6">
-                        {{ add_form.ticker_name(class="form-control border-1 small", style="font-size: 14px;") }}
-                        <div class="input-group-append">
-                            <button type="submit" class="btn btn-dark btn-reset input-group-append align-items-center" style="font-size:12px;"
-                            id="add-submit">
-                            <i class="fas fa-plus-square"></i>                            
-                            </button>
+        {% if empty %}
+            <p id="empty-message" style="text-align: center;">
+                Your watchlist is currently empty!
+            </p>
+        {% endif %}    
+
+        <!--put form here so that + button displays it?-->
+        <div class="box" style="width: 50%; margin-top: 2%;">
+            <div class="content">
+                <div class="form">
+                    <form method="POST" accept-charset="UTF-8" id='add-form'>
+                        {{ add_form.csrf_token(id="add-csrf") }}
+                        <div class="input-group offset-md-6">
+                            {{ add_form.ticker_name(class="form-control border-1 small", style="font-size: 14px;") }}
+                            <div class="input-group-append">
+                                <button type="submit" class="btn btn-dark btn-reset input-group-append align-items-center" style="font-size:12px;"
+                                id="add-submit">
+                                <i class="fas fa-plus-square"></i>                            
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                    <div id="ticker-name-error" class="invalid-feedback" style="margin-left:50%;"></div>
+                        <div id="ticker-name-error" class="invalid-feedback" style="margin-left:50%;"></div>
 
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

@@ -8,27 +8,29 @@
 {% endblock %}
 
 {% block content %}
-<h1 class="search-title">{{ q }}</h1>
 <div>
-    <div id="priceChart"></canvas>
-</div>
+    <h1 class="search-title">{{ q }}</h1>
+    <div>
+        <div id="priceChart"></canvas>
+    </div>
 
-<div>
-    <div id="newChart"></div>
-</div>
+    <div>
+        <div id="newChart"></div>
+    </div>
 
-<div class="dropdown" style="text-align:center;">
-    <button class="btn btn-outline-dark dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        Additional Info
-    </button>
-      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-        <!--Add for loop here so it's less clunky-->
-        {% for display, data_id in dropdowns.items() %}
-            <a class="dropdown-item" data-item-name={{data_id}} onClick="addChart(this)" data-targ-url="{{url_for('searches.add_chart')}}" data-ticker="{{ q }}">
-                {{display}}
-            </a>
-        {% endfor %}
-      </div>
+    <div class="dropdown" style="text-align:center;">
+        <button class="btn btn-outline-dark dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Additional Info
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            <!--Add for loop here so it's less clunky-->
+            {% for display, data_id in dropdowns.items() %}
+                <a class="dropdown-item" data-item-name={{data_id}} onClick="addChart(this)" data-targ-url="{{url_for('searches.add_chart')}}" data-ticker="{{ q }}">
+                    {{display}}
+                </a>
+            {% endfor %}
+        </div>
+    </div>
 </div>
 
 <script src="/static/js/search_result.js"></script>

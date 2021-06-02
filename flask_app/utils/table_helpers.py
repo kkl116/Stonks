@@ -3,6 +3,7 @@ from flask_table.html import element
 from flask import Markup, jsonify, url_for
 import stockquotes
 from ..models import WatchlistItem
+import time 
 
 def update_attr_dict(attr_dict, new_attr):
     keys = list(attr_dict.keys())

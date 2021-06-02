@@ -56,18 +56,47 @@ function addAjax(url){
 
 
 
-//toggle notes btn function
+/*toggle notes btn function
+changing it here so that when it is clicked it will check wheter notes are already disaplyed - 
+if not then will request from the server, and get tr to be displayed 
+*/
 function toggleNotes(clicked){
     const id = clicked.id;
     const ticker = tickerFromId(id, 1);
     const processedTicker = escapeSpecialChars(ticker)
-    const notesId = processedTicker + '-notes';
-    const tableId = $("table[id^='watchlist-table']").attr('id')
-    const nCols = tableId.split('-')[2]
-    let i;
-    for (i = 1; i < nCols; i++){
-        $('#' + notesId + '-' + i).toggle()
+    const notesId = '#' + processedTicker + '-notes';
+    //check whether textarea is showing or not on page;
+    if ($(notesId).length) {
+        console.log('row exists')
+        $(notesId).remove()
+    } else {
+        console.log('row does not exist')
+        //textarea is not showing yet - get notes tr from server 
+        const escapedId = escapeSpecialChars(id)
+        const url = $('#' + escapedId).data('targ-url');
+        $.ajax({
+            url: url,
+            type: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            data: JSON.stringify({
+                ticker: ticker
+            }),
+            success: function(result){
+                console.log('success')
+                //insert notes tr
+                let tickerRow = document.getElementById(ticker);
+                tickerRow.insertAdjacentHTML('afterend', result.tr);
+
+            },
+            error: function(result){
+                console.log('error')
+                console.log(result)
+            }
+        })
     }
+
 }
 
 function saveNotes(clicked){

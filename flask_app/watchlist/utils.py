@@ -32,6 +32,7 @@ class TickerItem_Watchlist(TickerItem):
         class='btn btn-outline-info btn-sm' 
         style={self.button_styles()}
         id={self.ticker}-notes_btn
+        data-targ-url="{url_for('watchlist.get_notes')}"
         onClick="toggleNotes(this)">
         <i class="far fa-sticky-note"></i>
         </button>
@@ -52,10 +53,10 @@ class TickerItem_Watchlist(TickerItem):
 
 
 class WatchlistTable(Table_):
-    def __init__(self, *args, use_item_notes=True, **kwargs):
+    def __init__(self, *args, use_item_notes=False, **kwargs):
         super(WatchlistTable, self).__init__(*args, **kwargs)
         self.use_item_notes = use_item_notes
-        self.table_id = 'watchlist-table-' + str(self.get_table_ncols())
+        self.table_id = 'watchlist-table'
 
     #these define class definitions, and are gone once class/instance has been initialized?
     classes = ['table', 'table-hover', 'table-sm', 'table-collapse']
@@ -66,51 +67,6 @@ class WatchlistTable(Table_):
     percent_gain = Col_('PERCENT GAIN', use_item_attrs=True)
     add_notes = Col_('ADD_NOTES', hide_header=True)
     delete = Col_('DELETE', hide_header=True)
-
-    @staticmethod
-    def save_notes_btn(item):
-        return f"""<button type="button"
-        class='btn btn-outline-info btn-sm' 
-        style={item.button_styles()}
-        id={item.ticker}-notes-save
-        data-targ-url={url_for('watchlist.save_notes')}
-        onClick="saveNotes(this)">
-        <i class="far fa-save"></i>
-        </button>
-        """
-    
-    @staticmethod
-    def notes_textarea(item):
-        return f"""<textarea class="form-control"
-        style="font-size: 13px;"
-        rows="5"
-        id={item.ticker}-text-area
-        placeholder="Enter your notes here!">{item.notes}</textarea>
-        """
-
-    @classmethod
-    def get_table_ncols(cls):
-        item_attrs = cls.__dict__.values()
-        n_cols = len([a for a in item_attrs if isinstance(a, Col)])
-        return n_cols
-
-    def get_notes_tr(self, item):
-        n_cols = self.get_table_ncols()
-        #dummy string to allow colspan in jquery datatables
-        dummy_string = [f'<td style="display:none;" id="{item.ticker}+-notes-{i}"></td>' for i in range(2,n_cols+1)]
-        dummy_string = ''.join(dummy_string)
-
-        td_attrs = {"colspan": str(n_cols), 'align': 'right'}
-        tr_attrs = {"id": item.ticker+'-notes-1', "style":"display:none;"}
-        formatted_td_attrs = _format_attrs(td_attrs)
-        formatted_tr_attrs = _format_attrs(tr_attrs)
-        return f"""<tr {formatted_tr_attrs}>
-        <td {formatted_td_attrs}>
-        {self.notes_textarea(item)}
-        {self.save_notes_btn(item)}
-        </td>
-        {dummy_string}
-        </tr>"""
 
     def tbody(self):
         out = [self.tr(item) for item in self.items]
@@ -123,3 +79,51 @@ class WatchlistTable(Table_):
         return element('tbody', content=content, escape_content=False)
 
 
+#section to deal with notes text area in table 
+def save_notes_btn(ticker):
+    return f"""<button type="button"
+    class='btn btn-outline-info btn-sm' 
+    style={TickerItem_Watchlist('empty').button_styles()}
+    id={ticker}-notes-save
+    data-targ-url={url_for('watchlist.save_notes')}
+    onClick="saveNotes(this)">
+    <i class="far fa-save"></i>
+    </button>
+    """
+
+def notes_textarea(ticker, ticker_notes):
+    return f"""<textarea class="form-control"
+    style="font-size: 13px;"
+    rows="5"
+    id={ticker}-text-area
+    placeholder="Enter your notes here!">{ticker_notes}</textarea>
+    """
+
+def get_table_ncols(class_=WatchlistTable):
+    item_attrs = class_.__dict__.values()
+    n_cols = len([a for a in item_attrs if isinstance(a, Col)])
+    return n_cols
+
+def get_notes_tr(ticker):
+    n_cols = get_table_ncols(class_=WatchlistTable)
+    #dummy string to allow colspan in jquery datatables
+    dummy_string = [f'<td id="{ticker}+-notes-{i}"></td>' for i in range(2,n_cols)]
+    dummy_string = ''.join(dummy_string)
+
+    td_attrs = {"colspan": str(n_cols), 'align': 'right'}
+    tr_attrs = {"id": ticker+'-notes'}
+    formatted_td_attrs = _format_attrs(td_attrs)
+    formatted_tr_attrs = _format_attrs(tr_attrs)
+
+    #get ticker notes from database 
+    query = WatchlistItem.query.filter_by(user=current_user, ticker_name=ticker).first()
+    ticker_notes = query.notes
+    return f"""<tr {formatted_tr_attrs}>
+    <td {formatted_td_attrs}>
+    {notes_textarea(ticker, ticker_notes)}
+    {save_notes_btn(ticker)}
+    </td>
+    {dummy_string}
+    </tr>"""
+
+    

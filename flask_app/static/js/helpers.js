@@ -129,4 +129,4 @@ function deleteRow(clicked, successFunc=null, errorFunc=null){
 }
 
 export {escapeSpecialChars, tickerFromId, formAjax,
-        modifyErrorKeys, deleteRow}
+        modifyErrorKeys, deleteRow, loadAjax}

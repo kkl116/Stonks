@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, url_for
 from ..utils.helpers import _render_template, format_ticker_name, form_errors_400
 from ..utils.table_helpers import ticker_name_to_table_items, new_item_json
 from ..models import PortfolioItem
@@ -10,6 +10,13 @@ from flask_login import current_user, login_required
 from flask_app import db
 
 portfolio = Blueprint('portfolio', __name__)
+
+@portfolio.route('/portfolio/loading', methods=["GET", "POST"])
+@login_required
+def loading():
+    url = url_for('portfolio.main')
+    return _render_template('loading.html', url=url, pageName='portfolio')
+
 
 @portfolio.route('/portfolio', methods=["GET", "POST"])
 @login_required
@@ -27,7 +34,6 @@ def main():
         table_items.append(get_summary_row(query_items))
         table = PortfolioTable(items=table_items)
         empty = False
-        
     return _render_template('portfolio/main.html', add_form=add_form, table=table, empty=empty)
 
 @portfolio.route('/portfolio/add', methods=["GET", "POST"])

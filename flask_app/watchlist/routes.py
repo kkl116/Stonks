@@ -1,7 +1,7 @@
 from flask import Blueprint, request, url_for, jsonify, abort
 from ..utils.helpers import (_render_template, redirect_json, form_errors_400, 
                             redirect_next_page, format_ticker_name)
-from .utils import WatchlistTable, TickerItem_Watchlist
+from .utils import WatchlistTable, TickerItem_Watchlist, get_notes_tr
 from ..utils.table_helpers import new_item_json, query_to_table_items
 from flask_login import login_required, current_user
 from .forms import AddForm
@@ -9,6 +9,12 @@ from ..models import WatchlistItem
 from .. import db
 
 watchlist = Blueprint('watchlist', __name__)
+
+@watchlist.route('/watchlist/loading', methods=["GET", "POST"])
+@login_required
+def loading():
+    url = url_for('watchlist.main')
+    return _render_template('loading.html', url=url, pageName='watchlist')
 
 @watchlist.route('/watchlist', methods=["GET", "POST"])
 @login_required
@@ -71,3 +77,15 @@ def save_notes():
             
         except Exception as e:
             return jsonify({'message': str(e)})
+
+@watchlist.route('/watchlist/get_notes', methods=["GET","POST"])
+@login_required
+def get_notes():
+    if request.method == "POST":
+        try:
+            ticker = request.json['ticker']
+            notes_tr = get_notes_tr(ticker)
+            return jsonify({'tr': notes_tr})
+        except Exception as e:
+            return jsonify({'message': str(e)})
+            
