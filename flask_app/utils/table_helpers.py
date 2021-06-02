@@ -120,8 +120,13 @@ class Table_(Table):
         return {'id': f"{item.ticker}"}
 
 
-def new_item_json(item, table_class, include_id=False):
-    item_dict = {'newItem': table_class(items=[]).tr(item)}
+def new_item_json(item, table_class=None, include_id=False, **kwargs):
+    """creates a json for table items to be sent to client side. use kwargs to include any additional 
+    items to be sent over"""
+    dummy_table = table_class(items=[])
+    item_dict = {'newItem': dummy_table.tr(item)}
+    for key, val in kwargs.items():
+        item_dict.update({key: dummy_table.tr(val)})
     if include_id:
         item_dict.update({'id': item.ticker})
     return jsonify(item_dict)

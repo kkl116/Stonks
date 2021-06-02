@@ -37,7 +37,7 @@ def add():
             item = WatchlistItem(ticker_name=ticker_name, user=current_user)
             db.session.add(item)
             db.session.commit()
-            return new_item_json(TickerItem_Watchlist(ticker_name), WatchlistTable)
+            return new_item_json(TickerItem_Watchlist(ticker_name), table_class=WatchlistTable, include_id=False)
         else:
             return form_errors_400(add_form)
     else:

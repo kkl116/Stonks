@@ -1,6 +1,6 @@
 from flask_table import Col
 from ..utils.table_helpers import (Col_, TickerItem, 
-                                Table_, new_item_json)
+                                Table_)
 from flask_login import current_user 
 import stockquotes
 from ..models import PortfolioItem
@@ -29,11 +29,32 @@ def get_unique_ticker_names(query_items):
     ticker_names = [q.ticker_name for q in query_items]
     return list(set(ticker_names))
 
-def get_ticker_currency(ticker_name):
+def get_ticker_info(ticker_name, **kwargs):
     ticker = yf.Ticker(ticker_name)
-    return ticker.info['currency']
+    return ticker.info
 
-def get_summary_row(query_items):
+def create_new_entry(ticker_name, add_form):
+    """creates new query from add_form, but first checks if a similar entry already exists and therefore
+    can populate some fields using existing information"""
+    #check if similar ticker already exists 
+    query_item = PortfolioItem.query.filter_by(user=current_user, ticker_name=ticker_name).first()
+    args_dict = {'user': current_user,
+    'ticker_name': ticker_name, 
+    'purchase_price': add_form.purchase_price.data,
+    'quantity': add_form.quantity.data}
+
+    if query_item is None:
+        ticker_info = get_ticker_info(ticker_name)
+        args_dict.update({'currency': ticker_info['currency'], 
+                        'sector': ticker_info['sector']})
+    else:
+        args_dict.update({'currency': query_item.currency, 
+                        'sector': query_item.sector})
+    item = PortfolioItem(**args_dict)
+    return item
+
+
+def get_summary_row(query_items, empty=False):
     def consolidate_items(active_items):
         """consolidate query items into a dict
         ticker_name: [avg_purchase_price, total_quantity, currency]"""
@@ -51,35 +72,50 @@ def get_summary_row(query_items):
             currencies.append(ticker_items[0].currency)
         return {n:[p,q,c] for n,p,q,c in zip(ticker_names, avg_prices, total_quantities, currencies)}
     #initialize an empty item 
+    if query_items is None:
+        empty = True
+    elif len(query_items) == 0:
+        empty = True
+
     item = TickerItem_Portfolio('empty')
     item.ticker_link = 'TOTAL'
-    active_items = consolidate_items([item for item in query_items if item.status != "SOLD"])
-    original_value = 0
-    market_value = 0
-    gain = 0
+    item.ticker = 'summary'
     user_currency = current_user.currency
     user_currency_symbol = CurrencySymbols.get_symbol(user_currency)
-    for ticker_name in active_items:
-        ticker_props = active_items[ticker_name]
-        current_price = stockquotes.Stock(ticker_name).current_price
-        if user_currency == ticker_props[2]:
-            exch_rate = 1
-        else:
-            exch_rate = get_exchange_rate(ticker_props[2], user_currency)
-        
-        current_value = current_price * ticker_props[1] * exch_rate
-        purchase_value = ticker_props[0] * ticker_props[1] * exch_rate
 
-        market_value += current_value 
-        gain += (current_value - purchase_value) 
-        original_value += purchase_value
+    if not empty:
+        active_items = consolidate_items([item for item in query_items if item.status != "SOLD"])
+        original_value = 0
+        market_value = 0
+        gain = 0
 
-    market_value, gain = [round(v, 2) for v in [market_value, gain]]
-    percent_gain = round((gain/original_value)*100, 2)
+        #get exchange rate ahead of time so not making duplicated requests
+        currencies = [props[2] for (name, props) in active_items.items()]
+        currencies = list(set([c for c in currencies]))
+        exch_rates = [get_exchange_rate(c, user_currency) if c != user_currency else 1 for c in currencies]
+        exch_rates = dict(zip(currencies, exch_rates))
 
-    item.market_value = user_currency_symbol + str(market_value)
-    item.gain = user_currency_symbol + str(gain)
-    item.percent_gain = percent_gain
+        for ticker_name in active_items:
+            ticker_props = active_items[ticker_name]
+            current_price = stockquotes.Stock(ticker_name).current_price
+            exch_rate = exch_rates[ticker_props[2]]
+
+            current_value = current_price * ticker_props[1] * exch_rate
+            purchase_value = ticker_props[0] * ticker_props[1] * exch_rate
+
+            market_value += current_value 
+            gain += (current_value - purchase_value) 
+            original_value += purchase_value
+
+        market_value, gain = [round(v, 2) for v in [market_value, gain]]
+        percent_gain = round((gain/original_value)*100, 2)
+        item.market_value = user_currency_symbol + str(market_value)
+        item.gain = user_currency_symbol + str(gain)
+        item.percent_gain = percent_gain
+    else:
+        item.market_value = user_currency_symbol + '0'
+        item.gain = user_currency_symbol + '0'
+        item.percent_gain = '0'
     return item
     
     
@@ -157,6 +193,19 @@ class TickerItem_Portfolio(TickerItem):
             return '<i class="fas fa-arrow-alt-circle-down" style="color:#EF3125;"></i>'
         elif self.gain == 0:
             return '<i class="fas fa-dot-circle"></i>'
+
+    def delete_btn(self, url):
+        #overriding to provide additional succesfunc for updating summary row 
+        return f"""
+        <button type='button' 
+        class='btn btn-outline-danger del-btn btn-sm' 
+        style={self.button_styles()}
+        id={self.ticker}-delete_btn 
+        data-targ-url={url}
+        onClick="deleteRow(this, successFunc=deleteSuccess)">
+        <i class="fas fa-minus-circle" style="font-size: 12.5px;"></i> 
+        </button>
+        """
 
 class PortfolioTable(Table_):
     def __init__(self, *args, **kwargs):

@@ -3,9 +3,8 @@ from ..utils.helpers import _render_template, format_ticker_name, form_errors_40
 from ..utils.table_helpers import ticker_name_to_table_items, new_item_json
 from ..models import PortfolioItem
 from .forms import AddForm
-from .utils import (PortfolioTable, TickerItem_Portfolio,
-                    get_ticker_currency, get_unique_ticker_names,
-                    get_summary_row)
+from .utils import (PortfolioTable, TickerItem_Portfolio, get_unique_ticker_names,
+                    get_summary_row, create_new_entry)
 from datetime import datetime
 from flask_login import current_user, login_required
 from flask_app import db
@@ -19,7 +18,7 @@ def main():
     #order by name right now... but later on can order by other things like value or sector etc.
     query_items = PortfolioItem.query.filter_by(user=current_user).all()
     if len(query_items) == 0:
-        table = PortfolioTable(items=[TickerItem_Portfolio('empty')])
+        table = PortfolioTable(items=[get_summary_row(None, empty=True)])
         empty = True
     else:
         #update porfolio stats
@@ -39,13 +38,13 @@ def add():
         if add_form.validate_on_submit():
             ticker_name = format_ticker_name(add_form.ticker_name.data)
             #just add entry here
-            item = PortfolioItem(user=current_user,
-            ticker_name=ticker_name, purchase_price=add_form.purchase_price.data,
-            quantity=add_form.quantity.data, currency=get_ticker_currency(ticker_name))
+            item = create_new_entry(ticker_name, add_form)
             db.session.add(item)
             db.session.commit()
-
-            return new_item_json(TickerItem_Portfolio(ticker_name), PortfolioTable, include_id=True)
+            #update summary row 
+            query_items = PortfolioItem.query.filter_by(user=current_user).all()
+            return new_item_json(TickerItem_Portfolio(ticker_name), table_class=PortfolioTable, include_id=True,
+                                summary=get_summary_row(query_items))
         else:
             return form_errors_400(add_form)
     else:
@@ -60,7 +59,9 @@ def delete():
             item = PortfolioItem.query.filter_by(user=current_user,
             ticker_name=del_ticker).delete()
             db.session.commit()
-            return jsonify({'message': 'ticker has been deleted'})
+            #update summary row 
+            query_items = PortfolioItem.query.filter_by(user=current_user).all()
+            return new_item_json(get_summary_row(query_items), table_class=PortfolioTable, include_id=False)
         except Exception as e:
             return jsonify({'message': str(e)})
     return redirect_next_page()

@@ -12,7 +12,6 @@ features I want/need/need to learn about:
 current TODO:
 - Portfolio page - setup the add and delete ticker system, then maybe add a little something extra like level of diversity or something
     - portfolio todos:
-        -portfolio performance stuff
         -portfolio history
         -sell button
 - watchlistitems and portfolio items custom tags?

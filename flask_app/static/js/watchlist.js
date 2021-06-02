@@ -8,7 +8,8 @@ function addAjax(url){
     function successFunc(success, fields){
         //append item to table - 
         const emptyMessage = document.getElementById('empty-message')
-        const table = document.getElementById('watchlist-table')
+        const tableId = $("table[id^='watchlist-table']").attr('id')
+        const table = document.getElementById(tableId)
         if (emptyMessage){
             emptyMessage.style.display="none"
         }
@@ -61,8 +62,12 @@ function toggleNotes(clicked){
     const ticker = tickerFromId(id, 1);
     const processedTicker = escapeSpecialChars(ticker)
     const notesId = processedTicker + '-notes';
-
-    $("#" + notesId).toggle();
+    const tableId = $("table[id^='watchlist-table']").attr('id')
+    const nCols = tableId.split('-')[2]
+    let i;
+    for (i = 1; i < nCols; i++){
+        $('#' + notesId + '-' + i).toggle()
+    }
 }
 
 function saveNotes(clicked){

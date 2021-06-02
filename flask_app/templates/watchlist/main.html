@@ -4,6 +4,7 @@
 {% endblock %}
 
 {% block content %}
+<h1 class="search-title">Watchlist</h1>
 
 <div>
     {{ table }}
@@ -15,7 +16,7 @@
     {% endif %}    
 
     <!--put form here so that + button displays it?-->
-    <div class="box" style="width: 50%;">
+    <div class="box" style="width: 50%; margin-top: 2%;">
         <div class="content">
             <div class="form">
                 <form method="POST" accept-charset="UTF-8" id='add-form'>
@@ -41,12 +42,19 @@
 
 {% block scripts %}
 <script type="module" src="/static/js/watchlist.js"></script>
+<link rel="stylesheet" type='text/css' href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap4.min.css">
+<script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap4.min.js"></script>
 <script>
     let urlAdd = "{{ url_for('watchlist.add') }}";
     $(document).ready(function() {
             //this is previous function to reopen modal if any form errors were found
+            const tableId = $("table[id^='watchlist-table']").attr('id')
             addAjax(urlAdd);
-        })
+            $('#' + tableId).DataTable({
+                "order": [],
+            });
+        });
 
 </script>
 {% endblock %}

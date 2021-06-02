@@ -12,9 +12,12 @@ function addAjax(url){
         //actually here it's a bit different - replaces original row if it's the same ticker
         let row = document.getElementById(success.id)
         if (row){
-            row.remove();
+            $('#'+success.id).replaceWith(success.newItem)
+        } else{
+            table.insertAdjacentHTML('afterbegin', success.newItem);
         }
-        table.insertAdjacentHTML('afterbegin', success.newItem);
+        //replace summary row 
+        $('#summary').replaceWith(success.summary);
 
         //remove error messages and clear fields
         Object.keys(fields).forEach((key) => {
@@ -52,6 +55,11 @@ function addAjax(url){
         keyFunc=keyFunc);
 }
 
+function deleteSuccess(result){
+    //update summary row 
+    $('#summary').replaceWith(result.newItem);
+}
 
 window.addAjax=addAjax
 window.deleteRow=deleteRow
+window.deleteSuccess=deleteSuccess

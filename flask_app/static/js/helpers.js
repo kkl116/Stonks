@@ -91,7 +91,9 @@ function modifyErrorKeys(errors, modFunc){
 }
 
 //delete button function
-function deleteRow(clicked){
+function deleteRow(clicked, successFunc=null, errorFunc=null){
+    /*successfunc and errorfunc gives the option to do additional things after
+    delete success and failure - */
     const id = clicked.id;
     const ticker = tickerFromId(id, 1);
     const url = $(clicked).data('targ-url');
@@ -112,10 +114,16 @@ function deleteRow(clicked){
                 //delete row here
                 $(row_id).fadeOut('slow', function(){
                     $(this).remove();
-                })
+                });
+                if (successFunc){
+                    successFunc(result);
+                }
             },
             error: function(result){
                 console.log(result);
+                if (errorFunc){
+                    errorFunc(result);
+                }
             }
     });
 }

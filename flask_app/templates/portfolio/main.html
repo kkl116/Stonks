@@ -4,15 +4,17 @@
 {% endblock %}
 
 {% block content %}
+
+<h1 class="search-title">Portfolio</h1>
 <div>
     {{ table }}
     {% if empty %}
-    <p id="empty-message" style="text-align:center;">
+    <p id="empty-message" style="text-align:center;" style="margin-top: 2%;">
         Your portfolio is currently empty!
     </p>
     {% endif %}
 </div>
-<form method="POST", accept-charset="UTF-8" id="add-form">
+<form method="POST", accept-charset="UTF-8" id="add-form" style="margin-top: 2%;">
     {{ add_form.csrf_token(id="add-csrf") }}
     <div class="form-row justify-content-center">
         <div class="col-auto">
@@ -40,11 +42,17 @@
 
 {% block scripts %}
 <script type="module" src="/static/js/portfolio.js"></script>
+<link rel="stylesheet" type='text/css' href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap4.min.css">
+<script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap4.min.js"></script>
 <script>
     //initialize addform ajax
     let urlAdd = "{{ url_for('portfolio.add') }}"
     $(document).ready(function() {
         addAjax(urlAdd);
+        $('#portfolio-table').DataTable({
+                "order": [],
+            });
     })
 </script>
 {% endblock %}

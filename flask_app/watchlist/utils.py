@@ -52,10 +52,12 @@ class TickerItem_Watchlist(TickerItem):
 
 
 class WatchlistTable(Table_):
-    def __init__(self, *args, use_item_notes=True , **kwargs):
+    def __init__(self, *args, use_item_notes=True, **kwargs):
         super(WatchlistTable, self).__init__(*args, **kwargs)
         self.use_item_notes = use_item_notes
+        self.table_id = 'watchlist-table-' + str(self.get_table_ncols())
 
+    #these define class definitions, and are gone once class/instance has been initialized?
     classes = ['table', 'table-hover', 'table-sm', 'table-collapse']
     tag_icon = Col_('ICON', hide_header=True, td_html_attrs={"style": "color: #274156; font-size: 12.5px;" })
     ticker_link = Col_('TICKER')
@@ -64,7 +66,6 @@ class WatchlistTable(Table_):
     percent_gain = Col_('PERCENT GAIN', use_item_attrs=True)
     add_notes = Col_('ADD_NOTES', hide_header=True)
     delete = Col_('DELETE', hide_header=True)
-    table_id = 'watchlist-table'
 
     @staticmethod
     def save_notes_btn(item):
@@ -87,12 +88,20 @@ class WatchlistTable(Table_):
         placeholder="Enter your notes here!">{item.notes}</textarea>
         """
 
-    def get_notes_tr(self, item):
-        item_attrs = WatchlistTable.__dict__.values()
+    @classmethod
+    def get_table_ncols(cls):
+        item_attrs = cls.__dict__.values()
         n_cols = len([a for a in item_attrs if isinstance(a, Col)])
+        return n_cols
+
+    def get_notes_tr(self, item):
+        n_cols = self.get_table_ncols()
+        #dummy string to allow colspan in jquery datatables
+        dummy_string = [f'<td style="display:none;" id="{item.ticker}+-notes-{i}"></td>' for i in range(2,n_cols+1)]
+        dummy_string = ''.join(dummy_string)
 
         td_attrs = {"colspan": str(n_cols), 'align': 'right'}
-        tr_attrs = {"id": item.ticker+'-notes', "style":"display:none;"}
+        tr_attrs = {"id": item.ticker+'-notes-1', "style":"display:none;"}
         formatted_td_attrs = _format_attrs(td_attrs)
         formatted_tr_attrs = _format_attrs(tr_attrs)
         return f"""<tr {formatted_tr_attrs}>
@@ -100,6 +109,7 @@ class WatchlistTable(Table_):
         {self.notes_textarea(item)}
         {self.save_notes_btn(item)}
         </td>
+        {dummy_string}
         </tr>"""
 
     def tbody(self):
@@ -107,7 +117,6 @@ class WatchlistTable(Table_):
         if self.use_item_notes:
             notes = [self.get_notes_tr(item) for item in self.items]
             out = list(itertools.chain(*zip(out, notes)))
-
         if not out:
             return ''
         content = '\n{}\n'.format('\n'.join(out))
