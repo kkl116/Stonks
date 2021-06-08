@@ -27,7 +27,7 @@ function tickerFromId(id, pop_n){
 }
 
 function formAjax(url=null, formId=null, fieldIds=[], successFunc=null, errorFunc=null,
-    keyFunc=null){
+    keyFunc=null, waitFunc=null, dataFunc=null){
     /*
     formAjax template: 
         url
@@ -36,6 +36,7 @@ function formAjax(url=null, formId=null, fieldIds=[], successFunc=null, errorFun
         success func - takes response json and does something
         error func - takes response json and does something
         key func - processes key values of fields object to match wtforms field names
+        waitFunc - do something before response comes back
     */
    function dataFromFields(fields){
        let data = {};
@@ -44,6 +45,10 @@ function formAjax(url=null, formId=null, fieldIds=[], successFunc=null, errorFun
            data[value] = fields[key].input.value
        })
        return data
+   }
+
+   if (dataFunc == null){
+        dataFunc=dataFromFields;
    }
 
     const form = document.getElementById(formId);
@@ -60,13 +65,16 @@ function formAjax(url=null, formId=null, fieldIds=[], successFunc=null, errorFun
 
     form.addEventListener('submit', async(e) => {
         e.preventDefault();
+        if (waitFunc) {
+            waitFunc()
+        }
         const response = await fetch(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(
-                dataFromFields(fields)
+                dataFunc(fields)
             )
         })
 
@@ -91,13 +99,30 @@ function modifyErrorKeys(errors, modFunc){
 }
 
 //delete button function
-function deleteRow(clicked, successFunc=null, errorFunc=null){
+function deleteRow(clicked, successFunc=null, errorFunc=null, waitFunc=null, 
+                dataFunc=null){
     /*successfunc and errorfunc gives the option to do additional things after
     delete success and failure - */
     const id = clicked.id;
     const ticker = tickerFromId(id, 1);
     const url = $(clicked).data('targ-url');
-    const processedTicker = escapeSpecialChars(ticker)
+    const processedTicker = escapeSpecialChars(ticker);
+
+    if (waitFunc) {
+        waitFunc()
+    };
+
+    function defaultDataFunc(ticker){
+        return {ticker: ticker}
+    };
+
+    if (dataFunc == null) {
+        dataFunc = defaultDataFunc;
+    };
+
+    console.log('waitFunc', waitFunc)
+    console.log('successFunc', successFunc)
+
 
     $.ajax({
             url: url,
@@ -105,9 +130,9 @@ function deleteRow(clicked, successFunc=null, errorFunc=null){
             headers: {
                 'Content-Type': 'application/json',
             },
-            data: JSON.stringify({
-                ticker: ticker,
-            }),
+            data: JSON.stringify(
+                dataFunc(ticker)
+            ),
             success: function(result){
                 console.log(result);
                 let row_id = '#' + processedTicker;
@@ -129,4 +154,4 @@ function deleteRow(clicked, successFunc=null, errorFunc=null){
 }
 
 export {escapeSpecialChars, tickerFromId, formAjax,
-        modifyErrorKeys, deleteRow, loadAjax}
+        modifyErrorKeys, deleteRow}

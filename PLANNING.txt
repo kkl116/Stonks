@@ -19,8 +19,9 @@ current TODO:
 - after login should be another welcome page -- 
 - profile pages - set sayyyy default currency and change account settings 
 - 404 error page 
-- loading animation for adding tickers - 
-add_notes button dynamically adding the notes row when toggled - 
+- change add and delete summary row functions in portfolio to make it faster -- 
+ (save currencies exch rates into database that updates once a day)
+ (check add update summary function)
 
 side TODO (nicer looking features in the future):
 
@@ -62,6 +63,10 @@ storing quotes somewhere once market opens.
 - watchlist table items right now notes are considered a row (but not displayed) - consider changing it to 
 - loading gif? -- bit trickier b/c it's waiting for server side to finish the functions - basically direct to loading route, then ajax to main page,
 and refresh after the page is done loading
+- loading animation for adding tickers - 
+- add_notes button dynamically adding the notes row when toggled - 
+
+
 
 
 

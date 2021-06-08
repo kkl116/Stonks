@@ -5,6 +5,7 @@ import { escapeSpecialChars, tickerFromId, formAjax, modifyErrorKeys, deleteRow 
 //not the best practice, but can set functions as global var so that it can be called directly. 
 
 function addAjax(url){
+
     function successFunc(success, fields){
         //append item to table - 
         const emptyMessage = document.getElementById('empty-message')
@@ -15,6 +16,8 @@ function addAjax(url){
         }
         console.log(success)
         table.insertAdjacentHTML('afterbegin', success.newItem);
+
+        toggleLoading();
         
         //remove error message and clear search bar
         fields['ticker-name'].input.value = '';

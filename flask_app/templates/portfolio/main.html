@@ -4,7 +4,20 @@
 {% endblock %}
 
 {% block content %}
-<div>
+
+<div class="text-center" style="margin-top: 15%; display: none;" id="add-wait">
+    <i class="fas fa-cog fa-spin fa-4x"></i>
+
+    <h3 style="margin-top: 7.5%;"> Adding new ticker...</h1>
+</div>
+
+<div class="text-center" style="margin-top: 15%; display: none;" id="delete-wait">
+    <i class="fas fa-cog fa-spin fa-4x"></i>
+
+    <h3 style="margin-top: 7.5%;"> Deleting ticker...</h1>
+</div>
+
+<div id="main-content">
     <h1 class="search-title">Portfolio</h1>
     <div>
         {{ table }}

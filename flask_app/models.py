@@ -78,3 +78,14 @@ class PortfolioItem(db.Model):
 
     def __repr__(self):
         return f"PortfolioItem('{self.ticker_name}', '{self.purchase_price}', '{self.quantity}', '{self.status}')"
+
+class ExchangeRate(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    from_currency = db.Column(db.String(), nullable=False)
+    to_currency = db.Column(db.String(), nullable=False)
+    rate = db.Column(db.String(), nullable=False)
+    date_updated = db.Column(db.String(), nullable=False, default=str(datetime.today().date()))
+    db.UniqueConstraint(from_currency, to_currency)
+    
+    def __repr__(self):
+        return f"ExchangeRate('{self.from_currency}', '{self.to_currency}', '{self.rate}' ,'{self.date_updated}')"

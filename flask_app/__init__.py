@@ -24,7 +24,6 @@ if testing and init_db:
     db.create_all()
     print('***** db file deleted and reinitialized *****')
 
-
 #instead of importing app in from flask_app now from flask import current_app
 def create_app(config_class=Config):
     app = Flask(__name__)
