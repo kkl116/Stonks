@@ -37,6 +37,7 @@ function addAjax(url){
         })
     }
     function errorFunc(errors, fields){
+
         let modErrors = modifyErrorKeys(errors, function(key){
             return key.replace('_', '-')
         })
@@ -52,6 +53,7 @@ function addAjax(url){
                 }
             }
         })
+        toggleAddLoading();
     }
 
     function keyFunc(key){
@@ -83,9 +85,9 @@ function addAjax(url){
 }
 
 
-function deleteSuccess(result){
+function deleteSuccess(response){
     //update summary row 
-    $('#summary').replaceWith(result.newItem);
+    $('#summary').replaceWith(response.newItem);
 }
 
 function deleteRowDataFunc(ticker){

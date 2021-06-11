@@ -16,12 +16,13 @@ current TODO:
         -sell button
         -portfolio tags and sectors --------
 - watchlistitems and portfolio items custom tags? (which goes into grouping function sort of)
+    - make tag textarea a bit nicer (toggle)
+    - ability to edit and delete tag
+    - format table elements a little bit (maybe align center)
 - after login should be another welcome page -- 
 - profile pages - set sayyyy default currency and change account settings 
-- 404 error page 
-- change add and delete summary row functions in portfolio to make it faster -- 
- (save currencies exch rates into database that updates once a day)
- (check add update summary function)
+- 404/400 error page, and change error exceptions to return these status codes 
+
 
 side TODO (nicer looking features in the future):
 
@@ -65,7 +66,9 @@ storing quotes somewhere once market opens.
 and refresh after the page is done loading
 - loading animation for adding tickers - 
 - add_notes button dynamically adding the notes row when toggled - 
-
+- change add and delete summary row functions in portfolio to make it faster -- 
+ (save currencies exch rates into database that updates once a day)
+ (check add update summary function)
 
 
 

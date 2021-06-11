@@ -30,7 +30,6 @@ def query_exchange_rate(from_currency, to_currency):
             reverse = ExchangeRate.query.filter_by(from_currency=to_currency, to_currency=from_currency).first()
             reverse.rate = str(1/rate)
             reverse.date_updated = str(datetime.today().date())
-            db.session.add_all([query, reverse])
             db.session.commit()
             print('rate updated at: ', query.date_updated)
             return rate

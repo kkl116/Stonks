@@ -56,17 +56,31 @@ class User(db.Model, UserMixin):
 
 #just create 1-many like post, then set on delete cascade for watchlisttickers
 class WatchlistItem(db.Model):
+    __tablename__ = 'watchlist_item'
     id = db.Column(db.Integer, primary_key=True)
     ticker_name = db.Column(db.String(), unique=False, nullable=False)
     notes = db.Column(db.String(), nullable=False, default='')
     date_added = db.Column(db.DateTime, nullable=False, default=datetime.today())
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete="CASCADE"), nullable=False)
-    db.UniqueConstraint(id, ticker_name)
+    tags = db.relationship('WatchlistItemTag', backref='item', lazy=True,
+                                        cascade="all, delete, delete-orphan", passive_deletes=True)
+    db.UniqueConstraint(user_id, ticker_name)
 
     def __repr__(self):
         return f"WatchlistTicker('{self.ticker_name}', '{self.date_added})"
 
+class WatchlistItemTag(db.Model):
+    __tablename = 'watchlist_tags'
+    id = db.Column(db.Integer, primary_key=True)
+    tag_content = db.Column(db.String(), nullable=False)
+    ticker_id = db.Column(db.Integer, db.ForeignKey('watchlist_item.id', ondelete="CASCADE"), nullable=False)
+
+    db.UniqueConstraint(ticker_id, tag_content)
+    def __repr__(self):
+        return f"WatchlistItemTag('{self.tag_content}', '{self.ticker_id}')"
+
 class PortfolioItem(db.Model):
+    __tablename__ = 'portfolio_item'
     id = db.Column(db.Integer, primary_key=True)
     ticker_name = db.Column(db.String(), unique=False, nullable=False)
     purchase_price = db.Column(db.String(), nullable=False)
@@ -74,12 +88,14 @@ class PortfolioItem(db.Model):
     currency = db.Column(db.String(), nullable=False)
     status = db.Column(db.String(), nullable=False, default="OWNED")
     sector = db.Column(db.String(), nullable=False, default='')
+    sell_price = db.Column(db.String(), nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete="CASCADE"), nullable=False)
 
     def __repr__(self):
         return f"PortfolioItem('{self.ticker_name}', '{self.purchase_price}', '{self.quantity}', '{self.status}')"
 
 class ExchangeRate(db.Model):
+    __tablename__ = 'exchange_rates'
     id = db.Column(db.Integer, primary_key=True)
     from_currency = db.Column(db.String(), nullable=False)
     to_currency = db.Column(db.String(), nullable=False)

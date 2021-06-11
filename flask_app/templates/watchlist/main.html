@@ -50,10 +50,12 @@
 <script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap4.min.js"></script>
 <script>
     let urlAdd = "{{ url_for('watchlist.add') }}";
+    let urlAddTag = "{{ url_for('watchlist.add_tag' )}}"
     $(document).ready(function() {
             //this is previous function to reopen modal if any form errors were found
             const tableId = $("table[id^='watchlist-table']").attr('id')
             addAjax(urlAdd);
+            addTagAjax(urlAddTag);
             $('#' + tableId).DataTable({
                 "order": [],
             });

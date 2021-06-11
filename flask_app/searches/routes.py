@@ -27,7 +27,7 @@ def search_redirect(q):
     dropdowns = get_dropdown_items()
     return _render_template('searches/main.html', q=q, price_chart_json=price_chart_json, dropdowns=dropdowns)
 
-@searches.route('/add_chart', methods=["GET", "POST"])
+@searches.route('/add_chart', methods=["POST"])
 def add_chart():
     if request.method == "POST":
         try:

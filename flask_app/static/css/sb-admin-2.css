@@ -11312,3 +11312,10 @@ body {
   color: black;
   transition: color 0.5s;
 }
+
+.tag-delete {
+  color: white;
+}
+.tag-delete:hover {
+  color: orange;
+}

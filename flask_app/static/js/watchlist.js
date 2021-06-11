@@ -16,8 +16,6 @@ function addAjax(url){
         }
         console.log(success)
         table.insertAdjacentHTML('afterbegin', success.newItem);
-
-        toggleLoading();
         
         //remove error message and clear search bar
         fields['ticker-name'].input.value = '';
@@ -86,16 +84,16 @@ function toggleNotes(clicked){
             data: JSON.stringify({
                 ticker: ticker
             }),
-            success: function(result){
+            success: function(response){
                 console.log('success')
                 //insert notes tr
                 let tickerRow = document.getElementById(ticker);
-                tickerRow.insertAdjacentHTML('afterend', result.tr);
+                tickerRow.insertAdjacentHTML('afterend', response.tr);
 
             },
-            error: function(result){
+            error: function(response){
                 console.log('error')
-                console.log(result)
+                console.log(response)
             }
         })
     }
@@ -119,19 +117,93 @@ function saveNotes(clicked){
             ticker: ticker,
             notes: $('#' + notesTextId).val()
         }),
-        success: function(result){
-            console.log(result);
+        success: function(response){
+            console.log(response);
         },
-        error: function(result){
-            console.log(result);
+        error: function(response){
+            console.log(response);
         }
     })
 
 }
 
+//use event delegation vs just assigning 
+function addTagAjax(url){
+    //get all tags-textarea elements
+    const tableId = '#watchlist-table'
+    //const tagTextAreas = $('textarea[id$="-tags-text-area"]')
+    //tagTextAreas.each(function(index, element){
+        //in jquery each loop this represents the current element
+    $(tableId).on('keypress', 'textarea', function (e){
+        if(e.which === 13 && !e.shiftKey) {
+            const element = e.target;
+            e.preventDefault();
+            if (element.val() != ''){
+                //get the tag text
+                const tag = $(element).val();
+                const ticker = $(element).attr('id').split('-')[0]
+                //ajax call to send to url 
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    data: JSON.stringify(
+                        {   ticker: ticker,
+                            tag: tag
+                        }
+                    ),
+                    success: function(response){
+                        //insert span element from server next to textarea
+                        $(element).val('')
+                        console.log(response)
+                        //
+                        let tdId = ticker + '-tags'
+                        $('#' + tdId).append(response.element)
+                        
+                    },
+                    error: function(response){
+                        //do something 
+                        console.log(response)
+                    }
+                })
+            };
+        };
+    });
+}
+
+function deleteTagAjax(clicked, url){
+    const id = clicked.id
+    const tagId = id.split('-')[1]
+    console.log(tagId)
+
+
+    $.ajax({
+        url: url,
+        type: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        data: JSON.stringify(
+            {tagId : tagId}
+        ),
+        success: function(response){
+            console.log(response);
+            $('#tag-' + tagId).remove();
+        },
+        error: function(response){
+            console.log(response)
+        }
+    })
+};
+
+
 window.addAjax=addAjax;
 window.deleteRow=deleteRow;
 window.toggleNotes=toggleNotes;
 window.saveNotes=saveNotes;
+window.addTagAjax=addTagAjax;
+window.deleteTagAjax=deleteTagAjax;
 
 

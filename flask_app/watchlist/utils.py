@@ -3,8 +3,32 @@ from flask_table.html import _format_attrs, element
 from flask import url_for
 from flask_login import current_user
 import itertools
-from ..models import WatchlistItem
+from ..models import WatchlistItem, WatchlistItemTag
 from ..utils.table_helpers import Col_, TickerItem, Table_
+
+def create_new_tag_entry(new_tag, ticker_name):
+    """check if tag for ticker exists, if it doesn't create new entry, else return exception"""
+    ticker_item = WatchlistItem.query.filter_by(user=current_user, ticker_name=ticker_name).first()
+    current_tags = WatchlistItemTag.query.filter_by(item=ticker_item, tag_content=new_tag).first()
+    if current_tags:
+        #if new_tag already exists:
+        raise Exception('Tag already exists for this ticker!')
+    else:
+        #create a new entry 
+        item = WatchlistItemTag(item=ticker_item, tag_content=new_tag)
+        return item
+
+def span_from_tag_item(item, include_delete=True):
+    item_id = item.id
+    content = item.tag_content
+    ticker_name = WatchlistItem.query.get(item.ticker_id).ticker_name
+    url = url_for('watchlist.delete_tag')
+    if include_delete:
+        delete = f"""<a href='#' onClick='deleteTagAjax(this, "{url}")' id="delete-{item_id}" class='tag-delete'><i class='fas fa-times'></i></i></a>"""
+    else:
+        delete = ''
+    return f'<span class="badge badge-primary" id="tag-{item_id}">{content} {delete}</span>'
+
 
 class TickerItem_Watchlist(TickerItem):
     """object to pass to flask table"""
@@ -14,6 +38,8 @@ class TickerItem_Watchlist(TickerItem):
         self.percent_gain = self.empty_or_attr(attr=[self.ticker_obj, 'increase_percent'], func=getattr)
         self.tag_icon = self.empty_or_attr(attr=[], func=self.tag_icon)
         self.add_notes = self.empty_or_attr(attr=[], func=self.add_notes_btn)
+        self.tags =  self.empty_or_attr(attr=[current_user, self.ticker], func=self.get_ticker_tags)
+        self.tags_textarea = self.empty_or_attr(attr=[self.ticker], func=self.get_tag_text_area)
         self.notes = self.empty_or_attr(attr=[current_user, self.ticker], func=self.get_ticker_notes)
         self.delete = self.empty_or_attr(attr=[url_for('watchlist.delete')], func=self.delete_btn)
         try:
@@ -51,6 +77,23 @@ class TickerItem_Watchlist(TickerItem):
     def get_ticker_notes(user, ticker_name):
         return WatchlistItem.query.filter_by(user=user, ticker_name=ticker_name).first().notes
 
+    def get_ticker_tags(self, user, ticker_name):
+        #I'd prefer returning a plus sign that can toggle textarea instead of it just sitting there
+        ticker_id = WatchlistItem.query.filter_by(user=user, ticker_name=ticker_name).first().id
+        tags = WatchlistItemTag.query.filter_by(ticker_id=ticker_id).all()
+        if len(tags) == 0:
+            return ''
+        else:
+            tag_spans = [span_from_tag_item(item) for item in tags]
+            span_html = ''.join(tag_spans)
+            return span_html
+
+    @staticmethod
+    def get_tag_text_area(ticker_name):
+        return f"""<textarea class="form-control"
+        style="font-size: 11px; height: 2.5em; width: 8em;"
+        id={ticker_name}-tags-text-area
+        placeholder="Add a tag!"></textarea>"""
 
 class WatchlistTable(Table_):
     def __init__(self, *args, use_item_notes=False, **kwargs):
@@ -65,6 +108,8 @@ class WatchlistTable(Table_):
     current_price = Col('CURRENT PRICE')
     day_gain = Col_('DAY GAIN', use_item_attrs=True)
     percent_gain = Col_('PERCENT GAIN', use_item_attrs=True)
+    tags = Col_('TAGS')
+    tags_textarea = Col_('ADD TAGS', hide_header=True)
     add_notes = Col_('ADD_NOTES', hide_header=True)
     delete = Col_('DELETE', hide_header=True)
 
@@ -107,7 +152,7 @@ def get_table_ncols(class_=WatchlistTable):
 def get_notes_tr(ticker):
     n_cols = get_table_ncols(class_=WatchlistTable)
     #dummy string to allow colspan in jquery datatables
-    dummy_string = [f'<td id="{ticker}+-notes-{i}"></td>' for i in range(2,n_cols)]
+    dummy_string = [f'<td id="{ticker}+-notes-{i}"></td>' for i in range(3,n_cols)]
     dummy_string = ''.join(dummy_string)
 
     td_attrs = {"colspan": str(n_cols), 'align': 'right'}

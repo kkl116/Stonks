@@ -19,9 +19,9 @@ if __name__ == '__main__':
 
     #open the db and get all the existing items
     if os.path.exists(db_uri) and clear_database:
-        with app.app_context():
-            user = User.query.filter_by(username=test_username).first()
-            watchlist = WatchlistItem.query.filter_by(user=user).all()
+        #with app.app_context():
+        #    user = User.query.filter_by(username=test_username).first()
+        #    watchlist = WatchlistItem.query.filter_by(user=user).all()
         os.remove(db_uri)
         print('db deleted')
 
@@ -37,6 +37,13 @@ if __name__ == '__main__':
         'ROO.L': ['390', '256'],
         'AMC': ['21.07', '25']
     }
+    #sold ford 100 shares at 15.53
+
+    watchlist = [
+        'GME', 'PLTR', 'NVDA', 'ROO.L', 'MMED.NE', 'ETH-USD',
+        #'HBAR-USD', 'DOGE-USD', 'BTC-USD', 'CTXR', 'F', 'AMC',
+        'BB'
+    ]
 
     #add a dummy user 
     with app.app_context():
@@ -46,7 +53,7 @@ if __name__ == '__main__':
             db.session.add_all([user])
             db.session.commit()
             #commit all the watchlist items and portfolio items 
-            watchlist_items = [WatchlistItem(ticker_name=item.ticker_name, user=user) for item in watchlist]
+            watchlist_items = [WatchlistItem(ticker_name=ticker_name, user=user) for ticker_name in watchlist]
             #add portfolio items here as well - 
             portfolio_items = []
             for ticker_name, details in portfolio_dict.items():

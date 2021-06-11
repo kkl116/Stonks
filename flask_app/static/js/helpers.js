@@ -120,9 +120,7 @@ function deleteRow(clicked, successFunc=null, errorFunc=null, waitFunc=null,
         dataFunc = defaultDataFunc;
     };
 
-    console.log('waitFunc', waitFunc)
-    console.log('successFunc', successFunc)
-
+    console.log(dataFunc)
 
     $.ajax({
             url: url,
@@ -133,21 +131,21 @@ function deleteRow(clicked, successFunc=null, errorFunc=null, waitFunc=null,
             data: JSON.stringify(
                 dataFunc(ticker)
             ),
-            success: function(result){
-                console.log(result);
+            success: function(response){
+                console.log(response);
                 let row_id = '#' + processedTicker;
                 //delete row here
                 $(row_id).fadeOut('slow', function(){
                     $(this).remove();
                 });
                 if (successFunc){
-                    successFunc(result);
+                    successFunc(response);
                 }
             },
-            error: function(result){
-                console.log(result);
+            error: function(response){
+                console.log(response);
                 if (errorFunc){
-                    errorFunc(result);
+                    errorFunc(response);
                 }
             }
     });

@@ -1,11 +1,12 @@
 from flask import Blueprint, request, url_for, jsonify, abort
 from ..utils.helpers import (_render_template, redirect_json, form_errors_400, 
                             redirect_next_page, format_ticker_name)
-from .utils import WatchlistTable, TickerItem_Watchlist, get_notes_tr
+from .utils import (WatchlistTable, TickerItem_Watchlist, get_notes_tr,
+                    create_new_tag_entry, span_from_tag_item)
 from ..utils.table_helpers import new_item_json, query_to_table_items
 from flask_login import login_required, current_user
 from .forms import AddForm
-from ..models import WatchlistItem
+from ..models import WatchlistItem, WatchlistItemTag
 from .. import db
 
 watchlist = Blueprint('watchlist', __name__)
@@ -88,4 +89,42 @@ def get_notes():
             return jsonify({'tr': notes_tr})
         except Exception as e:
             return jsonify({'message': str(e)})
+
+@watchlist.route('/watchlist/add_tag', methods=["GET", "POST"])
+@login_required
+def add_tag():
+    #if received empty string do nothing
+    if request.method == "POST":
+        try:
+            new_tag = request.json['tag']
+            ticker_name = request.json['ticker']
+            #I think atm store tags as a single string 
+            #separated by commas in sql database
+            new_tag = new_tag.strip().upper()
+            item = create_new_tag_entry(new_tag, ticker_name)
+            if item is not None:
+                db.session.add(item)
+                db.session.commit()
+                #create an element that can be inserted into the table cell
+                span_element = span_from_tag_item(item)
+                return jsonify({'element': span_element})
+
+        except Exception as e:
+            print(e)
+            return jsonify({'error': str(e)})
+
+@watchlist.route('/watchlist/delete_tag', methods=["POST"])
+@login_required
+def delete_tag():
+    try:
+        tag_id = request.json['tagId']
+        tag_item = WatchlistItemTag.query.get(int(tag_id))
+        db.session.delete(tag_item)
+        db.session.commit()
+        return jsonify({'message': 'tag has been deleted'})
+    except Exception as e:
+        return jsonify({'error': str(e)})
+    
+
+        
             
