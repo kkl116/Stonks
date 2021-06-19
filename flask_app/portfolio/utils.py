@@ -13,6 +13,9 @@ import stockquotes
 from flask_app import testing
 from datetime import datetime
 
+#sell button functions 
+
+
 def query_exchange_rate(from_currency, to_currency):
     """basically check the database to see if there is this entry, if not then get it from api
     - rates are updated once a day"""
@@ -301,7 +304,7 @@ class TickerItem_Portfolio(TickerItem):
         <i class="fas fa-minus-circle" style="font-size: 12.5px;"></i> 
         </button>
         """
-
+    
 class PortfolioTable(Table_):
     def __init__(self, *args, **kwargs):
         super(PortfolioTable, self).__init__(*args, **kwargs)

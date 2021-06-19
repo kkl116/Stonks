@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, url_for
-from ..utils.helpers import _render_template, format_ticker_name, form_errors_400
+from ..utils.helpers import _render_template, format_ticker_name, form_errors_400, redirect_next_page
 from ..utils.table_helpers import ticker_name_to_table_items, new_item_json
 from ..models import PortfolioItem
 from .forms import AddForm
