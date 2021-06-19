@@ -15,7 +15,6 @@ from datetime import datetime
 
 #sell button functions 
 
-
 def query_exchange_rate(from_currency, to_currency):
     """basically check the database to see if there is this entry, if not then get it from api
     - rates are updated once a day"""
