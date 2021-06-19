@@ -99,6 +99,7 @@ function deleteRowDataFunc(ticker){
 }
 
 
+
 window.addAjax=addAjax
 window.deleteRow=deleteRow
 window.deleteSuccess=deleteSuccess
