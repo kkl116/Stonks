@@ -131,43 +131,42 @@ function saveNotes(clicked){
 function addTagAjax(url){
     //get all tags-textarea elements
     const tableId = '#watchlist-table'
-    //const tagTextAreas = $('textarea[id$="-tags-text-area"]')
-    //tagTextAreas.each(function(index, element){
-        //in jquery each loop this represents the current element
     $(tableId).on('keypress', 'textarea', function (e){
         if(e.which === 13 && !e.shiftKey) {
-            const element = e.target;
-            e.preventDefault();
-            if (element.val() != ''){
-                //get the tag text
-                const tag = $(element).val();
-                const ticker = $(element).attr('id').split('-')[0]
-                //ajax call to send to url 
-                $.ajax({
-                    url: url,
-                    type: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    data: JSON.stringify(
-                        {   ticker: ticker,
-                            tag: tag
+            if(e.target.id.includes('tags-text-area')){
+                const element = e.target;
+                e.preventDefault();
+                if ($(element).val() != ''){
+                    //get the tag text
+                    const tag = $(element).val();
+                    const ticker = $(element).attr('id').split('-')[0]
+                    //ajax call to send to url 
+                    $.ajax({
+                        url: url,
+                        type: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        data: JSON.stringify(
+                            {   ticker: ticker,
+                                tag: tag
+                            }
+                        ),
+                        success: function(response){
+                            //insert span element from server next to textarea
+                            $(element).val('')
+                            console.log(response)
+                            //
+                            let tdId = ticker + '-tags'
+                            $('#' + tdId).append(response.element)
+                            
+                        },
+                        error: function(response){
+                            //do something 
+                            console.log(response)
                         }
-                    ),
-                    success: function(response){
-                        //insert span element from server next to textarea
-                        $(element).val('')
-                        console.log(response)
-                        //
-                        let tdId = ticker + '-tags'
-                        $('#' + tdId).append(response.element)
-                        
-                    },
-                    error: function(response){
-                        //do something 
-                        console.log(response)
-                    }
-                })
+                    })
+                };
             };
         };
     });
@@ -198,6 +197,63 @@ function deleteTagAjax(clicked, url){
     })
 };
 
+//function to allow sector to be edited (onclick, then enter to submit)
+function spanToTextArea(clicked, url){
+    let textArea = $('<textarea></textarea>');
+    const spanText = $(clicked).html();
+    const ticker = clicked.id.split('-')[0];
+    const spanId = '#' + clicked.id;
+    $(textArea).html(spanText);
+    $(textArea).attr('id', ticker+'-sector-textArea')
+    $(textArea).data('url', url)
+    $(textArea).addClass('form-control');
+    $(textArea).css({
+        'font-size': '11px',
+        'height': '2.5em',
+    });
+    //replace span element with this 
+    $(spanId).replaceWith(textArea);
+}
+
+function editSectorAjax(url){
+    //get all tags-textarea elements
+    const tableId = '#watchlist-table'
+    $(tableId).on('keypress', 'textarea', function (e){
+        if(e.which === 13 && !e.shiftKey) {
+            if(e.target.id.includes('sector-textArea')){
+                const element = e.target;
+                e.preventDefault();
+                if ($(element).val() != ''){
+                    //get the tag text
+                    const sector = $(element).val();
+                    const ticker = $(element).attr('id').split('-')[0]
+                    //ajax call to send to url 
+                    $.ajax({
+                        url: url,
+                        type: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        data: JSON.stringify(
+                            {   ticker: ticker,
+                                sector: sector
+                            }
+                        ),
+                        success: function(response){
+                            //insert span element from server next to textarea
+                            let newSpan = response.newSpan;
+                            $('#' + element.id).replaceWith(newSpan)
+                        },
+                        error: function(response){
+                            //do something 
+                            console.log(response)
+                        }
+                    })
+                };
+            };
+        };
+    });
+}
 
 window.addAjax=addAjax;
 window.deleteRow=deleteRow;
@@ -205,5 +261,7 @@ window.toggleNotes=toggleNotes;
 window.saveNotes=saveNotes;
 window.addTagAjax=addTagAjax;
 window.deleteTagAjax=deleteTagAjax;
+window.spanToTextArea=spanToTextArea;
+window.editSectorAjax=editSectorAjax;
 
 

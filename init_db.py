@@ -2,6 +2,7 @@ import os
 from flask_app import create_app, db, bcrypt
 from flask_app.portfolio.utils import get_ticker_info
 from flask_app.models import User, WatchlistItem, PortfolioItem
+from flask_app.watchlist.utils import get_sector
 
 clear_database = True
 
@@ -53,7 +54,7 @@ if __name__ == '__main__':
             db.session.add_all([user])
             db.session.commit()
             #commit all the watchlist items and portfolio items 
-            watchlist_items = [WatchlistItem(ticker_name=ticker_name, user=user) for ticker_name in watchlist]
+            watchlist_items = [WatchlistItem(ticker_name=ticker_name, user=user, sector=get_sector(ticker_name)) for ticker_name in watchlist]
             #add portfolio items here as well - 
             portfolio_items = []
             for ticker_name, details in portfolio_dict.items():

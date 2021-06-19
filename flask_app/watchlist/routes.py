@@ -2,7 +2,8 @@ from flask import Blueprint, request, url_for, jsonify, abort
 from ..utils.helpers import (_render_template, redirect_json, form_errors_400, 
                             redirect_next_page, format_ticker_name)
 from .utils import (WatchlistTable, TickerItem_Watchlist, get_notes_tr,
-                    create_new_tag_entry, span_from_tag_item)
+                    create_new_tag_entry, span_from_tag_item, get_sector,
+                    get_sector_span)
 from ..utils.table_helpers import new_item_json, query_to_table_items
 from flask_login import login_required, current_user
 from .forms import AddForm
@@ -41,7 +42,8 @@ def add():
         if add_form.validate_on_submit():
             #need to add the watchlist item into the db
             ticker_name = format_ticker_name(add_form.ticker_name.data)
-            item = WatchlistItem(ticker_name=ticker_name, user=current_user)
+            item = WatchlistItem(ticker_name=ticker_name, user=current_user,
+            sector=get_sector(ticker_name))
             db.session.add(item)
             db.session.commit()
             return new_item_json(TickerItem_Watchlist(ticker_name), table_class=WatchlistTable, include_id=False)
@@ -125,6 +127,21 @@ def delete_tag():
     except Exception as e:
         return jsonify({'error': str(e)})
     
+@watchlist.route('/watchlist/edit_sector', methods=["POST"])
+@login_required
+def edit_sector():
+    try:
+        ticker = request.json['ticker']
+        sector = request.json['sector'].strip()
+        #update sector of entry 
+        item = WatchlistItem.query.filter_by(user=current_user, ticker_name=ticker).first()
+        item.sector = sector 
+        db.session.commit()
+        newSpan = get_sector_span(current_user, ticker)
+        print(newSpan)
+        return jsonify({'newSpan': newSpan})
+    except Exception as e:
+        return jsonify({'error': str(e)})
 
         
             

@@ -15,10 +15,7 @@ current TODO:
         -portfolio history
         -sell button
         -portfolio tags and sectors --------
-- watchlistitems and portfolio items custom tags? (which goes into grouping function sort of)
-    - make tag textarea a bit nicer (toggle)
-    - ability to edit and delete tag
-    - format table elements a little bit (maybe align center)
+
 - after login should be another welcome page -- 
 - profile pages - set sayyyy default currency and change account settings 
 - 404/400 error page, and change error exceptions to return these status codes 
@@ -69,6 +66,10 @@ and refresh after the page is done loading
 - change add and delete summary row functions in portfolio to make it faster -- 
  (save currencies exch rates into database that updates once a day)
  (check add update summary function)
+ - watchlistitems and portfolio items custom tags? (which goes into grouping function sort of)
+    - format table elements a little bit (maybe align center)
+    - ability to edit and delete tag
+
 
 
 

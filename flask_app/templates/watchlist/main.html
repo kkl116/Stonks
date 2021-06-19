@@ -49,8 +49,9 @@
 <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap4.min.js"></script>
 <script>
-    let urlAdd = "{{ url_for('watchlist.add') }}";
-    let urlAddTag = "{{ url_for('watchlist.add_tag' )}}"
+    const urlAdd = "{{ url_for('watchlist.add') }}";
+    const urlAddTag = "{{ url_for('watchlist.add_tag') }}"
+    const urlEditSector = "{{ url_for('watchlist.edit_sector') }}"
     $(document).ready(function() {
             //this is previous function to reopen modal if any form errors were found
             const tableId = $("table[id^='watchlist-table']").attr('id')
@@ -59,6 +60,7 @@
             $('#' + tableId).DataTable({
                 "order": [],
             });
+            editSectorAjax(urlEditSector);
         });
 
 </script>

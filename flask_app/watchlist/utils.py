@@ -5,6 +5,16 @@ from flask_login import current_user
 import itertools
 from ..models import WatchlistItem, WatchlistItemTag
 from ..utils.table_helpers import Col_, TickerItem, Table_
+import yfinance as yf
+
+def get_sector(ticker_name):
+    try:
+        ticker = yf.Ticker(ticker_name)
+        sector = ticker.info['sector']
+        return sector
+    except Exception as e:
+        print(e)
+        return 'N/A'
 
 def create_new_tag_entry(new_tag, ticker_name):
     """check if tag for ticker exists, if it doesn't create new entry, else return exception"""
@@ -29,6 +39,11 @@ def span_from_tag_item(item, include_delete=True):
         delete = ''
     return f'<span class="badge badge-primary" id="tag-{item_id}">{content} {delete}</span>'
 
+def get_sector_span(user, ticker_name):
+    sector = WatchlistItem.query.filter_by(user=user, ticker_name=ticker_name).first().sector
+    url = url_for('watchlist.edit_sector')
+    return f"""<span onClick="spanToTextArea(this, '{url}')" id={ticker_name}-sector-span>{sector}</span>"""
+
 
 class TickerItem_Watchlist(TickerItem):
     """object to pass to flask table"""
@@ -40,6 +55,7 @@ class TickerItem_Watchlist(TickerItem):
         self.add_notes = self.empty_or_attr(attr=[], func=self.add_notes_btn)
         self.tags =  self.empty_or_attr(attr=[current_user, self.ticker], func=self.get_ticker_tags)
         self.tags_textarea = self.empty_or_attr(attr=[self.ticker], func=self.get_tag_text_area)
+        self.sector = self.empty_or_attr(attr=[current_user, self.ticker], func=get_sector_span)
         self.notes = self.empty_or_attr(attr=[current_user, self.ticker], func=self.get_ticker_notes)
         self.delete = self.empty_or_attr(attr=[url_for('watchlist.delete')], func=self.delete_btn)
         try:
@@ -110,6 +126,7 @@ class WatchlistTable(Table_):
     percent_gain = Col_('PERCENT GAIN', use_item_attrs=True)
     tags = Col_('TAGS')
     tags_textarea = Col_('ADD TAGS', hide_header=True)
+    sector = Col_('SECTOR')
     add_notes = Col_('ADD_NOTES', hide_header=True)
     delete = Col_('DELETE', hide_header=True)
 

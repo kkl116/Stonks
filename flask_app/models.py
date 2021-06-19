@@ -60,6 +60,7 @@ class WatchlistItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     ticker_name = db.Column(db.String(), unique=False, nullable=False)
     notes = db.Column(db.String(), nullable=False, default='')
+    sector = db.Column(db.String(), nullable=False)
     date_added = db.Column(db.DateTime, nullable=False, default=datetime.today())
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete="CASCADE"), nullable=False)
     tags = db.relationship('WatchlistItemTag', backref='item', lazy=True,
@@ -74,7 +75,6 @@ class WatchlistItemTag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     tag_content = db.Column(db.String(), nullable=False)
     ticker_id = db.Column(db.Integer, db.ForeignKey('watchlist_item.id', ondelete="CASCADE"), nullable=False)
-
     db.UniqueConstraint(ticker_id, tag_content)
     def __repr__(self):
         return f"WatchlistItemTag('{self.tag_content}', '{self.ticker_id}')"
