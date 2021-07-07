@@ -5,6 +5,11 @@ import stockquotes
 from ..models import WatchlistItem
 import time 
 
+def get_table_ncols(class_=None):
+    item_attrs = class_.__dict__.values()
+    n_cols = len([a for a in item_attrs if isinstance(a, Col)])
+    return n_cols
+
 def update_attr_dict(attr_dict, new_attr):
     keys = list(attr_dict.keys())
     new_key = list(new_attr.keys())[0]

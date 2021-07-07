@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify, url_for
 from ..utils.helpers import _render_template, format_ticker_name, form_errors_400, redirect_next_page
 from ..utils.table_helpers import ticker_name_to_table_items, new_item_json
 from ..models import PortfolioItem
-from .forms import AddForm
+from .forms import AddForm, SellForm
 from .utils import (PortfolioTable, TickerItem_Portfolio, get_unique_ticker_names,
                     get_summary_row, create_new_entry, update_summary_row)
 from datetime import datetime
@@ -34,7 +34,9 @@ def main():
         table_items.append(get_summary_row(query_items, table_items))
         table = PortfolioTable(items=table_items)
         empty = False
-    return _render_template('portfolio/main.html', add_form=add_form, table=table, empty=empty)
+
+    sell_form = SellForm()
+    return _render_template('portfolio/main.html', add_form=add_form, table=table, empty=empty, sell_form=sell_form)
 
 @portfolio.route('/portfolio/add', methods=["GET", "POST"])
 @login_required
@@ -63,7 +65,6 @@ def add():
 def delete():
     if request.method == "POST":
         try:
-            print(request.json)
             del_ticker = request.json['ticker']
             sum_market_value = request.json['summary-market_value']
             ticker_market_value = request.json['ticker-market_value']
@@ -84,3 +85,7 @@ def delete():
     return redirect_next_page()
 
 
+@portfolio.route('/portfolio/sell', methods=["POST"])
+@login_required
+def sell():
+    pass

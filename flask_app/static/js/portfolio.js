@@ -1,4 +1,4 @@
-import { formAjax, modifyErrorKeys, deleteRow } from './helpers.js';
+import { formAjax, modifyErrorKeys, deleteRow, escapeSpecialChars } from './helpers.js';
 
 function addAjax(url){
 
@@ -98,9 +98,14 @@ function deleteRowDataFunc(ticker){
     return data
 }
 
-
+function fillSellFormTicker(clicked){
+    const fieldId = 'sell-ticker-name';
+    const ticker = clicked.id.split('-')[0];
+    $('#' + fieldId).val(ticker);
+}
 
 window.addAjax=addAjax
 window.deleteRow=deleteRow
 window.deleteSuccess=deleteSuccess
 window.deleteRowDataFunc=deleteRowDataFunc
+window.fillSellFormTicker=fillSellFormTicker

@@ -51,6 +51,29 @@
             
         </div>
     </form>
+    <form method="POST", accept-charset="UTF-8" id="sell-form" style="margin-top: 2%;">
+        {{ sell_form.csrf_token(id="sell-csrf") }}
+        <div class="form-row justify-content-center">
+            <div class="col-auto">
+                {{ sell_form.ticker_name(class="form-control border-1 small", style="font-size: 14px;") }}
+                <div id="sell-ticker-name-error" class="invalid-feedback"></div>
+            </div>
+            <div class="col-auto">
+                {{ sell_form.sell_price(class="form-control border-1 small", style="font-size: 14px;") }}
+                <div id="sell-price-error" class="invalid-feedback"></div>
+            </div>
+            <div class="col-auto">
+                {{ sell_form.quantity(class="form-control border-1 small", style="font-size: 14px;") }}
+                <div id="sell-quantity-error" class="invalid-feedback"></div>
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-dark" style="font-size:12.5px;" id="sell-submit">
+                    <i class="fas fa-coins"></i>
+                </button>
+            </div>
+        </div>
+
+    </form>
 </div>
 
 {% endblock %}

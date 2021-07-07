@@ -1,6 +1,6 @@
 from flask_table import Col
 from ..utils.table_helpers import (Col_, TickerItem, 
-                                Table_)
+                                Table_, get_table_ncols)
 from flask_login import current_user 
 from ..models import PortfolioItem, ExchangeRate
 import numpy as np 
@@ -12,8 +12,7 @@ import requests, json
 import stockquotes
 from flask_app import testing
 from datetime import datetime
-
-#sell button functions 
+from ..utils.helpers import html_formatter
 
 def query_exchange_rate(from_currency, to_currency):
     """basically check the database to see if there is this entry, if not then get it from api
@@ -233,6 +232,7 @@ class TickerItem_Portfolio(TickerItem):
         self.quantity = self.empty_or_attr(attr=[], func=self.get_quantity)
         self.market_value = self.empty_or_attr(attr=[], func=self.get_market_value)
         self.arrow_icon = self.empty_or_attr(attr=[], func=self.arrow_icon)
+        self.sell = self.empty_or_attr(attr=[url_for('portfolio.sell')], func=self.get_sell_btn)
         self.delete = self.empty_or_attr(attr=[url_for('portfolio.delete')], func=self.delete_btn)
         #have a sell button? I dunno
         try:
@@ -285,11 +285,11 @@ class TickerItem_Portfolio(TickerItem):
     def arrow_icon(self):
         """give an green up arrow or red down arrow depending on status"""
         if self.gain > 0:
-            return '<i class="fas fa-arrow-alt-circle-up" style="color:#027E4A;"></i>'
+            return html_formatter('i', cls=["fas fa-arrow-alt-circle-up"],style="color:#027E4A;")
         elif self.gain < 0:
-            return '<i class="fas fa-arrow-alt-circle-down" style="color:#EF3125;"></i>'
+            return html_formatter('i', cls=["fas fa-arrow-alt-circle-down"],style="color:#EF3125;")
         elif self.gain == 0:
-            return '<i class="fas fa-dot-circle"></i>'
+            return html_formatter('i', cls=["fas fa-dot-circle"])
 
     def delete_btn(self, url):
         #overriding to provide additional succesfunc for updating summary row 
@@ -301,6 +301,17 @@ class TickerItem_Portfolio(TickerItem):
         data-targ-url={url}
         onClick="deleteRow(this, successFunc=deleteSuccess, errorFunc=null, waitFunc=null, dataFunc=deleteRowDataFunc)">
         <i class="fas fa-minus-circle" style="font-size: 12.5px;"></i> 
+        </button>
+        """
+
+    def get_sell_btn(self, url):
+        return f"""
+        <button type='button'
+        class='btn btn-outline-dark btn-sm'
+        id={self.ticker}-sell_btn
+        data-targ-url={url}
+        onClick="fillSellFormTicker(this)">
+        SELL
         </button>
         """
     
@@ -317,6 +328,7 @@ class PortfolioTable(Table_):
     market_value = Col_('MARKET VALUE')
     gain = Col_('GAIN', use_item_attrs=True)
     percent_gain = Col_('PERCENT GAIN', use_item_attrs=True)
+    sell = Col_('SELL', hide_header=True)
     delete = Col_('DELETE', hide_header=True)
     table_id = 'portfolio-table'
 

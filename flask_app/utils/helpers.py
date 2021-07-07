@@ -83,3 +83,24 @@ def form_errors_400(form):
 def format_ticker_name(ticker_name):
     return ticker_name.strip().upper()
 
+def html_formatter(element_type, inner_html='', **kwargs):
+    """function to format html so that everything is less messy
+    expect element type - which is just the different tags.
+    inner_html - the main content 
+    **kwargs - each key word will be considered a new attr to be added - expects 
+    a list of arguments to be added. because class is a reserved phrase 
+    here use cls instead.
+    """
+    start = '<' + element_type + ' '
+    attrs = []
+    for attr, args in kwargs.items():
+        if attr == 'cls':
+            attr = 'class'
+        if type(args) == list:
+            args = ' '.join(args)
+        attrs.append(str(attr).replace('_', '-') + "='" + args + "'")
+
+    end = f'</{element_type}>'
+    return start + ' '.join(attrs) + '>' + inner_html + end
+
+

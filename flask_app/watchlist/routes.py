@@ -3,7 +3,7 @@ from ..utils.helpers import (_render_template, redirect_json, form_errors_400,
                             redirect_next_page, format_ticker_name)
 from .utils import (WatchlistTable, TickerItem_Watchlist, get_notes_tr,
                     create_new_tag_entry, span_from_tag_item, get_sector,
-                    get_sector_span)
+                    get_sector_btn)
 from ..utils.table_helpers import new_item_json, query_to_table_items
 from flask_login import login_required, current_user
 from .forms import AddForm
@@ -137,9 +137,8 @@ def edit_sector():
         item = WatchlistItem.query.filter_by(user=current_user, ticker_name=ticker).first()
         item.sector = sector 
         db.session.commit()
-        newSpan = get_sector_span(current_user, ticker)
-        print(newSpan)
-        return jsonify({'newSpan': newSpan})
+        newBtn = get_sector_btn(current_user, ticker)
+        return jsonify({'newBtn': newBtn})
     except Exception as e:
         return jsonify({'error': str(e)})
 

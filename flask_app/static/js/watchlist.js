@@ -198,12 +198,12 @@ function deleteTagAjax(clicked, url){
 };
 
 //function to allow sector to be edited (onclick, then enter to submit)
-function spanToTextArea(clicked, url){
+function sectorBtnToTextArea(clicked, url){
     let textArea = $('<textarea></textarea>');
-    const spanText = $(clicked).html();
-    const ticker = clicked.id.split('-')[0];
+    const btnText = $(clicked).html();
+    const ticker = tickerFromId(clicked.id, 2);
     const spanId = '#' + clicked.id;
-    $(textArea).html(spanText);
+    $(textArea).html(btnText);
     $(textArea).attr('id', ticker+'-sector-textArea')
     $(textArea).data('url', url)
     $(textArea).addClass('form-control');
@@ -226,7 +226,7 @@ function editSectorAjax(url){
                 if ($(element).val() != ''){
                     //get the tag text
                     const sector = $(element).val();
-                    const ticker = $(element).attr('id').split('-')[0]
+                    const ticker = tickerFromId($(element).attr('id'), 2)
                     //ajax call to send to url 
                     $.ajax({
                         url: url,
@@ -241,8 +241,8 @@ function editSectorAjax(url){
                         ),
                         success: function(response){
                             //insert span element from server next to textarea
-                            let newSpan = response.newSpan;
-                            $('#' + element.id).replaceWith(newSpan)
+                            let newBtn = response.newBtn;
+                            $('#' + element.id).replaceWith(newBtn)
                         },
                         error: function(response){
                             //do something 
@@ -261,7 +261,7 @@ window.toggleNotes=toggleNotes;
 window.saveNotes=saveNotes;
 window.addTagAjax=addTagAjax;
 window.deleteTagAjax=deleteTagAjax;
-window.spanToTextArea=spanToTextArea;
+window.sectorBtnToTextArea=sectorBtnToTextArea;
 window.editSectorAjax=editSectorAjax;
 
 

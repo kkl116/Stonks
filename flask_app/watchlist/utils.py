@@ -4,7 +4,8 @@ from flask import url_for
 from flask_login import current_user
 import itertools
 from ..models import WatchlistItem, WatchlistItemTag
-from ..utils.table_helpers import Col_, TickerItem, Table_
+from ..utils.table_helpers import (Col_, TickerItem, Table_,
+                                    get_table_ncols)
 import yfinance as yf
 
 def get_sector(ticker_name):
@@ -39,10 +40,10 @@ def span_from_tag_item(item, include_delete=True):
         delete = ''
     return f'<span class="badge badge-primary" id="tag-{item_id}">{content} {delete}</span>'
 
-def get_sector_span(user, ticker_name):
+def get_sector_btn(user, ticker_name):
     sector = WatchlistItem.query.filter_by(user=user, ticker_name=ticker_name).first().sector
     url = url_for('watchlist.edit_sector')
-    return f"""<span onClick="spanToTextArea(this, '{url}')" id={ticker_name}-sector-span>{sector}</span>"""
+    return f"""<button class="btn btn-outline-info btn-sm" onClick="sectorBtnToTextArea(this, '{url}')" id={ticker_name}-sector-btn>{sector}</button>"""
 
 
 class TickerItem_Watchlist(TickerItem):
@@ -55,7 +56,7 @@ class TickerItem_Watchlist(TickerItem):
         self.add_notes = self.empty_or_attr(attr=[], func=self.add_notes_btn)
         self.tags =  self.empty_or_attr(attr=[current_user, self.ticker], func=self.get_ticker_tags)
         self.tags_textarea = self.empty_or_attr(attr=[self.ticker], func=self.get_tag_text_area)
-        self.sector = self.empty_or_attr(attr=[current_user, self.ticker], func=get_sector_span)
+        self.sector = self.empty_or_attr(attr=[current_user, self.ticker], func=get_sector_btn)
         self.notes = self.empty_or_attr(attr=[current_user, self.ticker], func=self.get_ticker_notes)
         self.delete = self.empty_or_attr(attr=[url_for('watchlist.delete')], func=self.delete_btn)
         try:
@@ -160,11 +161,6 @@ def notes_textarea(ticker, ticker_notes):
     id={ticker}-text-area
     placeholder="Enter your notes here!">{ticker_notes}</textarea>
     """
-
-def get_table_ncols(class_=WatchlistTable):
-    item_attrs = class_.__dict__.values()
-    n_cols = len([a for a in item_attrs if isinstance(a, Col)])
-    return n_cols
 
 def get_notes_tr(ticker):
     n_cols = get_table_ncols(class_=WatchlistTable)
