@@ -5,27 +5,24 @@
 
 {% block content %}
 
-<div class="text-center" style="margin-top: 15%; display: none;" id="add-wait">
+<div class="text-center" style="margin-top: 15%;" id="loading">
     <i class="fas fa-cog fa-spin fa-4x"></i>
 
-    <h3 style="margin-top: 7.5%;"> Adding new ticker...</h1>
+    <h3 style="margin-top: 7.5%;"> Loading your Portfolio...</h1>
 </div>
 
-<div class="text-center" style="margin-top: 15%; display: none;" id="delete-wait">
+<div class="text-center" style="margin-top: 15%; display: none;" id="wait">
     <i class="fas fa-cog fa-spin fa-4x"></i>
 
-    <h3 style="margin-top: 7.5%;"> Deleting ticker...</h1>
+    <h3 style="margin-top: 7.5%;"> Processing...</h1>
 </div>
 
-<div id="main-content">
+<div id="main-content" style="display: none;">
     <h1 class="search-title">Portfolio</h1>
-    <div>
-        {{ table }}
-        {% if empty %}
-        <p id="empty-message" style="text-align:center;" style="margin-top: 2%;">
+    <div id="table-div">
+        <p id="empty-message" style="text-align:center;" style="margin-top: 2%; display: none;">
             Your portfolio is currently empty!
         </p>
-        {% endif %}
     </div>
     <form method="POST", accept-charset="UTF-8" id="add-form" style="margin-top: 2%;">
         {{ add_form.csrf_token(id="add-csrf") }}
@@ -85,13 +82,11 @@
 <script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap4.min.js"></script>
 <script>
     //initialize addform ajax
-    let urlAdd = "{{ url_for('portfolio.add') }}";
+    const urlAdd = "{{ url_for('portfolio.add') }}";
+    const urlLoadTable = "{{ url_for('portfolio.get_table') }}";
 
     $(document).ready(function() {
-        addAjax(urlAdd);
-        $('#portfolio-table').DataTable({
-                "order": [],
-            });
+        tableAjax(urlAdd, urlLoadTable);
     });
 
 </script>

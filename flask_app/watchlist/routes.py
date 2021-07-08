@@ -12,27 +12,33 @@ from .. import db
 
 watchlist = Blueprint('watchlist', __name__)
 
-@watchlist.route('/watchlist/loading', methods=["GET", "POST"])
-@login_required
-def loading():
-    url = url_for('watchlist.main')
-    return _render_template('loading.html', url=url, pageName='watchlist')
-
 @watchlist.route('/watchlist', methods=["GET", "POST"])
 @login_required
 def main():
     add_form = AddForm()
+    return _render_template('watchlist/main.html', add_form=add_form)
+
+
+@watchlist.route('/watchlist/get_table', methods=["GET", "POST"])
+@login_required
+def get_table():
     #probably better to paginate here or else loading is really slow b/c calling to yfinance many times - 
-    query_items = WatchlistItem.query.filter_by(user=current_user).order_by(WatchlistItem.date_added.desc()).all()
-    if len(query_items) == 0:
-        table = WatchlistTable(items=[TickerItem_Watchlist('empty')])
-        empty = True
-    else:
-        table_items = query_to_table_items(query_items, TickerItem_Watchlist)
-        table = WatchlistTable(items=table_items)
-        empty = False
+    try:
+        query_items = WatchlistItem.query.filter_by(user=current_user).order_by(WatchlistItem.date_added.desc()).all()
+        if len(query_items) == 0:
+            table = WatchlistTable(items=[TickerItem_Watchlist('empty')])
+            empty = 1
+        else:
+            table_items = query_to_table_items(query_items, TickerItem_Watchlist)
+            table = WatchlistTable(items=table_items)
+            empty = 0
+        
+        return jsonify({'table': table, 'empty': empty})
+
+    except Exception as e:
+        print(str(e))
+        return jsonify({'error': str(e)})
     
-    return _render_template('watchlist/main.html', add_form=add_form, table=table, empty=empty)
 
 @watchlist.route('/watchlist/add', methods=["GET", "POST"])
 @login_required

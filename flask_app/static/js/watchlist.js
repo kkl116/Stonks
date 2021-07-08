@@ -255,13 +255,49 @@ function editSectorAjax(url){
     });
 }
 
-window.addAjax=addAjax;
+
+function tableAjax(urlAdd, urlAddTag, urlEditSector, urlLoadTable){
+    function loadTableAjax(url){
+        $.ajax({
+            url: url,
+            type: 'POST',
+            success: function(response){
+                //insert table 
+                const table = response.table;
+                const empty = response.empty;
+                const emptyMessage = document.getElementById('empty-message');
+    
+                if (empty){
+                    $('#empty-message').toggle()
+                };
+                emptyMessage.insertAdjacentHTML('beforebegin', table);
+                $('#watchlist-table').DataTable({
+                    "order": [],
+                });
+                
+                $('#loading').toggle();
+                $('#main-content').toggle();
+
+                //call table ajaxes here 
+                addAjax(urlAdd);
+                addTagAjax(urlAddTag);
+                editSectorAjax(urlEditSector);
+            },
+            error: function(response){
+                console.log('error');
+                console.log(response);
+            }
+        })
+    }
+
+    loadTableAjax(urlLoadTable);
+}
+
 window.deleteRow=deleteRow;
 window.toggleNotes=toggleNotes;
 window.saveNotes=saveNotes;
-window.addTagAjax=addTagAjax;
 window.deleteTagAjax=deleteTagAjax;
 window.sectorBtnToTextArea=sectorBtnToTextArea;
-window.editSectorAjax=editSectorAjax;
+window.tableAjax=tableAjax;
 
 

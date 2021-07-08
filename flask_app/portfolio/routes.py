@@ -11,32 +11,34 @@ from flask_app import db
 
 portfolio = Blueprint('portfolio', __name__)
 
-@portfolio.route('/portfolio/loading', methods=["GET", "POST"])
-@login_required
-def loading():
-    url = url_for('portfolio.main')
-    return _render_template('loading.html', url=url, pageName='portfolio')
-
-
 @portfolio.route('/portfolio', methods=["GET", "POST"])
 @login_required
 def main():
     add_form = AddForm()
-    #order by name right now... but later on can order by other things like value or sector etc.
-    query_items = PortfolioItem.query.filter_by(user=current_user).all()
-    if len(query_items) == 0:
-        table = PortfolioTable(items=[get_summary_row(None, empty=True)])
-        empty = True
-    else:
-        #update porfolio stats
-        table_items = ticker_name_to_table_items(get_unique_ticker_names(query_items), TickerItem_Portfolio)
-        #create an empty item, then update attrs to make summary row
-        table_items.append(get_summary_row(query_items, table_items))
-        table = PortfolioTable(items=table_items)
-        empty = False
-
     sell_form = SellForm()
-    return _render_template('portfolio/main.html', add_form=add_form, table=table, empty=empty, sell_form=sell_form)
+    return _render_template('portfolio/main.html', add_form=add_form, sell_form=sell_form)
+
+@portfolio.route('/portfolio/get_table', methods=["POST"])
+@login_required
+def get_table():
+    try:
+        query_items = PortfolioItem.query.filter_by(user=current_user).all()
+        if len(query_items) == 0:
+            table = PortfolioTable(items=[get_summary_row(None, None, empty=True)])
+            empty = 1
+        else:
+            #update porfolio stats
+            table_items = ticker_name_to_table_items(get_unique_ticker_names(query_items), TickerItem_Portfolio)
+            #create an empty item, then update attrs to make summary row
+            table_items.append(get_summary_row(query_items, table_items))
+            table = PortfolioTable(items=table_items)
+            empty = 0
+        
+        return jsonify({'table': table, 'empty': empty})
+    except Exception as e:
+        return jsonify({'error': str(e)})
+    
+
 
 @portfolio.route('/portfolio/add', methods=["GET", "POST"])
 @login_required
@@ -88,4 +90,7 @@ def delete():
 @portfolio.route('/portfolio/sell', methods=["POST"])
 @login_required
 def sell():
-    pass
+    try:
+        pass
+    except Exception as e:
+        pass

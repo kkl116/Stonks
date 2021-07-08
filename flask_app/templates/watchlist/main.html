@@ -4,38 +4,39 @@
 {% endblock %}
 
 {% block content %}
+<div class="text-center" style="margin-top: 15%;" id='loading'>
+    <i class="fas fa-cog fa-spin fa-4x"></i>
 
-<div>
+    <h3 style="margin-top: 7.5%;"> Loading your Watchlist...</h1>
+</div>
+
+<div id="main-content" style="display: none;">
     <h1 class="search-title">Watchlist</h1>
 
-    <div>
-        {{ table }}
+    <div id="table-div">
+        <p id="empty-message" style="text-align: center; display: none;">
+            Your watchlist is currently empty!
+        </p>
+    </div>
 
-        {% if empty %}
-            <p id="empty-message" style="text-align: center;">
-                Your watchlist is currently empty!
-            </p>
-        {% endif %}    
-
-        <!--put form here so that + button displays it?-->
-        <div class="box" style="width: 50%; margin-top: 2%;">
-            <div class="content">
-                <div class="form">
-                    <form method="POST" accept-charset="UTF-8" id='add-form'>
-                        {{ add_form.csrf_token(id="add-csrf") }}
-                        <div class="input-group offset-md-6">
-                            {{ add_form.ticker_name(class="form-control border-1 small", style="font-size: 14px;") }}
-                            <div class="input-group-append">
-                                <button type="submit" class="btn btn-dark btn-reset input-group-append align-items-center" style="font-size:12px;"
-                                id="add-submit">
-                                <i class="fas fa-plus-square"></i>                            
-                                </button>
-                            </div>
+    <!--put form here so that + button displays it?-->
+    <div class="box" style="width: 50%; margin-top: 2%;">
+        <div class="content">
+            <div class="form">
+                <form method="POST" accept-charset="UTF-8" id='add-form'>
+                    {{ add_form.csrf_token(id="add-csrf") }}
+                    <div class="input-group offset-md-6">
+                        {{ add_form.ticker_name(class="form-control border-1 small", style="font-size: 14px;") }}
+                        <div class="input-group-append">
+                            <button type="submit" class="btn btn-dark btn-reset input-group-append align-items-center" style="font-size:12px;"
+                            id="add-submit">
+                            <i class="fas fa-plus-square"></i>                            
+                            </button>
                         </div>
-                        <div id="ticker-name-error" class="invalid-feedback" style="margin-left:50%;"></div>
+                    </div>
+                    <div id="ticker-name-error" class="invalid-feedback" style="margin-left:50%;"></div>
 
-                    </form>
-                </div>
+                </form>
             </div>
         </div>
     </div>
@@ -52,16 +53,10 @@
     const urlAdd = "{{ url_for('watchlist.add') }}";
     const urlAddTag = "{{ url_for('watchlist.add_tag') }}"
     const urlEditSector = "{{ url_for('watchlist.edit_sector') }}"
+    const urlLoadTable = "{{ url_for('watchlist.get_table') }}"
     $(document).ready(function() {
             //this is previous function to reopen modal if any form errors were found
-            const tableId = $("table[id^='watchlist-table']").attr('id')
-            addAjax(urlAdd);
-            addTagAjax(urlAddTag);
-            $('#' + tableId).DataTable({
-                "order": [],
-            });
-            editSectorAjax(urlEditSector);
+            tableAjax(urlAdd, urlAddTag, urlEditSector, urlLoadTable);
         });
-
 </script>
 {% endblock %}
