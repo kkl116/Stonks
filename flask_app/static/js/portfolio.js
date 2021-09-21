@@ -161,7 +161,7 @@ function sellAjax(url){
         })
         //append necessary values from table - just get the innerHTML of the different columns
         //get current summary row values -- 
-        const tickerName = data['ticker_name'];
+        const tickerName = data['ticker_name'].toUpperCase().trim();
         data['summary-market_value'] = $('#summary-market_value').html();
         //need to find id of ticker-current-price 
         data['ticker-current-price'] = $('#' + escapeSpecialChars(tickerName) + '-current_price').html();

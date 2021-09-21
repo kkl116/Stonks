@@ -57,10 +57,10 @@
 
 // js for homepage welcome animation
 // function([string1, string2],target id,[color1,color2])    
-consoleText(['Welcome!'], 'text',['#274156', '#1C6E8C', '#605856', '#D0CCD0']);
+consoleText(['Welcome!'], 'welcomeText',['#274156', '#1C6E8C', '#605856', '#D0CCD0']);
 
 
-function consoleText(words, id, colors, Font) {
+function consoleText(words, id, colors) {
   if (colors === undefined) colors = ['#fff'];
   var visible = true;
   var con = document.getElementById('console');

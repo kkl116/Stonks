@@ -13,11 +13,7 @@ current TODO:
 - Portfolio page - setup the add and delete ticker system, then maybe add a little something extra like level of diversity or something
     - portfolio todos:
         -portfolio history
-        -sell button
-        -portfolio tags and sectors --------
-- for portfolio if last item is removed need to keep summary row there
 
-- after login should be another welcome page -- 
 - profile pages - set sayyyy default currency and change account settings 
 - 404/400 error page, and change error exceptions to return these status codes 
 
@@ -70,6 +66,12 @@ and refresh after the page is done loading
  - watchlistitems and portfolio items custom tags? (which goes into grouping function sort of)
     - format table elements a little bit (maybe align center)
     - ability to edit and delete tag
+
+-portfolio sell button
+-portfolio tags and sectors --------
+- for portfolio if last item is removed need to keep summary row there
+
+- after login should be another welcome page -- 
 
 
 

@@ -126,7 +126,7 @@ def update_ownership(ticker_name, item, mode='1'):
         #update according to order 
         if mode == '1':
             #get new share price and update quantity
-            ownership.purchase_price = np.average([current_purchase_price, item_purchase_price],
+            ownership.avg_purchase_price = np.average([current_purchase_price, item_purchase_price],
             weights=[current_quantity, item_quantity])
             ownership.quantity = current_quantity + item_quantity
             db.session.commit()
@@ -137,6 +137,7 @@ def update_ownership(ticker_name, item, mode='1'):
                 db.session.commit()
             else:
                 ownership.quantity = current_quantity - item_quantity
+                db.session.commit()
             #if quantity = 0 then delete the entry
     elif not ownership and mode == '1':
         ownership = PortfolioOwnership(ticker_name=item.ticker_name,

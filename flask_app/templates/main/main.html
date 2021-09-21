@@ -5,15 +5,22 @@
 
 <div class='console-container'>
     <i class="far fa-smile"></i>
-    <span id='text'></span>
+    <span id='welcomeText' style="display: none"></span>
     <div class='console-underscore' id='console'>&#95;</div>
 </div>
 
 <!-- need to add <a> tag here for create an account button-->
 <!-- also if logged in then should be a slighly different page-->
 <div class='homepage-text-container'>
-    <button type="button" class="btn btn-outline-primary" id="create-account-button">Create an account</button>
-     or search for a stock to get started!
+    {% if logged_in == 1 %}
+        <i class="far fa-hand-point-left"></i> 
+        Click a page or 
+        <i class="far fa-hand-point-up"></i>
+        search for a stock to get started!
+    {% else %}
+        <button type="button" class="btn btn-outline-primary" id="create-account-button">Create an account</button>
+        or search for a stock to get started!
+    {% endif %}
 </div>
 
 {% endblock %}
