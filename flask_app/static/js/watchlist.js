@@ -202,7 +202,7 @@ function sectorBtnToTextArea(clicked, url){
     let textArea = $('<textarea></textarea>');
     const btnText = $(clicked).html();
     const ticker = tickerFromId(clicked.id, 2);
-    const spanId = '#' + clicked.id;
+    const spanId = '#' + escapeSpecialChars(clicked.id);
     $(textArea).html(btnText);
     $(textArea).attr('id', ticker+'-sector-textArea')
     $(textArea).data('url', url)
@@ -242,7 +242,7 @@ function editSectorAjax(url){
                         success: function(response){
                             //insert span element from server next to textarea
                             let newBtn = response.newBtn;
-                            $('#' + element.id).replaceWith(newBtn)
+                            $('#' + escapeSpecialChars(element.id)).replaceWith(newBtn)
                         },
                         error: function(response){
                             //do something 

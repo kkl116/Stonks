@@ -3,6 +3,8 @@ from ..accounts.forms import (LoginForm, RegisterationForm,
                                     RequestResetForm, ResetPasswordForm)
 import requests
 import ast
+import stockquotes
+from ..models import PortfolioItem
 
 def get_request_form_keys(request, omit_keys = ['remember', 'submit']):
     if len(list(request.form.keys())) > 0:
@@ -55,12 +57,11 @@ def check_ticker_exists(ticker):
     """takes ticker name and checks on yahoo finance to see if it exists.
     returns a boolean
     """
-    ticker = ticker.strip().upper()
-    url = f'https://uk.finance.yahoo.com/quote/{ticker}?p={ticker}&.tsrc=fin-srch'
-    page = requests.get(url)
-    if page.url == url:
+    try: 
+        stock = stockquotes.Stock(ticker)
         return True
-    else:
+    except Exception as e:
+        print(str(e))
         return False
 
 def redirect_json(route=None, url=None):
@@ -102,5 +103,8 @@ def html_formatter(element_type, inner_html='', **kwargs):
 
     end = f'</{element_type}>'
     return start + ' '.join(attrs) + '>' + inner_html + end
+
+
+
 
 

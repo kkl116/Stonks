@@ -10,6 +10,7 @@ import plotly
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 import pandas as pd 
+from ..utils.helpers import check_ticker_exists
 
 #Remember to update yfinance package if any errors.
 
@@ -51,14 +52,6 @@ def get_dropdown_items():
 
     dropdowns = dict(zip(display_string, items))
     return dropdowns
-
-def check_ticker_exists(ticker):
-    url = f'https://uk.finance.yahoo.com/quote/{ticker}?p={ticker}&.tsrc=fin-srch'
-    page = requests.get(url)
-    if page.url == url:
-        return True
-    else:
-        return False
 
 def format_attr_string(string):
     split = string.split('_')

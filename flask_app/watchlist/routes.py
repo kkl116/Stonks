@@ -1,10 +1,11 @@
 from flask import Blueprint, request, url_for, jsonify, abort
-from ..utils.helpers import (_render_template, redirect_json, form_errors_400, 
+from ..utils.helpers import (_render_template, confirm_post_request_form, redirect_json, form_errors_400, 
                             redirect_next_page, format_ticker_name)
 from .utils import (WatchlistTable, TickerItem_Watchlist, get_notes_tr,
                     create_new_tag_entry, span_from_tag_item, get_sector,
                     get_sector_btn)
 from ..utils.table_helpers import new_item_json, query_to_table_items
+from ..utils.helpers import check_ticker_exists
 from flask_login import login_required, current_user
 from .forms import AddForm
 from ..models import WatchlistItem, WatchlistItemTag
@@ -44,7 +45,7 @@ def get_table():
 @login_required
 def add():
     add_form = AddForm()
-    if request.method == 'POST':
+    if request.method == 'POST' and confirm_post_request_form(request, add_form):
         if add_form.validate_on_submit():
             #need to add the watchlist item into the db
             ticker_name = format_ticker_name(add_form.ticker_name.data)

@@ -18,6 +18,7 @@ def update_attr_dict(attr_dict, new_attr):
     else:
         attr_dict.update(new_attr) 
 
+
 class TickerItem:
     """base class to create object to pass to flask table"""
     def __init__(self, ticker):
@@ -130,7 +131,12 @@ def new_item_json(item, table_class=None, include_id=False, **kwargs):
     """creates a json for table items to be sent to client side. use kwargs to include any additional 
     items to be sent over"""
     dummy_table = table_class(items=[])
-    item_dict = {'newItem': dummy_table.tr(item)}
+    if item.empty:
+        #if item is empty then just send a truthy value over 
+        item_dict = {'newItem': False}
+    else:
+        item_dict = {'newItem': dummy_table.tr(item)}
+
     for key, val in kwargs.items():
         item_dict.update({key: dummy_table.tr(val)})
     if include_id:

@@ -15,6 +15,7 @@ current TODO:
         -portfolio history
         -sell button
         -portfolio tags and sectors --------
+- for portfolio if last item is removed need to keep summary row there
 
 - after login should be another welcome page -- 
 - profile pages - set sayyyy default currency and change account settings 

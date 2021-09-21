@@ -27,6 +27,8 @@ class User(db.Model, UserMixin):
                                         cascade="all, delete, delete-orphan", passive_deletes=True)
     portfolioItems = db.relationship('PortfolioItem', backref='user', lazy=True,
                                 cascade="all, delete, delete-orphan", passive_deletes=True)
+    portfolioOwnership = db.relationship('PortfolioOwnership', backref='user', lazy=True,
+                                cascade='all, delete, delete-orphan', passive_deletes=True)
     
     
     def get_reset_token(self, expires_sec=1800):
@@ -83,16 +85,28 @@ class PortfolioItem(db.Model):
     __tablename__ = 'portfolio_item'
     id = db.Column(db.Integer, primary_key=True)
     ticker_name = db.Column(db.String(), unique=False, nullable=False)
-    purchase_price = db.Column(db.String(), nullable=False)
+    purchase_price = db.Column(db.String(), unique=False, nullable=True)
+    sell_price = db.Column(db.String(), unique=False, nullable=True)
     quantity = db.Column(db.String(), nullable=False)
     currency = db.Column(db.String(), nullable=False)
-    status = db.Column(db.String(), nullable=False, default="OWNED")
+    order_type = db.Column(db.String(), nullable=False, default='1')
     sector = db.Column(db.String(), nullable=False, default='')
-    sell_price = db.Column(db.String(), nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete="CASCADE"), nullable=False)
 
     def __repr__(self):
-        return f"PortfolioItem('{self.ticker_name}', '{self.purchase_price}', '{self.quantity}', '{self.status}')"
+        return f"PortfolioItem('{self.ticker_name}', '{self.price}', '{self.quantity}', '{self.order_type}')"
+
+class PortfolioOwnership(db.Model):
+    __tablename__ = 'portfolio_ownership'
+    id = db.Column(db.Integer, primary_key=True)
+    ticker_name = db.Column(db.String(), unique=True, nullable=False)
+    avg_purchase_price = db.Column(db.String(), unique=False, nullable=False)
+    quantity = db.Column(db.String(), unique=False, nullable=False)
+    currency = db.Column(db.String(), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete="CASCADE"), nullable=False)
+
+    def __repr__(self):
+        return f"PortfolioOwnership('{self.ticker_name}', '{self.avg_purchase_price}', '{self.quantity}', '{self.currency}')"
 
 class ExchangeRate(db.Model):
     __tablename__ = 'exchange_rates'

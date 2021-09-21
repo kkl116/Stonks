@@ -29,15 +29,15 @@
         <div class="form-row justify-content-center">
             <div class="col-auto">
                 {{ add_form.ticker_name(class="form-control border-1 small", style="font-size: 14px;") }}
-                <div id="ticker-name-error" class="invalid-feedback"></div>
+                <div id="ticker-name-error" class="col invalid-feedback"></div>
             </div>
             <div class="col-auto">
                 {{ add_form.purchase_price(class="form-control border-1 small", style="font-size: 14px;")}}
-                <div id="purchase-price-error" class="invalid-feedback"></div>
+                <div id="purchase-price-error" class="col invalid-feedback"></div>
             </div>
             <div class="col-auto">
                 {{ add_form.quantity(class="form-control border-1 small", style="font-size: 14px;")}}
-                <div id="quantity-error" class="invalid-feedback"></div>
+                <div id="quantity-error" class="col invalid-feedback"></div>
             </div>
 
             <div class="col-auto">
@@ -53,15 +53,15 @@
         <div class="form-row justify-content-center">
             <div class="col-auto">
                 {{ sell_form.ticker_name(class="form-control border-1 small", style="font-size: 14px;") }}
-                <div id="sell-ticker-name-error" class="invalid-feedback"></div>
+                <div id="sell-ticker-name-error" class="col invalid-feedback"></div>
             </div>
             <div class="col-auto">
-                {{ sell_form.sell_price(class="form-control border-1 small", style="font-size: 14px;") }}
-                <div id="sell-price-error" class="invalid-feedback"></div>
+                {{ sell_form.price(class="form-control border-1 small", style="font-size: 14px;") }}
+                <div id="sell-price-error" class="col invalid-feedback"></div>
             </div>
             <div class="col-auto">
                 {{ sell_form.quantity(class="form-control border-1 small", style="font-size: 14px;") }}
-                <div id="sell-quantity-error" class="invalid-feedback"></div>
+                <div id="sell-quantity-error" class="col invalid-feedback"></div>
             </div>
             <div class="col-auto">
                 <button type="submit" class="btn btn-dark" style="font-size:12.5px;" id="sell-submit">
@@ -84,9 +84,10 @@
     //initialize addform ajax
     const urlAdd = "{{ url_for('portfolio.add') }}";
     const urlLoadTable = "{{ url_for('portfolio.get_table') }}";
+    const urlSell = "{{ url_for('portfolio.sell') }}";
 
     $(document).ready(function() {
-        tableAjax(urlAdd, urlLoadTable);
+        tableAjax(urlAdd, urlLoadTable, urlSell);
     });
 
 </script>

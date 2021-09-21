@@ -31,19 +31,20 @@ if __name__ == '__main__':
         db.create_all()
 
     #portfolio items to be added when init
-    portfolio_dict = {
-        'GME': ['271.97', '20'],
-        'F': ['13.35', '100'],
-        'PLTR': ['23.57', '50'],
-        'ROO.L': ['390', '256'],
-        'AMC': ['21.07', '25']
-    }
+    # portfolio_dict = {
+    #     'GME': ['244.09', '40'],
+    #     'ROO.L': ['390', '256'],
+    #     'MRNA': ['402.64', '10'],
+    #     'OTLY': ['28.79', '25']
+    # }
     #sold ford 100 shares at 15.53
+    portfolio_dict = 0
 
     watchlist = [
         'GME', 'PLTR', 'NVDA', 'ROO.L', 'MMED.NE', 'ETH-USD',
         #'HBAR-USD', 'DOGE-USD', 'BTC-USD', 'CTXR', 'F', 'AMC',
-        'BB'
+        'BB', 'CTXR', 'MRNA', 'BNTX', 'AMC', 'HBAR-USD',
+        'OTLY', '^VIX', 'SPY'
     ]
 
     #add a dummy user 
@@ -57,15 +58,17 @@ if __name__ == '__main__':
             watchlist_items = [WatchlistItem(ticker_name=ticker_name, user=user, sector=get_sector(ticker_name)) for ticker_name in watchlist]
             #add portfolio items here as well - 
             portfolio_items = []
-            for ticker_name, details in portfolio_dict.items():
-                ticker_info = get_ticker_info(ticker_name)
-                args_dict = {'user': user,
-                'ticker_name': ticker_name,
-                'purchase_price': details[0],
-                'quantity': details[1],
-                'currency': ticker_info['currency'],
-                'sector': ticker_info['sector']}
-                portfolio_items.append(PortfolioItem(**args_dict))
+            if portfolio_dict:
+                for ticker_name, details in portfolio_dict.items():
+                    ticker_info = get_ticker_info(ticker_name)
+                    args_dict = {'user': user,
+                    'ticker_name': ticker_name,
+                    'price': details[0],
+                    'quantity': details[1],
+                    'currency': ticker_info['currency'],
+                    'sector': ticker_info['sector'],
+                    'order_type': '1'}
+                    portfolio_items.append(PortfolioItem(**args_dict))
 
             db.session.add_all(portfolio_items)
             db.session.add_all(watchlist_items)

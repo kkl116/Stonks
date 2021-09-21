@@ -1,4 +1,4 @@
-import { formAjax, modifyErrorKeys, deleteRow, escapeSpecialChars } from './helpers.js';
+import { formAjax, modifyErrorKeys, escapeSpecialChars } from './helpers.js';
 
 function toggleLoading(){
     $('#wait').toggle()
@@ -84,28 +84,13 @@ function addAjax(url){
         keyFunc=keyFunc, waitFunc=waitFunc, dataFunc=dataFunc);
 }
 
-
-function deleteSuccess(response){
-    //update summary row 
-    $('#summary').replaceWith(response.newItem);
-}
-
-function deleteRowDataFunc(ticker){
-    let data = {};
-    data['ticker'] = ticker;
-    console.log(ticker)
-    data['summary-market_value'] = $('#summary-market_value').html();
-    data['ticker-market_value'] = $('#' + escapeSpecialChars(ticker) + '-market_value').html();
-    return data
-}
-
 function fillSellFormTicker(clicked){
     const fieldId = 'sell-ticker-name';
     const ticker = clicked.id.split('-')[0];
     $('#' + fieldId).val(ticker);
 }
 
-//change sellajax
+
 function sellAjax(url){
 
     function successFunc(success, fields){
@@ -117,12 +102,14 @@ function sellAjax(url){
         }
         //append item to table - 
         //actually here it's a bit different - replaces original row if it's the same ticker
-        let row = document.getElementById(success.id)
-        if (row){
+        let row = document.getElementById(success.id);
+        if (row && success.newItem){
+            //replace row if newItem contains new element
             $('#'+success.id).replaceWith(success.newItem)
-        } else{
-            table.insertAdjacentHTML('afterbegin', success.newItem);
-        }
+        } else if (row && !success.newItem){
+            //if row exists and newItem does not contain new element - remove row 
+            $('#'+success.id).remove()
+        };
         //replace summary row 
         $('#summary').replaceWith(success.summary);
 
@@ -140,6 +127,7 @@ function sellAjax(url){
     function errorFunc(errors, fields){
 
         let modErrors = modifyErrorKeys(errors, function(key){
+            key = 'sell-' + key
             return key.replace('_', '-')
         })
         console.log(modErrors)
@@ -158,7 +146,7 @@ function sellAjax(url){
     }
 
     function keyFunc(key){
-        return key.replace('-', '_')
+        return key.replace('sell-', '').replace('-', '_')
     }
 
     function waitFunc(){
@@ -173,19 +161,23 @@ function sellAjax(url){
         })
         //append necessary values from table - just get the innerHTML of the different columns
         //get current summary row values -- 
+        const tickerName = data['ticker_name'];
         data['summary-market_value'] = $('#summary-market_value').html();
+        //need to find id of ticker-current-price 
+        data['ticker-current-price'] = $('#' + escapeSpecialChars(tickerName) + '-current_price').html();
+
         console.log(data)
         return data
     }
 
-    let formId = 'add-form'
-    let fieldIds = ['add-csrf', 'ticker-name', 'quantity', 'purchase-price']
+    let formId = 'sell-form'
+    let fieldIds = ['sell-csrf', 'sell-ticker-name', 'sell-quantity', 'sell-price']
     formAjax(url=url, formId=formId,
         fieldIds=fieldIds, successFunc=successFunc, errorFunc=errorFunc,
         keyFunc=keyFunc, waitFunc=waitFunc, dataFunc=dataFunc);
 }
 
-function tableAjax(urlAdd, urlLoadTable){
+function tableAjax(urlAdd, urlLoadTable, urlSell){
     //forms should be passed by default already - 
     function loadTableAjax(url){
         $.ajax({
@@ -198,7 +190,9 @@ function tableAjax(urlAdd, urlLoadTable){
                 const emptyMessage = document.getElementById('empty-message')
                 if (empty) {
                     $('#empty-message').show()
-                }
+                } else {
+                    $('#empty-message').hide()
+                };
                 emptyMessage.insertAdjacentHTML('beforebegin', table);
                 $('#portfolio-table').DataTable({
                     "order": [],
@@ -209,6 +203,7 @@ function tableAjax(urlAdd, urlLoadTable){
 
                 //call rest of table ajax here 
                 addAjax(urlAdd);
+                sellAjax(urlSell);
             },
             error: function(response){
                 console.log('error')
@@ -220,8 +215,5 @@ function tableAjax(urlAdd, urlLoadTable){
     loadTableAjax(urlLoadTable);
 }
 
-window.deleteRow=deleteRow;
-window.deleteSuccess=deleteSuccess;
-window.deleteRowDataFunc=deleteRowDataFunc;
 window.fillSellFormTicker=fillSellFormTicker;
 window.tableAjax=tableAjax;
