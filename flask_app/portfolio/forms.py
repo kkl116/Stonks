@@ -31,9 +31,9 @@ class AddForm(FlaskForm):
         ticker_name = format_ticker_name(ticker_name.data)
         exists = check_ticker_exists(ticker_name)
         if not exists:
-            raise ValidationError("This ticker does not exist! Please try again.")
+            raise ValidationError("This ticker does not exist!")
 
-    def validate_price(self, price):
+    def validate_purchase_price(self, price):
         """simple validator to ensure that price is not negative"""
         if float(price.data) < 0:
             raise ValidationError("Purchase price cannot be negative!")

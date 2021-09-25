@@ -1,4 +1,4 @@
-import { formAjax, modifyErrorKeys, escapeSpecialChars } from './helpers.js';
+import { formAjax, modifyErrorKeys, escapeSpecialChars, error500Redirect} from './helpers.js';
 
 function toggleLoading(){
     $('#wait').toggle()
@@ -207,7 +207,6 @@ function tableAjax(urlAdd, urlLoadTable, urlSell){
             },
             error: function(response){
                 console.log('error')
-                console.log(response)
             }
         })
     }

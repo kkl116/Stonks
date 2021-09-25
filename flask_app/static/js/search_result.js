@@ -1,4 +1,5 @@
 //ajax for dropdown to add additional charts if wanted
+
 function addChart(clicked){
     const item = $(clicked).data('item-name');
     const url = $(clicked).data('targ-url');

@@ -1,5 +1,5 @@
 //use prepend method to add a td element to the table (append/prepend is inside - before and after is well before and after)
-import { escapeSpecialChars, tickerFromId, formAjax, modifyErrorKeys, deleteRow } from "./helpers.js";
+import { escapeSpecialChars, tickerFromId, formAjax, modifyErrorKeys, deleteRow} from "./helpers.js";
 //to use import statements, requires script to be a module
 //modules' functions reside within script itself, and cannot be accessed from html directly
 //not the best practice, but can set functions as global var so that it can be called directly. 

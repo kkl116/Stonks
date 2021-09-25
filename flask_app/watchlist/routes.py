@@ -1,11 +1,11 @@
-from flask import Blueprint, request, url_for, jsonify, abort
+from flask import Blueprint, request, jsonify
 from ..utils.helpers import (_render_template, confirm_post_request_form, redirect_json, form_errors_400, 
-                            redirect_next_page, format_ticker_name)
+                            redirect_next_page, format_ticker_name, error_500)
 from .utils import (WatchlistTable, TickerItem_Watchlist, get_notes_tr,
                     create_new_tag_entry, span_from_tag_item, get_sector,
                     get_sector_btn)
 from ..utils.table_helpers import new_item_json, query_to_table_items
-from ..utils.helpers import check_ticker_exists
+from ..utils.helpers import check_ticker_exists, error_message, error_500
 from flask_login import login_required, current_user
 from .forms import AddForm
 from ..models import WatchlistItem, WatchlistItemTag
@@ -37,27 +37,29 @@ def get_table():
         return jsonify({'table': table, 'empty': empty})
 
     except Exception as e:
-        print(str(e))
-        return jsonify({'error': str(e)})
+        return error_500(e)
     
 
 @watchlist.route('/watchlist/add', methods=["GET", "POST"])
 @login_required
 def add():
     add_form = AddForm()
-    if request.method == 'POST' and confirm_post_request_form(request, add_form):
-        if add_form.validate_on_submit():
-            #need to add the watchlist item into the db
-            ticker_name = format_ticker_name(add_form.ticker_name.data)
-            item = WatchlistItem(ticker_name=ticker_name, user=current_user,
-            sector=get_sector(ticker_name))
-            db.session.add(item)
-            db.session.commit()
-            return new_item_json(TickerItem_Watchlist(ticker_name), table_class=WatchlistTable, include_id=False)
+    try:
+        if request.method == 'POST' and confirm_post_request_form(request, add_form):
+            if add_form.validate_on_submit():
+                #need to add the watchlist item into the db
+                ticker_name = format_ticker_name(add_form.ticker_name.data)
+                item = WatchlistItem(ticker_name=ticker_name, user=current_user,
+                sector=get_sector(ticker_name))
+                db.session.add(item)
+                db.session.commit()
+                return new_item_json(TickerItem_Watchlist(ticker_name), table_class=WatchlistTable, include_id=False)
+            else:
+                return form_errors_400(add_form)
         else:
-            return form_errors_400(add_form)
-    else:
-        return redirect_next_page()
+            return redirect_next_page()
+    except Exception as e:
+        return error_500(e)
     
 @watchlist.route('/watchlist/delete', methods=["GET", "POST"])
 @login_required
@@ -70,7 +72,8 @@ def delete():
             db.session.commit()
             return jsonify({'message': 'ticker has been deleted'})
         except Exception as e:
-            return jsonify({'message': str(e)})
+            return error_500(e)
+
     return redirect_next_page()
 
 @watchlist.route('/watchlist/save_notes', methods=["GET", "POST"])
@@ -86,7 +89,7 @@ def save_notes():
             return jsonify({'message': 'notes have been added'})
             
         except Exception as e:
-            return jsonify({'message': str(e)})
+            return error_500(e)
 
 @watchlist.route('/watchlist/get_notes', methods=["GET","POST"])
 @login_required
@@ -97,7 +100,7 @@ def get_notes():
             notes_tr = get_notes_tr(ticker)
             return jsonify({'tr': notes_tr})
         except Exception as e:
-            return jsonify({'message': str(e)})
+            return error_500(e)
 
 @watchlist.route('/watchlist/add_tag', methods=["GET", "POST"])
 @login_required
@@ -119,8 +122,7 @@ def add_tag():
                 return jsonify({'element': span_element})
 
         except Exception as e:
-            print(e)
-            return jsonify({'error': str(e)})
+            return error_500(e)
 
 @watchlist.route('/watchlist/delete_tag', methods=["POST"])
 @login_required
@@ -132,7 +134,7 @@ def delete_tag():
         db.session.commit()
         return jsonify({'message': 'tag has been deleted'})
     except Exception as e:
-        return jsonify({'error': str(e)})
+        return error_500(e)
     
 @watchlist.route('/watchlist/edit_sector', methods=["POST"])
 @login_required
@@ -147,7 +149,7 @@ def edit_sector():
         newBtn = get_sector_btn(current_user, ticker)
         return jsonify({'newBtn': newBtn})
     except Exception as e:
-        return jsonify({'error': str(e)})
+        return error_500(e)
 
         
             

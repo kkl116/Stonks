@@ -144,6 +144,7 @@ function deleteRow(clicked, successFunc=null, errorFunc=null, waitFunc=null,
             },
             error: function(response){
                 console.log(response);
+
                 if (errorFunc){
                     errorFunc(response);
                 }
@@ -151,5 +152,14 @@ function deleteRow(clicked, successFunc=null, errorFunc=null, waitFunc=null,
     });
 }
 
+function error500Redirect(response){
+    const url = response.url_500;
+    if (url){
+        window.location.href = url;
+    } else {
+        console.log('500 Error but no URL provided')
+    };
+}
+
 export {escapeSpecialChars, tickerFromId, formAjax,
-        modifyErrorKeys, deleteRow}
+        modifyErrorKeys, deleteRow, error500Redirect}

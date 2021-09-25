@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, url_for
-from ..utils.helpers import _render_template, format_ticker_name, form_errors_400, redirect_next_page
+from ..utils.helpers import _render_template, format_ticker_name, form_errors_400, redirect_next_page, error_500
 from ..utils.table_helpers import ticker_name_to_table_items, new_item_json
 from ..models import PortfolioOwnership, PortfolioItem
 from .forms import AddForm, SellForm
@@ -37,8 +37,8 @@ def get_table():
         
         return jsonify({'table': table, 'empty': empty})
     except Exception as e:
-        print(e)
-        return jsonify({'error': str(e)})
+        return error_500(e)
+
     
 
 
@@ -46,23 +46,26 @@ def get_table():
 @login_required
 def add():
     add_form = AddForm()
-    if request.method == 'POST':
-        if add_form.validate_on_submit():
-            ticker_name = format_ticker_name(add_form.ticker_name.data)
-            #just add entry here
-            item = create_new_order_entry(ticker_name, add_form)
-            ### update ownership entry here 
-            update_ownership(ticker_name, item, mode='1')
-            current_ownership = PortfolioOwnership.query.filter_by(user=current_user).all()
-            #update summary row - instead of creating new one, just subtract current values from deleted row and current sum row 
-            return new_item_json(TickerItem_Portfolio(ticker_name), table_class=PortfolioTable, include_id=True,
-                                summary=update_summary_row(ownership=current_ownership, ticker_item=item,
-                                                        request_json=request.json, mode="add"))        
+    try:
+        if request.method == 'POST':
+            if add_form.validate_on_submit():
+                ticker_name = format_ticker_name(add_form.ticker_name.data)
+                #just add entry here
+                item = create_new_order_entry(ticker_name, add_form)
+                ### update ownership entry here 
+                update_ownership(ticker_name, item, mode='1')
+                current_ownership = PortfolioOwnership.query.filter_by(user=current_user).all()
+                #update summary row - instead of creating new one, just subtract current values from deleted row and current sum row 
+                return new_item_json(TickerItem_Portfolio(ticker_name), table_class=PortfolioTable, include_id=True,
+                                    summary=update_summary_row(ownership=current_ownership, ticker_item=item,
+                                                            request_json=request.json, mode="add"))        
+            else:
+                print(add_form.errors)
+                return form_errors_400(add_form)
         else:
-            print(add_form.errors)
-            return form_errors_400(add_form)
-    else:
-        redirect_next_page()
+            redirect_next_page()
+    except Exception as e:
+        return error_500(e)
 
 @portfolio.route('/portfolio/sell', methods=["POST"])
 @login_required
@@ -84,5 +87,4 @@ def sell():
             print(sell_form.errors)
             return form_errors_400(sell_form)
     except Exception as e:
-        print(e)
-        return jsonify({'error': str(e)})
+        return error_500(e)

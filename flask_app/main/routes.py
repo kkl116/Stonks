@@ -12,3 +12,4 @@ def home():
     else:
         logged_in = 0
     return _render_template('main/main.html', logged_in=logged_in)
+

@@ -379,6 +379,9 @@ class TickerItem_Portfolio(TickerItem):
         </button>
         """
     
+    def __repr__(self):
+        return f"TickerItem_Portfolio({self.ticker_name})"
+    
 class PortfolioTable(Table_):
     def __init__(self, *args, **kwargs):
         super(PortfolioTable, self).__init__(*args, **kwargs)
@@ -395,4 +398,6 @@ class PortfolioTable(Table_):
     sell = Col_('SELL', hide_header=True)
     table_id = 'portfolio-table'
 
+    def __repr__(self):
+        return "PortfolioTable"
 

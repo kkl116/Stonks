@@ -15,7 +15,6 @@ current TODO:
         -portfolio history
 
 - profile pages - set sayyyy default currency and change account settings 
-- 404/400 error page, and change error exceptions to return these status codes 
 
 
 side TODO (nicer looking features in the future):
@@ -72,6 +71,7 @@ and refresh after the page is done loading
 - for portfolio if last item is removed need to keep summary row there
 
 - after login should be another welcome page -- 
+- 404/400 error page, and change error exceptions to return these status codes 
 
 
 
