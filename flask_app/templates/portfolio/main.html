@@ -19,12 +19,11 @@
 
 <div id="main-content" style="display: none;">
     <h1 class="search-title">Portfolio</h1>
-    <div id="table-div">
-        <p id="empty-message" style="text-align:center;" style="margin-top: 2%; display: none;">
-            Your portfolio is currently empty!
-        </p>
-    </div>
-    <form method="POST", accept-charset="UTF-8" id="add-form" style="margin-top: 2%;">
+    <div id="table-div"></div>
+    <p id="empty-message" style="text-align:center;" style="margin-top: 5%; display: none;">
+        Your portfolio is currently empty!
+    </p>
+    <form method="POST", accept-charset="UTF-8" id="add-form" style="margin-top: 5%;">
         {{ add_form.csrf_token(id="add-csrf") }}
         <div class="form-row justify-content-center">
             <div class="col-auto">

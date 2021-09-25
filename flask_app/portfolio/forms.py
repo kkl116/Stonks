@@ -10,6 +10,14 @@ from flask_login import current_user
 
 date_format = "%d-%m-%Y"
 
+def float_check(data):
+    try:
+        data = float(data)
+    except:
+        raise ValidationError("Invalid number.")
+    
+    return data
+
 
 class AddForm(FlaskForm):
     ticker_name = StringField('ticker name',
@@ -35,11 +43,16 @@ class AddForm(FlaskForm):
 
     def validate_purchase_price(self, price):
         """simple validator to ensure that price is not negative"""
-        if float(price.data) < 0:
+        #check that it's a number
+        price = float_check(price.data)
+
+        if price < 0:
             raise ValidationError("Purchase price cannot be negative!")
     
     def validate_quantity(self, quantity):
-        if float(quantity.data) < 0:
+        quantity = float_check(quantity.data)
+
+        if quantity < 0:
             raise ValidationError("Quantity cannot be negative!")
 
 class SellForm(FlaskForm):
@@ -72,17 +85,21 @@ class SellForm(FlaskForm):
     def validate_quantity(self, quantity):
         """make sure that sell quantity is not greater than quantity owned"""
         #problem - how to get current ticker???
+        quantity = float_check(quantity.data)
+
         ticker_name = format_ticker_name(self.ticker_name.data)
         ownership = PortfolioOwnership.query.filter_by(ticker_name=ticker_name, user=current_user).first()
         if ownership:
             current_shares = float(ownership.quantity)
             #function here to get all the currently holding n shares
-            if int(quantity.data) > current_shares:
+            if quantity > current_shares:
                 raise ValidationError("You don't have that many shares!")
         else:
             raise ValidationError("Invalid Ticker!")
 
     def validate_price(self, price):
         """check that sell price is not negative"""
-        if float(price.data) < 0:
+        price = float_check(price.data)
+
+        if price < 0:
             raise ValidationError("Sell price cannot be negative!")
