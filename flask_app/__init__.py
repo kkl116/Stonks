@@ -40,13 +40,15 @@ def create_app(config_class=Config):
     from .searches.routes import searches
     from .watchlist.routes import watchlist
     from .portfolio.routes import portfolio
-    from .errors.handlers import error_404
+    from .errors.handlers import error_404, errors
 
     app.register_blueprint(accounts)
     app.register_blueprint(main)
     app.register_blueprint(searches)    
     app.register_blueprint(watchlist)
     app.register_blueprint(portfolio)
+    app.register_blueprint(errors)
     app.register_error_handler(404, error_404)
+
 
     return app 

@@ -14,7 +14,7 @@ def get_sector(ticker_name):
         sector = ticker.info['sector']
         return sector
     except Exception as e:
-        print(e)
+        print(f'Error in obtaining ticker sector: {e}')
         return 'N/A'
 
 def create_new_tag_entry(new_tag, ticker_name):

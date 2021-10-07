@@ -132,7 +132,7 @@ def new_item_json(item, table_class=None, include_id=False, **kwargs):
     items to be sent over"""
     dummy_table = table_class(items=[])
     if item.empty:
-        #if item is empty then just send a truthy value over 
+        #if item is empty then just send a truthy value 
         item_dict = {'newItem': False}
     else:
         item_dict = {'newItem': dummy_table.tr(item)}

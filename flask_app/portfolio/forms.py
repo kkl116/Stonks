@@ -71,7 +71,6 @@ class SellForm(FlaskForm):
                             render_kw={'placeholder': 'Sell Price',
                             'id': 'sell-price'})
 
-    #change below methods to use ownership entry
     def validate_ticker_name(self, ticker_name):
         """just check that ticker exists and that this person owns these shares"""
         ticker_name = format_ticker_name(ticker_name.data)
