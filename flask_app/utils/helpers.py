@@ -76,19 +76,6 @@ def redirect_json(route=None, url=None):
 
     return jsonify({"redirect": url})
 
-#error handling
-def form_errors_400(form):
-    return jsonify(form.errors), 400
-
-def error_message(e):
-    current_route = request.path
-    print('*****route:', current_route, '\t error:', str(e), '*****')
-
-def error_500(e):
-    error_message(e)
-    return jsonify({'url_500': url_for('errors.error_500')}), 500
-
-
 
 def format_ticker_name(ticker_name):
     return ticker_name.strip().upper()

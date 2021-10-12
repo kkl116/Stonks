@@ -4,7 +4,8 @@ from .forms import (LoginForm, RegisterationForm,
 from ..models import User
 from .. import db, bcrypt, login_manager
 from ..utils.helpers import (redirect_next_page, confirm_post_request_form, _render_template, 
-                            redirect_json, form_errors_400)
+                            redirect_json)
+from ..errors.utils import form_errors_400
 from flask_login import login_user, logout_user, login_required, current_user
 from .utils import (username_email_query, send_reset_email, 
                     send_verification_email, account_is_activated)

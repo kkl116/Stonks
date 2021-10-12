@@ -2,7 +2,7 @@ from flask_table import Col
 from ..utils.table_helpers import (Col_, TickerItem, 
                                 Table_, get_table_ncols)
 from flask_login import current_user 
-from ..models import PortfolioItem, ExchangeRate, PortfolioOwnership
+from ..models import PortfolioItem, ExchangeRate, Position
 import numpy as np 
 import yfinance as yf
 from flask import url_for, jsonify
@@ -57,7 +57,7 @@ def get_exchange_rate(from_currency, to_currency, apikey='761WW05Z48CV56CK', tes
         elif to_currency == 'GBp':
             rate *= 100
     else:
-        rate = 1
+        return 1
     return rate
 
 def get_unique_ticker_names(query_items):
@@ -70,10 +70,10 @@ def get_ticker_info(ticker_name, **kwargs):
     return ticker.info
 
 def get_current_purchase_price(ticker_name, current_user):
-    #get current purchase price based on current ownership
-    ownership = PortfolioOwnership.query.filter_by(user=current_user, ticker_name=ticker_name).first()
-    if ownership:
-        return ownership.avg_purchase_price
+    #get current purchase price based on current position
+    position = Position.query.filter_by(user=current_user, ticker_name=ticker_name).first()
+    if position:
+        return position.avg_purchase_price
     else:
         print('You do not own any shares!')
         return 0
@@ -111,43 +111,44 @@ def create_new_order_entry(ticker_name, form, form_type='add'):
     db.session.commit()
     return item
 
-def update_ownership(ticker_name, item, mode='1'):
-    #create a new ownership entry if this doesn't previously exist, or update an existing one 
+def update_position(ticker_name, item, mode='1'):
+    #create a new position entry if this doesn't previously exist, or update an existing one 
     """modes: 1 - buy order
     0 - sell order"""
     assert mode in ['1', '0']
-    ownership = PortfolioOwnership.query.filter_by(ticker_name=ticker_name, user=current_user).first()
+    position = Position.query.filter_by(ticker_name=ticker_name, user=current_user).first()
 
-    if ownership:
-        current_purchase_price = float(ownership.avg_purchase_price)
-        current_quantity = float(ownership.quantity)
+    if position:
+        current_purchase_price = float(position.avg_purchase_price)
+        current_quantity = float(position.quantity)
         item_purchase_price = float(item.purchase_price)
         item_quantity = float(item.quantity)
         #update according to order 
         if mode == '1':
             #get new share price and update quantity
-            ownership.avg_purchase_price = np.average([current_purchase_price, item_purchase_price],
+            position.avg_purchase_price = np.average([current_purchase_price, item_purchase_price],
             weights=[current_quantity, item_quantity])
-            ownership.quantity = current_quantity + item_quantity
+            position.quantity = current_quantity + item_quantity
             db.session.commit()
         elif mode == '0':
             #update quantity
             if current_quantity - item_quantity == 0:
-                db.session.delete(ownership)
+                db.session.delete(position)
                 db.session.commit()
             else:
-                ownership.quantity = current_quantity - item_quantity
+                position.quantity = current_quantity - item_quantity
                 db.session.commit()
             #if quantity = 0 then delete the entry
-    elif not ownership and mode == '1':
-        ownership = PortfolioOwnership(ticker_name=item.ticker_name,
+    elif not position and mode == '1':
+        position = Position(ticker_name=item.ticker_name,
         avg_purchase_price=item.purchase_price, quantity=item.quantity,
         currency=item.currency, user=current_user)
-        db.session.add(ownership)
+        db.session.add(position)
         db.session.commit()
-    elif not ownership and mode == '0':
+
+    elif not position and mode == '0':
         raise Exception('Cannot create sell order without owning any shares!')
-    return ownership
+    return position
 
 def init_summary_row_item():
     item = TickerItem_Portfolio('empty')
@@ -161,8 +162,7 @@ def consolidate_query_items(query_items, order_type='1'):
     """consolidate query items into a dict
     ticker_name: [avg_purchase_price, total_quantity, currency]
     item_type: 1 = BUY ORDERS,  0 = SELL ORDERS, 2 = OWNED"""
-    if order_type not in ['0', '1']:
-        raise Exception('invalid order_type')
+    assert order_type in ['0', '1']
     ticker_names = list(set([item.ticker_name for item in query_items]))
     avg_prices = []
     total_quantities = []
@@ -183,15 +183,15 @@ def consolidate_query_items(query_items, order_type='1'):
         currencies.append(ticker_items[0].currency)
     return {n:[p,q,c] for n,p,q,c in zip(ticker_names, avg_prices, total_quantities, currencies)}
 
-def get_ownership_exch_rates(ownership):
+def get_positions_exch_rates(position):
     user_currency = current_user.currency
-    currencies = [o.currency for o in ownership]
+    currencies = [o.currency for o in position]
     currencies = list(set([c for c in currencies]))
     exch_rates = [query_exchange_rate(c, user_currency) if c != user_currency else 1 for c in currencies]
     exch_rates = dict(zip(currencies, exch_rates))
     return exch_rates
 
-def get_summary_row(ownership, table_items, empty=False):
+def get_summary_row(positions, table_items, empty=False):
     """makes more sense to use table_items as well b/c already obtained current prices and everything"""
 
     def current_price_from_table_items(ticker_name, table_items):
@@ -201,9 +201,9 @@ def get_summary_row(ownership, table_items, empty=False):
         return item.current_price
 
     #initialize an empty item 
-    if ownership is None:
+    if positions is None:
         empty = True
-    elif len(ownership) == 0:
+    elif len(positions) == 0:
         empty = True
 
     item = init_summary_row_item()
@@ -216,9 +216,9 @@ def get_summary_row(ownership, table_items, empty=False):
         market_value = 0
         gain = 0
         #get exchange rate ahead of time so not making duplicated requests
-        exch_rates = get_ownership_exch_rates(ownership)
+        exch_rates = get_positions_exch_rates(positions)
 
-        for ticker in ownership:
+        for ticker in positions:
             current_price = current_price_from_table_items(ticker.ticker_name, table_items)
             exch_rate = exch_rates[ticker.currency]
             quantity = float(ticker.quantity)
@@ -243,17 +243,17 @@ def get_summary_row(ownership, table_items, empty=False):
         item.percent_gain = '0'
     return item
 
-#change this to use ownership instead of query_items?
-def get_ownership_purchase_value(ownership):
+#change this to use  instead of query_items?
+def get_position_purchase_value(position):
     purchase_value = 0
-    if len(ownership) > 0:
-        exch_rates = get_ownership_exch_rates(ownership)
-        for ticker in ownership:
+    if len(position) > 0:
+        exch_rates = get_positions_exch_rates(position)
+        for ticker in position:
             purchase_value += (float(ticker.avg_purchase_price) * float(ticker.quantity) * exch_rates[ticker.currency])
 
     return purchase_value
 
-def update_summary_row(ownership=None, ticker_item=None, request_json=None, ticker_currency=None, mode="add"):
+def update_summary_row(position=None, ticker_item=None, request_json=None, ticker_currency=None, mode="add"):
     """updates summary rows for adding or deleting ticker
     add arguments - query_items, ticker_item, sum_market_value
     sell arguments - """
@@ -263,8 +263,8 @@ def update_summary_row(ownership=None, ticker_item=None, request_json=None, tick
     curr_market_value = float(request_json['summary-market_value'].strip(user_currency_symbol))
 
     #get purchase value, subtract from market_value to get gain, and get current value of ticker
-    #query purchase_value is just getting the purchase value of all current ownership -- calculating from db b/c no such column in table
-    ownership_purchase_value = get_ownership_purchase_value(ownership)
+    #query purchase_value is just getting the purchase value of all current position -- calculating from db b/c no such column in table
+    position_purchase_value = get_position_purchase_value(position)
 
     exch_rate = query_exchange_rate(ticker_item.currency, user_currency) if ticker_item.currency != current_user.currency else 1
     if mode == "add":
@@ -273,20 +273,20 @@ def update_summary_row(ownership=None, ticker_item=None, request_json=None, tick
 
         curr_ticker_value = float(ticker_current_price) * float(ticker_quantity) * exch_rate
         new_market_value = round(curr_market_value + float(curr_ticker_value), 2)
-    elif mode == 'sell' and ownership_purchase_value > 0:
+    elif mode == 'sell' and position_purchase_value > 0:
         ticker_current_price = float(request_json['ticker-current-price']) * exch_rate
         shares_sold = int(request_json['quantity'])
         new_market_value = round(curr_market_value  - (ticker_current_price * shares_sold * exch_rate))
-    elif mode == 'sell' and ownership_purchase_value == 0:
+    elif mode == 'sell' and position_purchase_value == 0:
         #forgot to account for if selling last remaining shares
         new_market_value = 0
 
     else:
         raise Exception('invalid mode for updating summary row')
 
-    if ownership_purchase_value > 0:
-        gain = round(new_market_value - ownership_purchase_value, 2)
-        percent_gain = round((gain/ownership_purchase_value)*100, 2)
+    if position_purchase_value > 0:
+        gain = round(new_market_value - position_purchase_value, 2)
+        percent_gain = round((gain/position_purchase_value)*100, 2)
     else:
         gain = percent_gain = 0
 
@@ -303,8 +303,8 @@ class TickerItem_Portfolio(TickerItem):
     def __init__(self, *args, **kwargs):
         super(TickerItem_Portfolio, self).__init__(*args, **kwargs)
         self.n_places = 2
-        self.ownership = self.empty_or_attr(attr=[{'user': current_user, 'ticker_name': self.ticker}], func=self.get_ownership)
-        if self.ownership is None:
+        self.position = self.empty_or_attr(attr=[{'user': current_user, 'ticker_name': self.ticker}], func=self.get_position)
+        if self.position is None:
             self.empty = True
         #filter out items that have status SOLD
         self.purchase_price = self.empty_or_attr(attr=[], func=self.get_purchase_price)
@@ -323,12 +323,12 @@ class TickerItem_Portfolio(TickerItem):
         print('TickerItemPortfolio initialised')
             
     def get_purchase_price(self):
-        price = float(self.ownership.avg_purchase_price)
+        price = float(self.position.avg_purchase_price)
         return round(price, self.n_places)
 
     def get_quantity(self):
         """need to account for shares sold"""
-        n_shares = float(self.ownership.quantity)
+        n_shares = float(self.position.quantity)
         return round(n_shares, self.n_places)
 
     def get_gain(self):
@@ -338,11 +338,11 @@ class TickerItem_Portfolio(TickerItem):
         return round((self.gain/self.purchase_price)*100, self.n_places)
 
     @staticmethod
-    def get_ownership(arg_dict):
-        return PortfolioOwnership.query.filter_by(**arg_dict).first()
+    def get_position(arg_dict):
+        return Position.query.filter_by(**arg_dict).first()
 
     def get_market_value(self):
-        currency = self.ownership.currency
+        currency = self.position.currency
         value = self.current_price * self.quantity
         if currency == 'GBp':
             value /= 100

@@ -4,7 +4,7 @@ from wtforms.fields.html5 import DateField
 from wtforms.validators import DataRequired, ValidationError
 from ..utils.helpers import check_ticker_exists, format_ticker_name
 from datetime import datetime
-from ..models import PortfolioOwnership
+from ..models import Position
 from flask_login import current_user
 
 
@@ -77,8 +77,8 @@ class SellForm(FlaskForm):
         exists = check_ticker_exists(ticker_name)
         if not exists:
             raise ValidationError("This ticker does not exist!")
-        ownership = PortfolioOwnership.query.filter_by(ticker_name=ticker_name, user=current_user).first()
-        if not ownership:
+        position = Position.query.filter_by(ticker_name=ticker_name, user=current_user).first()
+        if not position:
             raise ValidationError("Invalid Ticker!")
     
     def validate_quantity(self, quantity):
@@ -87,9 +87,9 @@ class SellForm(FlaskForm):
         quantity = float_check(quantity.data)
 
         ticker_name = format_ticker_name(self.ticker_name.data)
-        ownership = PortfolioOwnership.query.filter_by(ticker_name=ticker_name, user=current_user).first()
-        if ownership:
-            current_shares = float(ownership.quantity)
+        position = Position.query.filter_by(ticker_name=ticker_name, user=current_user).first()
+        if position:
+            current_shares = float(position.quantity)
             #function here to get all the currently holding n shares
             if quantity > current_shares:
                 raise ValidationError("You don't have that many shares!")

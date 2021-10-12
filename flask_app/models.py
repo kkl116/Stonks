@@ -27,7 +27,7 @@ class User(db.Model, UserMixin):
                                         cascade="all, delete, delete-orphan", passive_deletes=True)
     portfolioItems = db.relationship('PortfolioItem', backref='user', lazy=True,
                                 cascade="all, delete, delete-orphan", passive_deletes=True)
-    portfolioOwnership = db.relationship('PortfolioOwnership', backref='user', lazy=True,
+    positions = db.relationship('Position', backref='user', lazy=True,
                                 cascade='all, delete, delete-orphan', passive_deletes=True)
     
     
@@ -96,8 +96,8 @@ class PortfolioItem(db.Model):
     def __repr__(self):
         return f"PortfolioItem('{self.ticker_name}', '{self.price}', '{self.quantity}', '{self.order_type}')"
 
-class PortfolioOwnership(db.Model):
-    __tablename__ = 'portfolio_ownership'
+class Position(db.Model):
+    __tablename__ = 'position'
     id = db.Column(db.Integer, primary_key=True)
     ticker_name = db.Column(db.String(), unique=True, nullable=False)
     avg_purchase_price = db.Column(db.String(), unique=False, nullable=False)
@@ -106,7 +106,7 @@ class PortfolioOwnership(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete="CASCADE"), nullable=False)
 
     def __repr__(self):
-        return f"PortfolioOwnership('{self.ticker_name}', '{self.avg_purchase_price}', '{self.quantity}', '{self.currency}')"
+        return f"Position('{self.ticker_name}', '{self.avg_purchase_price}', '{self.quantity}', '{self.currency}')"
 
 class ExchangeRate(db.Model):
     __tablename__ = 'exchange_rates'
