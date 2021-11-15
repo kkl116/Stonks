@@ -1,11 +1,13 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from flask_login import current_user
-from wtforms import StringField, PasswordField, SubmitField, BooleanField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, SelectField
 from wtforms.validators import DataRequired, Length, EqualTo, Email, ValidationError
 from ..models import User
 from .. import bcrypt
 from .utils import username_email_query, password_check
+import forex_python
+from ..config import Config
 
 class RegisterationForm(FlaskForm):
     username = StringField('Username',
@@ -44,7 +46,6 @@ class RegisterationForm(FlaskForm):
             raise ValidationError('This email has already been used!')
 
 
-
 class LoginForm(FlaskForm):
     email_username = StringField('Email_Username', 
                                 validators=[DataRequired()],
@@ -73,10 +74,10 @@ class LoginForm(FlaskForm):
             raise ValidationError('Invalid email/username and password combination. Please try again.')
 
 class RequestResetForm(FlaskForm):
-    email_username = StringField('Email_Username', 
+    email = StringField('Email_Username', 
                                 validators=[DataRequired()],
-                                render_kw={'placeholder': 'Email/Username',
-                                            'id': 'request-reset-email-username'})
+                                render_kw={'placeholder': 'Email',
+                                            'id': 'request-reset-email'})
     submit = SubmitField('Request Password Reset',
                         render_kw={'id': 'request-reset-submit'})
 
@@ -97,3 +98,66 @@ class ResetPasswordForm(FlaskForm):
         """custom password check to make sure theres one special symbol and one number"""
         if not password_check(password):
             raise ValidationError('Password must contain a number and a special character!')
+
+    
+class ChangePasswordForm(FlaskForm):
+    old_password = PasswordField('Old Password',
+                                validators=[DataRequired()],
+                                render_kw={'placeholder': 'Old Password',
+                                'id': 'change-old-password'})
+    new_password = PasswordField('New Password',
+                                validators=[DataRequired()],
+                                render_kw={'placeholder': 'New Password',
+                                'id': 'change-new-password'})
+    confirm_password = PasswordField('Confirm New Password',
+                                        validators=[DataRequired(), EqualTo('new_password')],
+                                        render_kw={'placeholder': 'Confirm New Password',
+                                        'id': 'change-confirm-password'})
+    submit = SubmitField('Change Password',
+                        render_kw={'id': 'change-submit-password'})
+    
+    def validate_old_password(self, old_password):
+        """check that old password is equal to user password"""
+        if not bcrypt.check_password_hash(current_user.password, old_password.data):
+            raise ValidationError('Incorrect Password')
+    
+    def validate_new_password(self, new_password):
+        if not password_check(new_password):
+            raise ValidationError('Password must contain a number and a special character!')
+
+
+class ChangeUsernameForm(FlaskForm):
+    username = StringField('New Username',
+                            validators=[DataRequired()],
+                            render_kw={'placeholder': 'New Username',
+                            'id': 'change-username'})
+    confirm_username = StringField('Confirm Username',
+                                    validators=[DataRequired(), EqualTo('username')],
+                                    render_kw={'placeholder': 'Confirm Username',
+                                    'id': 'change-confirm-username'})
+    submit = SubmitField('Change Username',
+                        render_kw={'id': 'change-submit-username'})
+
+
+class ChangeEmailForm(FlaskForm):
+    email = StringField('New email',
+                            validators=[DataRequired(), Email()],
+                            render_kw={'placeholder': 'New email',
+                            'id': 'change-email'})
+    confirm_email = StringField('Confirm Email',
+                                validators=[DataRequired(), EqualTo('email'), Email()],
+                                render_kw={'placeholder': 'Confirm Email',
+                                'id': 'change-confirm-email'})
+    submit = SubmitField('Change Email',
+                        render_kw={'id': 'change-submit-email'})
+
+
+class ChangeSettingsForm(FlaskForm):
+    currency = SelectField(label='Default Currency',
+                        choices=Config.CURRENCIES,
+                        render_kw={'id': 'change-currency'})
+    
+    submit = SubmitField('Change Settings',
+                        render_kw={'id': 'change-settings-submit'})
+
+

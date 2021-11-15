@@ -44,6 +44,7 @@ function formAjax(url=null, formId=null, fieldIds=[], successFunc=null, errorFun
            let value = keyFunc(key);
            data[value] = fields[key].input.value
        })
+       console.log(data)
        return data
    }
 

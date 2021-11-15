@@ -1,4 +1,3 @@
-//const express = require("express");
 
 import { formAjax, modifyErrorKeys } from './helpers.js';
 
@@ -193,7 +192,7 @@ function requestResetAjax(url){
         return key.replace('-', '_')
     }
     let formId = 'request-reset-form';
-    let fieldIds = ['request-reset-csrf', 'request-reset-email-username'];
+    let fieldIds = ['request-reset-csrf', 'request-reset-email'];
 
     formAjax(url=url, formId=formId,
         fieldIds=fieldIds, successFunc=successFunc, errorFunc=errorFunc,

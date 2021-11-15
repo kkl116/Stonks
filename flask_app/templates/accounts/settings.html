@@ -1,0 +1,141 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div>
+    <h2>Settings <i class="fas fa-paw"></i> </h2>
+</div>
+
+
+<div id="accordion" class="">
+    <div class="card">
+        <div class="card-header" id="headingOne">
+          <h5 class="mb-0">
+            <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+              Change Username
+            </button>
+          </h5>
+        </div>
+    
+        <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
+          <div class="card-body">
+              <div class="form">
+                <form method="POST" accept-charset="UTF-8" id='change-username-form'>
+                    {{ changeUsernameForm.csrf_token(id="change-username-csrf") }}
+    
+                    {{ changeUsernameForm.username(class="form-control reset-password-field" ) }}
+                    <div id="change-username-error" class="invalid-feedback"></div>
+  
+                    {{ changeUsernameForm.confirm_username(class="form-control reset-password-field" ) }}
+                    <div id="change-confirm-username-error" class="invalid-feedback"></div>
+  
+                    {{ changeUsernameForm.submit(class="btn btn-primary btn-reset")}}
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+    
+
+    <div class="card">
+        <div class="card-header" id="headingTwo">
+          <h5 class="mb-0">
+            <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                Change Password
+            </button>
+          </h5>
+        </div>
+        <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+          <div class="card-body">
+            <div class="form">
+              <form method="POST" accept-charset="UTF-8" id='change-password-form'>
+                  {{ changePasswordForm.csrf_token(id="change-password-csrf") }}
+  
+                  {{ changePasswordForm.old_password(class="form-control reset-password-field" ) }}
+                  <div id="change-old-password-error" class="invalid-feedback"></div>
+                  {{ changePasswordForm.new_password(class="form-control reset-password-field") }}
+                  <div id="change-new-password-error" class="invalid-feedback"></div>
+                  {{ changePasswordForm.confirm_password(class="form-control reset-password-field") }}
+                  <div id="change-confirm-password-error" class="invalid-feedback"></div>
+
+                  
+                  {{ changePasswordForm.submit(class="btn btn-primary btn-reset")}}
+              </form>
+          </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header" id="headingThree">
+          <h5 class="mb-0">
+            <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+              Change Email
+            </button>
+          </h5>
+        </div>
+        <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
+          <div class="card-body">
+            <div class="form">
+              <form method="POST" accept-charset="UTF-8" id='change-email-form'>
+                  {{ changeEmailForm.csrf_token(id="change-email-csrf") }}
+  
+                  {{ changeEmailForm.email(class="form-control reset-password-field" ) }}
+                  <div id="change-email-error" class="invalid-feedback"></div>
+
+                  {{ changeEmailForm.confirm_email(class="form-control reset-password-field" ) }}
+                  <div id="change-confirm-email-error" class="invalid-feedback"></div>
+                  
+                  {{ changeEmailForm.submit(class="btn btn-primary btn-reset")}}
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header" id="headingThree">
+          <h5 class="mb-0">
+            <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+              Change Account Settings
+            </button>
+          </h5>
+        </div>
+        <div id="collapseFour" class="collapse" aria-labelledby="headingFour" data-parent="#accordion">
+          <div class="card-body">
+            <div class="form">
+              <form method="POST" accept-charset="UTF-8" id='change-settings-form'>
+                  {{ changeSettingsForm.csrf_token(id="change-settings-csrf") }}
+
+                  {{ changeSettingsForm.currency.label}}
+                  {{ changeSettingsForm.currency(class="form-control reset-password-field" ) }}
+                  
+                  {{ changeSettingsForm.submit(class="btn btn-primary btn-reset")}}
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="/static/js/settings.js"></script>
+<script>
+  const urlChangePassword = "{{ url_for('accounts.change_password') }}";
+  const urlChangeUsername = "{{ url_for('accounts.change_username') }}";
+  const urlChangeEmail = "{{ url_for('accounts.change_email') }}";
+  const urlChangeSettings = "{{ url_for('accounts.change_settings') }}";
+
+  $(document).ready(function() {
+            //this is previous function to reopen modal if any form errors were found
+            changePasswordAjax(urlChangePassword);
+            changeUsernameAjax(urlChangeUsername);
+            changeEmailAjax(urlChangeEmail);
+            changeSettingsAjax(urlChangeSettings);
+        });
+</script>
+
+
+
+{% endblock %}
