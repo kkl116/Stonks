@@ -6,7 +6,6 @@ from wtforms.validators import DataRequired, Length, EqualTo, Email, ValidationE
 from ..models import User
 from .. import bcrypt
 from .utils import username_email_query, password_check
-import forex_python
 from ..config import Config
 
 class RegisterationForm(FlaskForm):
