@@ -31,11 +31,11 @@ def get_table():
         empty = 1
     else:
         table_items = query_to_table_items(query_items, TickerItem_Watchlist)
+        print(table_items)
         table = WatchlistTable(items=table_items)
         empty = 0
     
     return jsonify({'table': table, 'empty': empty})
-
     
 
 @watchlist.route('/watchlist/add', methods=["GET", "POST"])

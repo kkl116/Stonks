@@ -15,7 +15,6 @@ current TODO:
         -portfolio history
 
 - profile pages - set sayyyy default currency and change account settings 
-- try using multithreading to speed up watchlist and portfolio requests?
 
 
 side TODO (nicer looking features in the future):
@@ -24,7 +23,7 @@ side TODO (nicer looking features in the future):
 - write some macros to clean up layout.html
 - bundle js and css to page loads faster? (process into minjs and mincss)
 - watchlist page - group function
-- modify stockquotes so only fetching needed data? 
+
 
 
 sections:
@@ -73,7 +72,7 @@ and refresh after the page is done loading
 
 - after login should be another welcome page -- 
 - 404/400 error page, and change error exceptions to return these status codes 
-
+- modify stockquotes so only fetching needed data? 
 
 
 

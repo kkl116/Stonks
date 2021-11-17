@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, url_for
 from ..utils.helpers import _render_template, format_ticker_name, redirect_next_page
 from ..errors.utils import error_500_handler, form_errors_400
-from ..utils.table_helpers import ticker_name_to_table_items, new_item_json
+from ..utils.table_helpers import query_to_table_items, new_item_json
 from ..models import Position, PortfolioItem
 from .forms import AddForm, SellForm
 from .utils import (PortfolioTable, TickerItem_Portfolio, get_unique_ticker_names,
@@ -30,7 +30,7 @@ def get_table():
         empty = 1
     else:
         #update porfolio stats
-        table_items = ticker_name_to_table_items(get_unique_ticker_names(positions), TickerItem_Portfolio)
+        table_items = query_to_table_items(positions, TickerItem_Portfolio)
         #create an empty item, then update attrs to make summary row
         table_items.append(get_summary_row(positions, table_items))
         table = PortfolioTable(items=table_items)

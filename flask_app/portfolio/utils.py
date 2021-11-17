@@ -306,6 +306,7 @@ class TickerItem_Portfolio(TickerItem):
         self.position = self.empty_or_attr(attr=[{'user': current_user, 'ticker_name': self.ticker}], func=self.get_position)
         if self.position is None:
             self.empty = True
+        print(self.position)
         #filter out items that have status SOLD
         self.purchase_price = self.empty_or_attr(attr=[], func=self.get_purchase_price)
         self.gain = self.empty_or_attr(attr=[], func=self.get_gain)
@@ -327,8 +328,10 @@ class TickerItem_Portfolio(TickerItem):
         return round(price, self.n_places)
 
     def get_quantity(self):
+        print('quantity')
         """need to account for shares sold"""
         n_shares = float(self.position.quantity)
+        print(n_shares)
         return round(n_shares, self.n_places)
 
     def get_gain(self):

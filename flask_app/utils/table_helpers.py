@@ -4,6 +4,7 @@ from flask import Markup, jsonify, url_for
 import stockquotes
 from ..models import WatchlistItem
 import time 
+from batchquotes import get_batch_quotes
 
 def get_table_ncols(class_=None):
     item_attrs = class_.__dict__.values()
@@ -21,12 +22,18 @@ def update_attr_dict(attr_dict, new_attr):
 
 class TickerItem:
     """base class to create object to pass to flask table"""
-    def __init__(self, ticker):
+    def __init__(self, ticker, batch=False, ticker_dict=None):
+        self.batch = batch
+        if self.batch:
+            assert ticker_dict is not None
         self.empty = ticker == 'empty'
         self.ticker = self.empty_or_attr(ticker.upper())
         self.ticker_link = self.get_ticker_link()
-        self.ticker_obj = self.empty_or_attr(attr=ticker, func=stockquotes.Stock)
-        self.current_price = self.empty_or_attr(attr=[self.ticker_obj, 'current_price'], func=getattr)
+        if not batch:
+            self.ticker_obj = self.empty_or_attr(attr=ticker, func=stockquotes.Stock)
+        else:
+            self.ticker_dict = ticker_dict
+        self.current_price = self.empty_or_attr(attr=[], func=self.get_current_price)
         self.html_attrs = {}
         self.green_hex = "#027E4A"
         self.red_hex = "#EF3125"
@@ -39,6 +46,12 @@ class TickerItem:
     def tag_icon():
         """just returns a tag icon for now, but can customise later"""
         return '<i class="fas fa-tag" style="vertical-align: middle;"></i>'
+    
+    def get_current_price(self):
+        if self.batch:
+            return self.ticker_dict['current_price']
+        else:
+            return self.ticker_obj.current_price
 
     def delete_btn(self, url):
         return f"""
@@ -144,9 +157,11 @@ def new_item_json(item, table_class=None, include_id=False, **kwargs):
     return jsonify(item_dict)
 
 def query_to_table_items(query_items, item_class):
-    """converts db items (which just involves ticker_name, date_posted) to TickerItem object"""
-    return [item_class(ticker_name) for ticker_name in [q.ticker_name for q in query_items]]
-
-def ticker_name_to_table_items(ticker_names, item_class):
-    return [item_class(ticker_name) for ticker_name in ticker_names]
+    """converts db items (which just involves ticker_name, date_posted) to TickerItem object
+    During this proces calls batchquotes to get stock_dict for batch tickeritem calls"""
+    ticker_names = [q.ticker_name for q in query_items]
+    ticker_dicts = get_batch_quotes(ticker_names)
+    assert len(ticker_names) == len(ticker_dicts)
+    table_items = [item_class(tname, batch=True, ticker_dict=tdict) for tname, tdict in zip(ticker_names, ticker_dicts)]
+    return table_items
 

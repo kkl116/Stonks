@@ -50,8 +50,8 @@ class TickerItem_Watchlist(TickerItem):
     """object to pass to flask table"""
     def __init__(self, *args, **kwargs):
         super(TickerItem_Watchlist, self).__init__(*args, **kwargs)
-        self.day_gain = self.empty_or_attr(attr=[self.ticker_obj, 'increase_dollars'], func=getattr)
-        self.percent_gain = self.empty_or_attr(attr=[self.ticker_obj, 'increase_percent'], func=getattr)
+        self.day_gain = self.empty_or_attr(attr=[], func=self.get_day_gain)
+        self.percent_gain = self.empty_or_attr(attr=[], func=self.get_percent_gain)
         self.tag_icon = self.empty_or_attr(attr=[], func=self.tag_icon)
         self.add_notes = self.empty_or_attr(attr=[], func=self.add_notes_btn)
         self.tags =  self.empty_or_attr(attr=[current_user, self.ticker], func=self.get_ticker_tags)
@@ -63,6 +63,18 @@ class TickerItem_Watchlist(TickerItem):
             self.update_html_attrs(self.color_style())
         except:
             pass
+
+    def get_day_gain(self):
+        if not self.batch:
+            return self.ticker_obj.increase_dollars
+        else:
+            return self.ticker_dict['increase_dollars']
+    
+    def get_percent_gain(self):
+        if not self.batch:
+            return self.ticker_obj.increase_percent
+        else:
+            return self.ticker_dict['increase_percent']
             
     @staticmethod
     def tag_icon():
