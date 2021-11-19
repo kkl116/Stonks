@@ -31,7 +31,6 @@ def get_table():
         empty = 1
     else:
         table_items = query_to_table_items(query_items, TickerItem_Watchlist)
-        print(table_items)
         table = WatchlistTable(items=table_items)
         empty = 0
     

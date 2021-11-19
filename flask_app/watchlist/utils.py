@@ -65,16 +65,12 @@ class TickerItem_Watchlist(TickerItem):
             pass
 
     def get_day_gain(self):
-        if not self.batch:
-            return self.ticker_obj.increase_dollars
-        else:
-            return self.ticker_dict['increase_dollars']
+        return self.ticker_obj.increase_dollars
+
     
     def get_percent_gain(self):
-        if not self.batch:
-            return self.ticker_obj.increase_percent
-        else:
-            return self.ticker_dict['increase_percent']
+        return self.ticker_obj.increase_percent
+
             
     @staticmethod
     def tag_icon():

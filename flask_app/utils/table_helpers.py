@@ -5,6 +5,7 @@ import stockquotes
 from ..models import WatchlistItem
 import time 
 from batchquotes import get_batch_quotes
+from collections import namedtuple
 
 def get_table_ncols(class_=None):
     item_attrs = class_.__dict__.values()
@@ -19,20 +20,21 @@ def update_attr_dict(attr_dict, new_attr):
     else:
         attr_dict.update(new_attr) 
 
+#namedtuple to allow ticker_dict to be accessed like an object, so TickerItem doesn't have to change drastically
+pseudo_obj = namedtuple('pseudo_obj', ['current_price', 'increase_dollars', 'increase_percent'])
 
 class TickerItem:
     """base class to create object to pass to flask table"""
     def __init__(self, ticker, batch=False, ticker_dict=None):
         self.batch = batch
-        if self.batch:
-            assert ticker_dict is not None
         self.empty = ticker == 'empty'
         self.ticker = self.empty_or_attr(ticker.upper())
         self.ticker_link = self.get_ticker_link()
-        if not batch:
-            self.ticker_obj = self.empty_or_attr(attr=ticker, func=stockquotes.Stock)
+        if self.batch:
+            assert ticker_dict is not None
+            self.ticker_obj = pseudo_obj(**ticker_dict)
         else:
-            self.ticker_dict = ticker_dict
+            self.ticker_obj = self.empty_or_attr(attr=ticker, func=stockquotes.Stock)
         self.current_price = self.empty_or_attr(attr=[], func=self.get_current_price)
         self.html_attrs = {}
         self.green_hex = "#027E4A"
@@ -48,10 +50,7 @@ class TickerItem:
         return '<i class="fas fa-tag" style="vertical-align: middle;"></i>'
     
     def get_current_price(self):
-        if self.batch:
-            return self.ticker_dict['current_price']
-        else:
-            return self.ticker_obj.current_price
+        return self.ticker_obj.current_price
 
     def delete_btn(self, url):
         return f"""
@@ -155,6 +154,7 @@ def new_item_json(item, table_class=None, include_id=False, **kwargs):
     if include_id:
         item_dict.update({'id': item.ticker})
     return jsonify(item_dict)
+
 
 def query_to_table_items(query_items, item_class):
     """converts db items (which just involves ticker_name, date_posted) to TickerItem object
