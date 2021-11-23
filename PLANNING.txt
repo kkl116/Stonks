@@ -14,7 +14,6 @@ current TODO:
     - portfolio todos:
         -portfolio history
 
-- profile pages - set sayyyy default currency and change account settings 
 
 
 side TODO (nicer looking features in the future):
@@ -73,7 +72,7 @@ and refresh after the page is done loading
 - after login should be another welcome page -- 
 - 404/400 error page, and change error exceptions to return these status codes 
 - modify stockquotes so only fetching needed data? 
-
+- profile pages - set sayyyy default currency and change account settings 
 
 
 
