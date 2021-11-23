@@ -1,8 +1,9 @@
-from flask import request, redirect, url_for, render_template, jsonify, request
+from flask import request, redirect, url_for, render_template, jsonify, request, flash
 from ..accounts.forms import (LoginForm, RegisterationForm, 
                                     RequestResetForm, ResetPasswordForm)
 import ast
 import stockquotes
+from stockquotes import NetworkError, StockDoesNotExistError
 from ..models import PortfolioItem
 
 def get_request_form_keys(request, omit_keys = ['remember', 'submit']):
@@ -52,15 +53,20 @@ def redirect_next_page():
     next_page = request.args.get('next')
     return redirect(next_page) if next_page else redirect(url_for('main.home'))
 
-def check_ticker_exists(ticker):
+def check_ticker_exists(ticker, flash_msg=True):
     """takes ticker name and checks on yahoo finance to see if it exists.
     returns a boolean
     """
     try: 
         stock = stockquotes.Stock(ticker)
         return True
-    except Exception as e:
-        print(str(e))
+    except NetworkError:
+        if flash_msg:
+            flash('Could not connect to Yahoo!Finance. Please try again!', 'warning')
+        return False
+    except StockDoesNotExistError:
+        if flash_msg:
+            flash('Symbol is invalid. Please try again!', 'warning')
         return False
 
 def redirect_json(route=None, url=None):

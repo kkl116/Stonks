@@ -21,7 +21,7 @@ def search():
             except Exception as e:
                 return error_500_response(e)
         else:
-            flash('Stock symbol entered is not valid. Please try again.', 'warning')
+            pass
     return redirect_next_page()
 
 @searches.route('/search/<q>')
