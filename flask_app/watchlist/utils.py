@@ -95,7 +95,7 @@ class TickerItem_Watchlist(TickerItem):
         id={self.ticker}-notes_btn
         data-targ-url="{url_for('watchlist.get_notes')}"
         onClick="toggleNotes(this)">
-        <i class="far fa-sticky-note"></i>
+        <i class="bi bi-sticky"></i>
         </button>
         """
 
@@ -168,7 +168,7 @@ def save_notes_btn(ticker):
     id={ticker}-notes-save
     data-targ-url={url_for('watchlist.save_notes')}
     onClick="saveNotes(this)">
-    <i class="far fa-save"></i>
+    <i class="bi bi-save"></i>
     </button>
     """
 

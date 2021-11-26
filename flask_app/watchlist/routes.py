@@ -78,7 +78,6 @@ def save_notes():
     item = WatchlistItem.query.filter_by(user=current_user, ticker_name=ticker).first()
     item.notes = ticker_notes
     db.session.commit()
-    flash('Note has been saved!', 'success')
     return jsonify({'message': 'notes have been added'})
 
 

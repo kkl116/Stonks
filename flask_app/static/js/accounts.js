@@ -16,7 +16,6 @@ function registerAjax(url){
             key = 'register-' + key
             return key.replace('_', '-')
         })
-        console.log(modErrors)
         Object.keys(fields).forEach((key) => {
             if (key != 'csrf_token') {
                 if (Object.keys(modErrors).includes(key)) {
@@ -64,8 +63,6 @@ function loginAjax(url){
             key = 'login-' + key
             return key.replace('_', '-')
         })
-        console.log(Object.keys(modErrors))
-        console.log(fields)
         Object.keys(fields).forEach((key) => {
             if (Object.keys(modErrors).includes(key)){
                 let key = 'login-password';
@@ -91,7 +88,6 @@ function loginAjax(url){
 function requestResetAjax(url){
     function successFunc(success, fields){
         //disable modal and populate succses message
-        console.log(success)
         $('#passwordResetBody').toggle()
         $('#resetModalLoading').toggle()
 
@@ -101,13 +97,10 @@ function requestResetAjax(url){
         $('#request-reset-email').val('');
     }
     function errorFunc(errors, fields){
-        console.log(errors)
         let modErrors = modifyErrorKeys(errors, function(key){
             key = 'request-reset-' + key
             return key.split('_').join('-')
         })
-        console.log(Object.keys(modErrors))
-        console.log(fields)
         Object.keys(fields).forEach((key) => {
             if (Object.keys(modErrors).includes(key)){
                 fields[key].input.classList.add('is-invalid');
@@ -148,7 +141,6 @@ function resetPasswordAjax(url){
             key = 'reset-' + key
             return key.replace('_', '-')
         })
-        console.log(modErrors);
         Object.keys(fields).forEach((key) => {
             if (key != 'csrf_token') {
                 if (Object.keys(modErrors).includes(key)) {

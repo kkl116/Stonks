@@ -8,7 +8,6 @@ function toggleLoading(){
 function orderAjax(url){
 
     function successFunc(success, fields){
-        console.log(success)
         const emptyMessage = document.getElementById('empty-message');
         const table = document.getElementById('portfolio-table')
         if (emptyMessage){
@@ -45,11 +44,9 @@ function orderAjax(url){
             return key.split('_').join('-')
         })
 
-        console.log(errors)
         Object.keys(fields).forEach((key) => {
             if (key != 'csrf_token') {
                 if (Object.keys(modErrors).includes(key)) {
-                    console.log(key)
                     console.log('wrong')
                     fields[key].input.classList.remove('is-valid')
                     fields[key].input.classList.add('is-invalid');
@@ -94,7 +91,6 @@ function orderAjax(url){
         //need to find id of ticker-current-price 
         data['ticker-current-price'] = $('#' + escapeSpecialChars(tickerName) + '-current_price').html();
 
-        console.log(data)
         return data
     }
 

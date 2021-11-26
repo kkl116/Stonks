@@ -42,11 +42,9 @@ function formAjax(url=null, formId=null, fieldIds=[], successFunc=null, errorFun
        let data = {};
        
        Object.keys(fields).forEach((key) => {
-           console.log(key)
            let value = keyFunc(key);
            data[value] = fields[key].input.value
        })
-       console.log(data)
        return data
    }
 
@@ -123,7 +121,6 @@ function deleteRow(clicked, successFunc=null, errorFunc=null, waitFunc=null,
         dataFunc = defaultDataFunc;
     };
 
-    console.log(dataFunc)
 
     $.ajax({
             url: url,
@@ -135,7 +132,6 @@ function deleteRow(clicked, successFunc=null, errorFunc=null, waitFunc=null,
                 dataFunc(ticker)
             ),
             success: function(response){
-                console.log(response);
                 let row_id = '#' + processedTicker;
                 //delete row here
                 $(row_id).fadeOut('slow', function(){
@@ -146,7 +142,6 @@ function deleteRow(clicked, successFunc=null, errorFunc=null, waitFunc=null,
                 }
             },
             error: function(response){
-                console.log(response);
 
                 if (errorFunc){
                     errorFunc(response);

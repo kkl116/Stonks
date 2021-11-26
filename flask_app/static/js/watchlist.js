@@ -14,7 +14,6 @@ function addAjax(url){
         if (emptyMessage){
             emptyMessage.style.display="none"
         }
-        console.log(success)
         table.insertAdjacentHTML('afterbegin', success.newItem);
         
         //remove error message and clear search bar
@@ -93,7 +92,6 @@ function toggleNotes(clicked){
             },
             error: function(response){
                 console.log('error')
-                console.log(response)
             }
         })
     }
@@ -118,10 +116,15 @@ function saveNotes(clicked){
             notes: $('#' + notesTextId).val()
         }),
         success: function(response){
-            console.log(response);
+            //change text area effect
+            console.log(notesTextId);
+            $('#' + notesTextId).addClass('is-valid');
+            $('#' + notesTextId).removeClass('is-invalid')
+
         },
         error: function(response){
-            console.log(response);
+            $('#' + notesTextId).removeClass('is-valid')
+            $('#' + notesTextId).addClass('is-invalid')
         }
     })
 
@@ -155,7 +158,6 @@ function addTagAjax(url){
                         success: function(response){
                             //insert span element from server next to textarea
                             $(element).val('')
-                            console.log(response)
                             //
                             let tdId = ticker + '-tags'
                             $('#' + tdId).append(response.element)
@@ -163,7 +165,6 @@ function addTagAjax(url){
                         },
                         error: function(response){
                             //do something 
-                            console.log(response)
                         }
                     })
                 };
@@ -285,7 +286,6 @@ function tableAjax(urlAdd, urlAddTag, urlEditSector, urlLoadTable){
             },
             error: function(response){
                 console.log('error');
-                console.log(response);
             }
         })
     }
