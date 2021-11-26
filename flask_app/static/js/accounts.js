@@ -12,6 +12,9 @@ function registerAjax(url){
         }
     }
     function errorFunc(errors, fields){
+        $('#registerModalBody').show();
+        $('#registerModalLoading').hide();
+
         let modErrors = modifyErrorKeys(errors, function(key){
             key = 'register-' + key
             return key.replace('_', '-')
@@ -97,6 +100,9 @@ function requestResetAjax(url){
         $('#request-reset-email').val('');
     }
     function errorFunc(errors, fields){
+        $('#passwordResetBody').toggle();
+        $('#resetModalLoading').toggle();
+
         let modErrors = modifyErrorKeys(errors, function(key){
             key = 'request-reset-' + key
             return key.split('_').join('-')

@@ -29,6 +29,7 @@ def register():
             flash('Your account has been created! Please activate your account before logging in.', 'success')
             return redirect_json(route="main.home")
         else:
+            print(register_form.errors)
             return form_errors_400(register_form)
     return redirect_next_page()
 
