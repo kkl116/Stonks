@@ -9,7 +9,9 @@ main = Blueprint('main', __name__)
 def home():
     if current_user.is_authenticated:
         logged_in = 1
+        username=current_user.username
     else:
         logged_in = 0
-    return _render_template('main/main.html', logged_in=logged_in)
+        username=None
+    return _render_template('main/main.html', logged_in=logged_in, username=username)
 

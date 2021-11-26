@@ -5,13 +5,15 @@
 <!-- need to add <a> tag here for create an account button-->
 <!-- also if logged in then should be a slighly different page-->
 <div class='homepage-text'>
-    <h1 class='display-2'>Welcome! <i class="far fa-smile"></i></h1>
     {% if logged_in == 1 %}
+        <h1 class='display-2'>Hi {{ username }} <i class="far fa-smile"></i></h1>
         <i class="far fa-hand-point-left"></i> 
         Click a page or 
         <i class="far fa-hand-point-up"></i>
         search for a stock to get started!
     {% else %}
+        <h1 class='display-2'>Welcome! <i class="far fa-smile"></i></h1>
+
         <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#registerModal">Create an account</button>
         or search for a stock to get started!
     {% endif %}
