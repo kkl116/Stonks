@@ -1,7 +1,9 @@
 appnope==0.1.2
+APScheduler==3.8.1
 attrs==20.3.0
 Babel==2.9.0
 backcall==0.2.0
+backports.zoneinfo==0.2.1
 batchquotes==0.0.9
 bcrypt==3.2.0
 beautifulsoup4==4.9.3
@@ -13,6 +15,7 @@ certifi==2020.12.5
 cffi==1.14.5
 chardet==3.0.4
 click==7.1.2
+cryptocompare==0.7.5
 currency-symbols==2.0.0
 cycler==0.10.0
 dash-core-components==1.16.0
@@ -25,6 +28,7 @@ dnspython==2.1.0
 dominate==2.6.0
 email-validator==1.1.2
 Flask==1.1.2
+Flask-APScheduler==1.12.2
 Flask-Babel==2.0.0
 Flask-Bcrypt==0.7.1
 Flask-Bootstrap==3.3.7.1
@@ -32,7 +36,6 @@ Flask-Compress==1.9.0
 Flask-Dance==3.3.1
 Flask-Login==0.5.0
 Flask-Mail==0.9.1
-Flask-SocketIO==5.0.1
 Flask-SQLAlchemy==2.5.1
 Flask-Table==0.5.0
 Flask-WTF==0.14.3
@@ -44,6 +47,7 @@ greenlet==1.0.0
 gunicorn==20.1.0
 idna==2.10
 importlib-metadata==3.7.3
+importlib-resources==5.4.0
 iniconfig==1.1.1
 ipykernel==5.5.0
 ipython==7.16.1
@@ -88,6 +92,7 @@ python-dateutil==2.8.1
 python-engineio==4.0.1
 python-socketio==5.1.0
 pytz==2021.1
+pytz-deprecation-shim==0.1.0.post0
 PyWavelets==1.1.1
 pyzmq==22.0.3
 QuantStats==0.0.26
@@ -110,6 +115,8 @@ toml==0.10.2
 tornado==6.1
 traitlets==4.3.3
 typing-extensions==3.7.4.3
+tzdata==2021.5
+tzlocal==4.1
 urllib3==1.25.11
 URLObject==2.4.3
 visitor==0.1.3
