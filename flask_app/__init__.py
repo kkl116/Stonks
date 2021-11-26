@@ -4,6 +4,7 @@ from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from .config import Config
 from flask_mail import Mail
+from flask_heroku import Heroku
 import os 
 import pandas
 from flask_apscheduler import APScheduler
@@ -20,6 +21,8 @@ login_manager = LoginManager()
 mail = Mail()
 
 scheduler = APScheduler()
+
+heroku = Heroku()
 
 if testing and init_db:
     db_path = './sql/database.db'
@@ -39,6 +42,7 @@ def create_app(config_class=Config):
     login_manager.init_app(app)
     mail.init_app(app)
     scheduler.init_app(app)
+    heroku.init_app(app)
 
     from .accounts.routes import accounts
     from .main.routes import main 
