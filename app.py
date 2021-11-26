@@ -1,12 +1,15 @@
-from flask_app import create_app, scheduler
+from flask_app import create_app, scheduler, db
+import os
 app = create_app()
-
+ON_HEROKU = 'ON_HEROKU' in os.environ
 if __name__ == '__main__':
-    app.debug = False 
+    app.debug = not ON_HEROKU
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     #start apscheduler
     with app.app_context():
         from flask_app.scheduled import tasks
         scheduler.start()
+        if ON_HEROKU:
+            db.create_all()
 
     app.run(threaded=True)
