@@ -7,6 +7,11 @@ from ..models import User
 from .. import bcrypt
 from .utils import username_email_query, password_check
 from ..config import Config
+import pandas as pd 
+
+currencies_path = Config.CURRENCIES_LIST_PATH
+currencies = pd.read_csv(currencies_path)
+currencies = list(currencies['currencies'])
 
 class RegisterationForm(FlaskForm):
     username = StringField('Username',
@@ -73,8 +78,8 @@ class LoginForm(FlaskForm):
             raise ValidationError('Invalid email/username and password combination. Please try again.')
 
 class RequestResetForm(FlaskForm):
-    email = StringField('Email_Username', 
-                                validators=[DataRequired()],
+    email = StringField('Email', 
+                                validators=[DataRequired(), Email()],
                                 render_kw={'placeholder': 'Email',
                                             'id': 'request-reset-email'})
     submit = SubmitField('Request Password Reset',
@@ -153,7 +158,7 @@ class ChangeEmailForm(FlaskForm):
 
 class ChangeSettingsForm(FlaskForm):
     currency = SelectField(label='Default Currency',
-                        choices=Config.CURRENCIES,
+                        choices=currencies,
                         render_kw={'id': 'change-currency'})
     
     submit = SubmitField('Change Settings',

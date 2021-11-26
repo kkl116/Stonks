@@ -2,6 +2,7 @@ from flask_table import Col
 from ..utils.table_helpers import (Col_, TickerItem, 
                                 Table_, get_table_ncols)
 from flask_login import current_user 
+from ..watchlist.utils import get_sector
 from ..models import PortfolioItem, ExchangeRate, Position
 import numpy as np 
 import yfinance as yf
@@ -78,7 +79,7 @@ def get_current_purchase_price(ticker_name, current_user):
         print('You do not own any shares!')
         return 0
     
-def create_new_order_entry(ticker_name, form, form_type='add'):
+def create_new_order_entry(ticker_name, form, form_type='buy'):
     """creates new query from add_form, but first checks if a similar entry already exists and therefore
     can populate some fields using existing information"""
     #HERE for sell order entries need to add current avg purchase price 
@@ -86,22 +87,23 @@ def create_new_order_entry(ticker_name, form, form_type='add'):
     query_item = PortfolioItem.query.filter_by(user=current_user, ticker_name=ticker_name).first()
     args_dict = {'user': current_user,
     'ticker_name': ticker_name, 
-    'quantity': form.quantity.data,
+    'quantity': form.order_quantity.data,
     }
 
     if form_type == 'sell':
         args_dict.update({'order_type': '0'})
-        args_dict.update({'sell_price': form.price.data})
+        args_dict.update({'sell_price': form.order_price.data})
         args_dict.update({'purchase_price': get_current_purchase_price(ticker_name, current_user)})
-    elif form_type == 'add':
-        args_dict.update({'purchase_price': form.purchase_price.data})
+    elif form_type == 'buy':
+        args_dict.update({'purchase_price': form.order_price.data})
     else:
         raise Exception('invalid form type')
 
     if query_item is None:
         ticker_info = get_ticker_info(ticker_name)
+        sector = get_sector(ticker_name, ticker_info=ticker_info)
         args_dict.update({'currency': ticker_info['currency'], 
-                        'sector': ticker_info['sector']})
+                        'sector': sector})
     else:
         args_dict.update({'currency': query_item.currency, 
                         'sector': query_item.sector})
@@ -111,11 +113,11 @@ def create_new_order_entry(ticker_name, form, form_type='add'):
     db.session.commit()
     return item
 
-def update_position(ticker_name, item, mode='1'):
+def update_position(ticker_name, item, mode='buy'):
     #create a new position entry if this doesn't previously exist, or update an existing one 
     """modes: 1 - buy order
     0 - sell order"""
-    assert mode in ['1', '0']
+    assert mode in ['buy', 'sell']
     position = Position.query.filter_by(ticker_name=ticker_name, user=current_user).first()
 
     if position:
@@ -124,13 +126,13 @@ def update_position(ticker_name, item, mode='1'):
         item_purchase_price = float(item.purchase_price)
         item_quantity = float(item.quantity)
         #update according to order 
-        if mode == '1':
+        if mode == 'buy':
             #get new share price and update quantity
             position.avg_purchase_price = np.average([current_purchase_price, item_purchase_price],
             weights=[current_quantity, item_quantity])
             position.quantity = current_quantity + item_quantity
             db.session.commit()
-        elif mode == '0':
+        elif mode == 'sell':
             #update quantity
             if current_quantity - item_quantity == 0:
                 db.session.delete(position)
@@ -139,14 +141,14 @@ def update_position(ticker_name, item, mode='1'):
                 position.quantity = current_quantity - item_quantity
                 db.session.commit()
             #if quantity = 0 then delete the entry
-    elif not position and mode == '1':
+    elif not position and mode == 'buy':
         position = Position(ticker_name=item.ticker_name,
         avg_purchase_price=item.purchase_price, quantity=item.quantity,
         currency=item.currency, user=current_user)
         db.session.add(position)
         db.session.commit()
 
-    elif not position and mode == '0':
+    elif not position and mode == 'sell':
         raise Exception('Cannot create sell order without owning any shares!')
     return position
 
@@ -253,7 +255,7 @@ def get_position_purchase_value(position):
 
     return purchase_value
 
-def update_summary_row(position=None, ticker_item=None, request_json=None, ticker_currency=None, mode="add"):
+def update_summary_row(position=None, ticker_item=None, request_json=None, ticker_currency=None, mode="buy"):
     """updates summary rows for adding or deleting ticker
     add arguments - query_items, ticker_item, sum_market_value
     sell arguments - """
@@ -267,7 +269,7 @@ def update_summary_row(position=None, ticker_item=None, request_json=None, ticke
     position_purchase_value = get_position_purchase_value(position)
 
     exch_rate = query_exchange_rate(ticker_item.currency, user_currency) if ticker_item.currency != current_user.currency else 1
-    if mode == "add":
+    if mode == "buy":
         ticker_current_price = stockquotes.Stock(ticker_item.ticker_name).current_price
         ticker_quantity = ticker_item.quantity
 
@@ -275,7 +277,7 @@ def update_summary_row(position=None, ticker_item=None, request_json=None, ticke
         new_market_value = round(curr_market_value + float(curr_ticker_value), 2)
     elif mode == 'sell' and position_purchase_value > 0:
         ticker_current_price = float(request_json['ticker-current-price']) * exch_rate
-        shares_sold = int(request_json['quantity'])
+        shares_sold = int(request_json['order_quantity'])
         new_market_value = round(curr_market_value  - (ticker_current_price * shares_sold * exch_rate))
     elif mode == 'sell' and position_purchase_value == 0:
         #forgot to account for if selling last remaining shares
@@ -314,7 +316,7 @@ class TickerItem_Portfolio(TickerItem):
         self.quantity = self.empty_or_attr(attr=[], func=self.get_quantity)
         self.market_value = self.empty_or_attr(attr=[], func=self.get_market_value)
         self.arrow_icon = self.empty_or_attr(attr=[], func=self.arrow_icon)
-        self.sell = self.empty_or_attr(attr=[url_for('portfolio.sell')], func=self.get_sell_btn)
+        self.sell = self.empty_or_attr(attr=[url_for('portfolio.order')], func=self.get_sell_btn)
         #have a sell button? I dunno
         try:
             self.update_html_attrs(self.color_style())

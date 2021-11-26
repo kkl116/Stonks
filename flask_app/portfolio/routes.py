@@ -2,23 +2,23 @@ from flask import Blueprint, request, jsonify, url_for
 from ..utils.helpers import _render_template, format_ticker_name, redirect_next_page
 from ..errors.utils import error_500_handler, form_errors_400
 from ..utils.table_helpers import query_to_table_items, new_item_json
-from ..models import Position, PortfolioItem
-from .forms import AddForm, SellForm
+from ..models import Position
+from .forms import OrderForm
 from .utils import (PortfolioTable, TickerItem_Portfolio, get_unique_ticker_names,
                     get_summary_row, create_new_order_entry, update_summary_row,
                     update_position)
 from datetime import datetime
 from flask_login import current_user, login_required
 from flask_app import db
+import json
 
 portfolio = Blueprint('portfolio', __name__)
 
 @portfolio.route('/portfolio', methods=["GET", "POST"])
 @login_required
 def main():
-    add_form = AddForm()
-    sell_form = SellForm()
-    return _render_template('portfolio/main.html', add_form=add_form, sell_form=sell_form)
+    order_form = OrderForm()
+    return _render_template('portfolio/main.html', order_form=order_form)
 
 @portfolio.route('/portfolio/get_table', methods=["POST"])
 @login_required
@@ -40,47 +40,33 @@ def get_table():
 
 
 
-@portfolio.route('/portfolio/add', methods=["GET", "POST"])
+@portfolio.route('/portfolio/order', methods=["GET", "POST"])
 @login_required
 @error_500_handler
-def add():
-    add_form = AddForm()
+def order():
+    order_form = OrderForm()
     if request.method == 'POST':
-        if add_form.validate_on_submit():
-            ticker_name = format_ticker_name(add_form.ticker_name.data)
+        #manually input correct order_type here 
+        form_data = json.loads(request.data)
+
+        order_form.order_type.data = form_data['order_type']
+
+        if order_form.validate_on_submit():
+            ticker_name = format_ticker_name(order_form.order_ticker_name.data)
+            order_type = order_form.order_type.data
             #just add entry here
-            item = create_new_order_entry(ticker_name, add_form)
+            item = create_new_order_entry(ticker_name, order_form, form_type=order_type)
             ### update position entry here 
-            update_position(ticker_name, item, mode='1')
+            update_position(ticker_name, item, mode=order_type)
             current_position = Position.query.filter_by(user=current_user).all()
             #update summary row - instead of creating new one, just subtract current values from deleted row and current sum row 
             return new_item_json(TickerItem_Portfolio(ticker_name), table_class=PortfolioTable, include_id=True,
                                 summary=update_summary_row(position=current_position, ticker_item=item,
-                                                        request_json=request.json, mode="add"))        
+                                                        request_json=request.json, mode=order_type))        
         else:
-            print(add_form.errors)
-            return form_errors_400(add_form)
+            print(order_form.errors)
+            return form_errors_400(order_form)
     else:
         redirect_next_page()
 
-
-@portfolio.route('/portfolio/sell', methods=["POST"])
-@login_required
-@error_500_handler
-def sell():
-    sell_form = SellForm()
-    print(sell_form.ticker_name.data)
-    if sell_form.validate_on_submit():
-        ticker_name = format_ticker_name(sell_form.ticker_name.data)
-        item = create_new_order_entry(ticker_name, sell_form, form_type='sell')
-        #update position entry here 
-        update_position(ticker_name, item, mode='0')
-        current_position = Position.query.filter_by(user=current_user).all()
-        #problem in tickeritem_portfolio -- if no remaining shares of ticker left - 
-        return new_item_json(TickerItem_Portfolio(ticker_name), table_class=PortfolioTable, include_id=True,
-                            summary=update_summary_row(position=current_position, ticker_item=item,
-                                                    request_json=request.json, mode='sell'))
-    else:
-        print(sell_form.errors)
-        return form_errors_400(sell_form)
 

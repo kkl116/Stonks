@@ -17,7 +17,7 @@ from ..utils.helpers import check_ticker_exists
 fig_default_layouts = {'paper_bgcolor': 'rgb(248, 249, 252)',
     'showlegend': False, 'hovermode': 'x unified'}
 
-def get_hist_vol_json(ticker_name, testing=False, period="max", col="Close"):
+def get_hist_vol_json(ticker_name, testing=False, period="1y", col="Close"):
     """gets price chart json data here that could be passed into html route"""
     ticker = yf.Ticker(ticker_name)
     hist = ticker.history(period=period)

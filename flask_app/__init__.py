@@ -5,6 +5,8 @@ from flask_login import LoginManager
 from .config import Config
 from flask_mail import Mail
 import os 
+import pandas
+from flask_apscheduler import APScheduler
 
 # if testing=True auto delete and create db if db file doesn't exist
 testing = True
@@ -17,12 +19,15 @@ login_manager = LoginManager()
 
 mail = Mail()
 
+scheduler = APScheduler()
+
 if testing and init_db:
     db_path = './sql/database.db'
     if os.path.exists(db_path):
         os.remove(db_path)
     db.create_all()
     print('***** db file deleted and reinitialized *****')
+
 
 #instead of importing app in from flask_app now from flask import current_app
 def create_app(config_class=Config):
@@ -33,7 +38,7 @@ def create_app(config_class=Config):
     bcrypt.init_app(app)
     login_manager.init_app(app)
     mail.init_app(app)
-
+    scheduler.init_app(app)
 
     from .accounts.routes import accounts
     from .main.routes import main 
@@ -41,6 +46,7 @@ def create_app(config_class=Config):
     from .watchlist.routes import watchlist
     from .portfolio.routes import portfolio
     from .errors.handlers import error_404, errors
+    from .alerts.routes import alerts
 
     app.register_blueprint(accounts)
     app.register_blueprint(main)
@@ -48,6 +54,7 @@ def create_app(config_class=Config):
     app.register_blueprint(watchlist)
     app.register_blueprint(portfolio)
     app.register_blueprint(errors)
+    app.register_blueprint(alerts)
     app.register_error_handler(404, error_404)
 
 

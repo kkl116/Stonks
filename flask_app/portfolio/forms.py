@@ -1,6 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField
-from wtforms.fields.html5 import DateField
+from wtforms import StringField, RadioField
 from wtforms.validators import DataRequired, ValidationError
 from ..utils.helpers import check_ticker_exists, format_ticker_name
 from datetime import datetime
@@ -19,86 +18,56 @@ def float_check(data):
     return data
 
 
-class AddForm(FlaskForm):
-    ticker_name = StringField('ticker name',
+class OrderForm(FlaskForm):
+    order_ticker_name = StringField('ticker name',
                                 validators=[DataRequired()],
                                 render_kw={'placeholder': 'Ticker Symbol',
-                                'id': 'ticker-name'})
-
-    quantity = StringField('quantity',
+                                'id': 'order-ticker-name'})
+    order_quantity = StringField('quantity',
                             validators=[DataRequired()],
-                            render_kw={'placeholder': 'Quantity'})
-    purchase_price = StringField('purchase_price',
+                            render_kw={'placeholder': 'Quantity',
+                            'id': 'order-quantity'})
+    order_price = StringField('price',
                         validators=[DataRequired()],
-                        render_kw={'placeholder': 'Purchase Price',
-                        'id': 'purchase-price'})
+                        render_kw={'placeholder': 'Price',
+                        'id': 'order-price'})
+    order_type = RadioField('order type',
+    render_kw={'id': 'order-type'},
+    choices=[('buy', 'Buy'), ('sell', 'Sell')], default='buy')
 
-
-    def validate_ticker_name(self, ticker_name):
+    def validate_order_ticker_name(self, order_ticker_name):
         """just check that ticker exists!"""
-        ticker_name = format_ticker_name(ticker_name.data)
-        exists = check_ticker_exists(ticker_name)
+        ticker_name = format_ticker_name(order_ticker_name.data)
+        exists = check_ticker_exists(ticker_name, flash_msg=False)
         if not exists:
             raise ValidationError("This ticker does not exist!")
 
-    def validate_purchase_price(self, price):
+        if self.order_type.data == 'sell':
+            position = Position.query.filter_by(ticker_name=ticker_name, user=current_user).first()
+            if not position:
+                raise ValidationError("Invalid Ticker!")
+
+    def validate_order_price(self, order_price):
         """simple validator to ensure that price is not negative"""
         #check that it's a number
-        price = float_check(price.data)
+        price = float_check(order_price.data)
 
         if price < 0:
             raise ValidationError("Purchase price cannot be negative!")
     
-    def validate_quantity(self, quantity):
-        quantity = float_check(quantity.data)
+    def validate_order_quantity(self, order_quantity):
+        quantity = float_check(order_quantity.data)
 
         if quantity < 0:
             raise ValidationError("Quantity cannot be negative!")
 
-class SellForm(FlaskForm):
-    #ticker field is not actually displayed - but just used to store which ticker was clicked when field is shown
-    ticker_name = StringField('ticker name',
-                        validators=[DataRequired()],
-                        render_kw={'placeholder': 'Ticker Symbol',
-                        'id': 'sell-ticker-name'})
+        if self.order_type.data == 'sell':
+            ticker_name = format_ticker_name(self.order_ticker_name.data)
+            position = Position.query.filter_by(ticker_name=ticker_name, user=current_user).first()
+            if position:
+                current_shares = float(position.quantity)
+                #function here to get all the currently holding n shares
+                if quantity > current_shares:
+                    raise ValidationError("You don't have that many shares!")
 
-    quantity = StringField('quantity',
-                            validators=[DataRequired()],
-                            render_kw={'placeholder': 'Quantity',
-                            'id': 'sell-quantity'})
-    price = StringField('price',
-                            validators=[DataRequired()],
-                            render_kw={'placeholder': 'Sell Price',
-                            'id': 'sell-price'})
 
-    def validate_ticker_name(self, ticker_name):
-        """just check that ticker exists and that this person owns these shares"""
-        ticker_name = format_ticker_name(ticker_name.data)
-        exists = check_ticker_exists(ticker_name)
-        if not exists:
-            raise ValidationError("This ticker does not exist!")
-        position = Position.query.filter_by(ticker_name=ticker_name, user=current_user).first()
-        if not position:
-            raise ValidationError("Invalid Ticker!")
-    
-    def validate_quantity(self, quantity):
-        """make sure that sell quantity is not greater than quantity owned"""
-        #problem - how to get current ticker???
-        quantity = float_check(quantity.data)
-
-        ticker_name = format_ticker_name(self.ticker_name.data)
-        position = Position.query.filter_by(ticker_name=ticker_name, user=current_user).first()
-        if position:
-            current_shares = float(position.quantity)
-            #function here to get all the currently holding n shares
-            if quantity > current_shares:
-                raise ValidationError("You don't have that many shares!")
-        else:
-            raise ValidationError("Invalid Ticker!")
-
-    def validate_price(self, price):
-        """check that sell price is not negative"""
-        price = float_check(price.data)
-
-        if price < 0:
-            raise ValidationError("Sell price cannot be negative!")

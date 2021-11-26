@@ -1,11 +1,14 @@
-{% extends "layout.html" %}
+{% extends "layout_2.html" %}
 
 {% block content %}
 
-<h3>Please login to access this page! 
-    <button type="button" class="btn btn-outline-primary" id="please-login-button">
-        <i class="fas fa-sign-in-alt"></i>
-    </button>
-</h3>
+<div class="activated-center">
+    <h3>
+        Please login to access this page! 
+        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#loginModal">
+            <i class="fas fa-sign-in-alt"></i>
+        </button>
+    </h3>
+</div>
 
 {% endblock %}

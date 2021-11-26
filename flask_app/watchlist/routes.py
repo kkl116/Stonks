@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, flash
 from ..utils.helpers import (_render_template, confirm_post_request_form, redirect_json, 
                             redirect_next_page, format_ticker_name)
 from ..errors.utils import error_500_handler, form_errors_400
@@ -78,6 +78,7 @@ def save_notes():
     item = WatchlistItem.query.filter_by(user=current_user, ticker_name=ticker).first()
     item.notes = ticker_notes
     db.session.commit()
+    flash('Note has been saved!', 'success')
     return jsonify({'message': 'notes have been added'})
 
 

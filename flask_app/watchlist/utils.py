@@ -7,12 +7,22 @@ from ..models import WatchlistItem, WatchlistItemTag
 from ..utils.table_helpers import (Col_, TickerItem, Table_,
                                     get_table_ncols)
 import yfinance as yf
+import pandas as pd
+from ..config import Config
 
-def get_sector(ticker_name):
+def get_sector(ticker_name, ticker_info=None):
     try:
-        ticker = yf.Ticker(ticker_name)
-        sector = ticker.info['sector']
+        if ticker_info is None:
+            ticker_info = yf.Ticker(ticker_name).info
+        sector = ticker_info['sector']
         return sector
+    except KeyError:
+        #try to see if it's a crypto
+        path = Config.COINS_LIST_PATH
+        coins = pd.read_csv(path)
+        coins = list(coins['coins'])
+        if ticker_name.split('-')[0] in coins:
+            return 'CreepToe'
     except Exception as e:
         print(f'Error in obtaining ticker sector: {e}')
         return 'N/A'
@@ -38,7 +48,7 @@ def span_from_tag_item(item, include_delete=True):
         delete = f"""<a href='#' onClick='deleteTagAjax(this, "{url}")' id="delete-{item_id}" class='tag-delete'><i class='fas fa-times'></i></i></a>"""
     else:
         delete = ''
-    return f'<span class="badge badge-primary" id="tag-{item_id}">{content} {delete}</span>'
+    return f'<span class="badge bg-info" id="tag-{item_id}">{content} {delete}</span>'
 
 def get_sector_btn(user, ticker_name):
     sector = WatchlistItem.query.filter_by(user=user, ticker_name=ticker_name).first().sector

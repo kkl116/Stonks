@@ -348,7 +348,7 @@
                                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     <i class="fas fa-bell fa-fw"></i>
                                     <!-- Counter - Alerts -->
-                                    <span class="badge badge-danger badge-counter">?</span>
+                                    <span class="badge badge-info badge-counter" id="n-alerts">0</span>
                                 </a>
                                 <!-- Dropdown - Alerts -->
                                 <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
@@ -364,7 +364,7 @@
                                         </div>
                                         <div>
                                             <div class="small text-gray-500">December 12, 2019</div>
-                                            <span class="font-weight-bold">A new monthly report is ready to download!</span>
+                                            <span class="font-weight-bold" id='dummy'>A new monthly report is ready to download!</span>
                                         </div>
                                     </a>
                                     <a class="dropdown-item text-center small text-gray-500" href="#">Show All Alerts</a>
@@ -496,14 +496,16 @@
     <!-- Custom js script for login and register modals -->
     <script type="module" src="/static/js/accounts.js"></script>
     <script type="module" src="/static/js/main.js"></script>
-    <!-- js for misc stuff -->
 
+    <!-- js for misc stuff -->
 
     <script>
         //script to reopen modal if any form errors are found
         const urlRegister = "{{ url_for('accounts.register') }}";
         const urlLogin = "{{ url_for('accounts.login') }}";
         const urlRequestReset = "{{ url_for('accounts.request_reset') }}";
+        //SSE event source 
+        let alertsEventSource = new EventSource("{{ url_for('alerts.stream') }}")
 
         $(document).ready(function() {
             //this is previous function to reopen modal if any form errors were found
@@ -511,6 +513,9 @@
             loginAjax(urlLogin);
             requestResetAjax(urlRequestReset);
 
+            alertsEventSource.onmessage = function(e) {
+                console.log(JSON.parse(e.data))
+            };
         })
     </script>
 

@@ -14,11 +14,14 @@ current TODO:
     - portfolio todos:
         -portfolio history
 
-
+- price alerts! 
+- if want to steadily update quotes on portfolio or watchlist there are two parts - 
+1. use apscheduler to schedule quote collection every min/5min during market hours 
+2. when on watchlist or portfolio establish streams to use sse to update numbers
+- learn how to write simple tests! - test endpoints, and test some functions?
 
 side TODO (nicer looking features in the future):
 
-- learn how to write simple tests!
 - write some macros to clean up layout.html
 - bundle js and css to page loads faster? (process into minjs and mincss)
 - watchlist page - group function
@@ -73,7 +76,8 @@ and refresh after the page is done loading
 - 404/400 error page, and change error exceptions to return these status codes 
 - modify stockquotes so only fetching needed data? 
 - profile pages - set sayyyy default currency and change account settings 
-
-
+- get list of cryto pairs to set sector - schedule once a month to update csv
+- watchlist and portfolio sector update include creeptoes
+- rewrite layout.html with bootstrap 5
 
 

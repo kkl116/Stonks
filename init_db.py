@@ -31,8 +31,9 @@ if __name__ == '__main__':
         db.create_all()
 
     #portfolio items to be added when init
-    # portfolio_dict = {
-    #     'GME': ['244.09', '40'],
+    portfolio_dict = {
+        'GME': ['1', '1'],
+        'LRC-USD': ['1', '1']}
     #     'ROO.L': ['390', '256'],
     #     'MRNA': ['402.64', '10'],
     #     'OTLY': ['28.79', '25']
@@ -41,10 +42,11 @@ if __name__ == '__main__':
     portfolio_dict = 0
 
     watchlist = [
-        'GME', 'PLTR', 'NVDA', 'ROO.L', 'MMED.NE', 'ETH-USD',
+        'GME', 'LRC-USD'
+        # 'PLTR', 'NVDA', 'ROO.L', 'MMED.NE', 'ETH-USD',
         #'HBAR-USD', 'DOGE-USD', 'BTC-USD', 'CTXR', 'F', 'AMC',
-        'BB', 'CTXR', 'MRNA', 'BNTX', 'AMC', 'HBAR-USD',
-        'OTLY', '^VIX', 'SPY'
+        # 'BB', 'CTXR', 'MRNA', 'BNTX', 'AMC', 'HBAR-USD',
+        # 'OTLY', '^VIX', 'SPY'
     ]
 
     #add a dummy user 

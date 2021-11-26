@@ -29,6 +29,8 @@ class User(db.Model, UserMixin):
                                 cascade="all, delete, delete-orphan", passive_deletes=True)
     positions = db.relationship('Position', backref='user', lazy=True,
                                 cascade='all, delete, delete-orphan', passive_deletes=True)
+    alerts = db.relationship('Alert', backref='user', lazy=True,
+                                cascade='all, delete, delete-orphan', passive_deletes=True)
     
     
     def get_reset_token(self, expires_sec=1800):
@@ -91,6 +93,7 @@ class PortfolioItem(db.Model):
     currency = db.Column(db.String(), nullable=False)
     order_type = db.Column(db.String(), nullable=False, default='1')
     sector = db.Column(db.String(), nullable=False, default='')
+    date_added = db.Column(db.DateTime, nullable=False, default=datetime.utcnow())
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete="CASCADE"), nullable=False)
 
     def __repr__(self):
@@ -119,3 +122,14 @@ class ExchangeRate(db.Model):
     
     def __repr__(self):
         return f"ExchangeRate('{self.from_currency}', '{self.to_currency}', '{self.rate}' ,'{self.date_updated}')"
+
+class Alert(db.Model):
+    __tablename__ = 'alerts'
+    id = db.Column(db.Integer, primary_key=True)
+    ticker_name = db.Column(db.String(), unique=False, nullable=False)
+    price_level = db.Column(db.Float(), unique=False, nullable=True)
+    percentage_change = db.Column(db.Float(), unique=False, nullable=True)
+    date_added = db.Column(db.DateTime, nullable=False)
+    date_added = db.Column(db.DateTime, nullable=False, default=datetime.utcnow())
+    email_alert = db.Column(db.Boolean(), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete="CASCADE"), nullable=False)

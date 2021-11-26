@@ -1,4 +1,4 @@
-{% extends "layout.html" %}
+{% extends "layout_2.html" %}
 
 <!-- 400 error could be because of wrong script -- check cdnjs for script tags to replace-->
 {% block head %}
@@ -19,10 +19,10 @@
     </div>
 
     <div class="dropdown" style="text-align:center;">
-        <button class="btn btn-outline-dark dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <button class="btn btn-outline-dark dropdown-toggle" type="button" id="dropdownSearch" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Additional Info
         </button>
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        <div class="dropdown-menu" aria-labelledby="dropdownSearch">
             <!--Add for loop here so it's less clunky-->
             {% for display, data_id in dropdowns.items() %}
                 <a class="dropdown-item" data-item-name={{data_id}} onClick="addChart(this)" data-targ-url="{{url_for('searches.add_chart')}}" data-ticker="{{ q }}">

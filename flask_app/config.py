@@ -12,38 +12,8 @@ class Config:
     MAIL_SERVER = 'smtp.googlemail.com'
     MAIL_PORT = 587
     MAIL_USE_TLS = True
-    CURRENCIES = ['ARS',
-    'AUD',
-    'BRL',
-    'CAD',
-    'CHF',
-    'CLP',
-    'CNY',
-    'COP',
-    'CZK',
-    'DKK',
-    'EUR',
-    'GBP',
-    'HKD',
-    'HUF',
-    'IDR',
-    'ISK',
-    'JPY',
-    'KES',
-    'KRW',
-    'MXN',
-    'MYR',
-    'NOK',
-    'NZD',
-    'PHP',
-    'PLN',
-    'SEK',
-    'SGD',
-    'THB',
-    'TWD',
-    'USD',
-    'VND',
-    'ZAR']
+    COINS_LIST_PATH = 'flask_app/static/data/coins.csv'
+    CURRENCIES_LIST_PATH = 'flask_app/static/data/currencies.csv'
 
 
 

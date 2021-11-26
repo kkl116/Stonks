@@ -52,6 +52,7 @@ def login():
 @login_required
 def logout():
     logout_user()
+    flash('You have logged out!', 'success')
     return redirect_next_page()
 
 #need email reset.
@@ -68,6 +69,8 @@ def request_reset():
             if user:
                 send_reset_email(user)
             return jsonify({'message': 'done!'})
+        else:
+            return form_errors_400(request_reset_form)
     return redirect_next_page()
 
 @accounts.route('/reset_password/<token>', methods=["GET", "POST"])

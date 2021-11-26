@@ -1,100 +1,11 @@
 
 import { formAjax, modifyErrorKeys } from './helpers.js';
 
-/*
- *
- * login-register modal
- * Autor: Creative Tim
- * Web-autor: creative.tim
- * Web script: http://creative-tim.com
- * 
- */
-
-function showRegisterForm(){
-    let fadeSpeed = 400;
-    $('.loginBox').fadeOut(fadeSpeed,function(){
-        $('.social').fadeIn(fadeSpeed);
-        $('.division').fadeIn(fadeSpeed);
-        $('.registerBox').fadeIn(fadeSpeed);
-        $('.login-footer').fadeOut(fadeSpeed,function(){
-            $('.register-footer').fadeIn(fadeSpeed);
-        });
-    }); 
-    $('.error').removeClass('alert alert-danger').html('');
-       
-}
-function showLoginForm(){
-    let fadeSpeed = 400;
-    $('#loginModal .registerBox').fadeOut(fadeSpeed,function(){
-        $('.resetSubmittedBox').fadeOut(fadeSpeed);
-        $('.requestResetBox').fadeOut(fadeSpeed);
-        $('.social').fadeIn(fadeSpeed);
-        $('.division').fadeIn(fadeSpeed);
-        $('.loginBox').fadeIn(fadeSpeed);
-        $('.register-footer').fadeOut(fadeSpeed,function(){
-            $('.login-footer').fadeIn(fadeSpeed);    
-            $('.request-submitted-footer').fadeOut(fadeSpeed);
-            $('.request-reset-footer').fadeOut(fadeSpeed);
-        });
-    });       
-     $('.error').removeClass('alert alert-danger').html(''); 
-}
-
-function showRequestResetForm(){
-    let fadeSpeed = 400;
-    $('.loginBox').fadeOut(fadeSpeed, function(){
-        $('.social').fadeOut(fadeSpeed);
-        $('.division').fadeOut(fadeSpeed);
-        $('.loginBox').fadeOut(fadeSpeed);
-
-        $('.requestResetBox').fadeIn(fadeSpeed);
-
-        $('.login-footer').fadeOut(fadeSpeed, function(){
-            $('.request-reset-footer').fadeIn(fadeSpeed);
-    })
-    });
-    $('.error').removeClass('alert alert-danger').html('');
-}
-
-function showRequestResetSubmitted(){
-    let fadeSpeed = 400;
-    $('.requestResetBox').fadeOut(fadeSpeed, function(){
-        $('.resetSubmittedBox').fadeIn(fadeSpeed);
-    })
-    $('.request-reset-footer').fadeOut(fadeSpeed, function(){
-        $('.request-submitted-footer').fadeIn(fadeSpeed);
-    })
-}
-
-function openLoginModal(){
-    showLoginForm();
-    setTimeout(function(){
-        $('#loginModal').modal('show');    
-    }, 230);
-    
-}
-function openRegisterModal(){
-    showRegisterForm();
-    setTimeout(function(){
-        $('#loginModal').modal('show');    
-    }, 230);
-    
-}
-
-function removeShake(){
-    $('#loginModal .modal-dialog').removeClass('shake');
-}
-
-function shakeModal(){
-    $('#loginModal .modal-dialog').addClass('shake');
-    setTimeout(removeShake, 1000); 
-}
-
-//js code from here: https://blog.carsonevans.ca/2019/08/20/validating-ajax-requests-with-wtforms-in-flask/
+//ajax code references this: https://blog.carsonevans.ca/2019/08/20/validating-ajax-requests-with-wtforms-in-flask/
 
 function registerAjax(url){
     function successFunc(success, fields, form){
-        $('#loginModal').modal('hide');
+        $('#registerModal').modal('hide');
         form.reset();
         if (success.redirect) {
             window.location.href = success.redirect;
@@ -109,20 +20,26 @@ function registerAjax(url){
         Object.keys(fields).forEach((key) => {
             if (key != 'csrf_token') {
                 if (Object.keys(modErrors).includes(key)) {
+                    fields[key].input.classList.remove('is-valid')
                     fields[key].input.classList.add('is-invalid');
                     fields[key].error.innerHTML = modErrors[key][0];
                 } else {
+                    fields[key].input.classList.add('is-valid')
                     fields[key].input.classList.remove('is-invalid');
                     fields[key].error.innerHTML = null
                 }
             }
         })
-        shakeModal();
     }
     function keyFunc(key){
         key = key.replace('register-', '')
         return key.replace('-', '_')
-    }
+    };
+
+    function waitFunc(){
+    $('#registerModalBody').hide();
+    $('#registerModalLoading').attr('style', "display: inline !important");
+    };
 
     let formId = 'register-form'
     let fieldIds = ['register-csrf', 'register-username', 'register-email',
@@ -130,7 +47,7 @@ function registerAjax(url){
 
     formAjax(url=url, formId=formId,
         fieldIds=fieldIds, successFunc=successFunc, errorFunc=errorFunc,
-        keyFunc=keyFunc);
+        keyFunc=keyFunc, waitFunc=waitFunc);
 }
 
 function loginAjax(url){
@@ -157,7 +74,6 @@ function loginAjax(url){
                 fields[key].error.innerHTML = modErrors[key][0];   
             }
         })
-        shakeModal();
     }
 
     function keyFunc(key){
@@ -166,8 +82,7 @@ function loginAjax(url){
     }
 
     let formId = 'login-form';
-    let fieldIds = ['login-csrf', 'login-email-username', 'login-password',
-                    'login-remember'];
+    let fieldIds = ['login-csrf', 'login-email-username', 'login-password'];
     formAjax(url=url, formId=formId,
         fieldIds=fieldIds, successFunc=successFunc, errorFunc=errorFunc,
         keyFunc=keyFunc);
@@ -177,26 +92,46 @@ function requestResetAjax(url){
     function successFunc(success, fields){
         //disable modal and populate succses message
         console.log(success)
-        showRequestResetSubmitted();
+        $('#passwordResetBody').toggle()
+        $('#resetModalLoading').toggle()
+
+        $('#passwordResetModal').modal('toggle');
+        $('#requestSubmittedModal').modal('toggle');
         //clear form fields
-        fields.email_username.input.value = '';
+        $('#request-reset-email').val('');
     }
     function errorFunc(errors, fields){
         console.log(errors)
-        // open request submitted modal regardless
-        showRequestResetSubmitted();
-        fields.email_username.input.value = '';
+        let modErrors = modifyErrorKeys(errors, function(key){
+            key = 'request-reset-' + key
+            return key.split('_').join('-')
+        })
+        console.log(Object.keys(modErrors))
+        console.log(fields)
+        Object.keys(fields).forEach((key) => {
+            if (Object.keys(modErrors).includes(key)){
+                fields[key].input.classList.add('is-invalid');
+                fields['request-reset-email'].input.classList.add('is-invalid')
+                fields[key].error.innerHTML = modErrors[key][0];   
+            }
+        })
     }
     function keyFunc(key){
         key = key.replace('request-reset-', '');
         return key.replace('-', '_')
     }
+
+    function waitFunc(){
+        $('#passwordResetBody').hide();
+        $('#resetModalLoading').attr('style', "display: inline !important");
+    };
+    
     let formId = 'request-reset-form';
     let fieldIds = ['request-reset-csrf', 'request-reset-email'];
 
     formAjax(url=url, formId=formId,
         fieldIds=fieldIds, successFunc=successFunc, errorFunc=errorFunc,
-        keyFunc=keyFunc);
+        keyFunc=keyFunc, waitFunc=waitFunc);
 }
 
 
@@ -217,9 +152,11 @@ function resetPasswordAjax(url){
         Object.keys(fields).forEach((key) => {
             if (key != 'csrf_token') {
                 if (Object.keys(modErrors).includes(key)) {
+                    fields[key].input.classList.remove('is-valid')
                     fields[key].input.classList.add('is-invalid');
                     fields[key].error.innerHTML = modErrors[key][0];
                 } else {
+                    fields[key].input.classList.add('is-valid')
                     fields[key].input.classList.remove('is-invalid');
                     fields[key].error.innerHTML = null
                 }
@@ -238,22 +175,7 @@ function resetPasswordAjax(url){
         keyFunc=keyFunc);
 }
 
-
-//create an account button to trigger modal 
-$('#create-account-button').click(function() {
-    openRegisterModal();
-})
-
-$('#please-login-button').click(function(){
-    openLoginModal();
-})
-
 window.registerAjax=registerAjax;
 window.loginAjax=loginAjax;
-window.showLoginForm=showLoginForm;
 window.requestResetAjax=requestResetAjax;
-window.showRequestResetForm=showRequestResetForm;
 window.resetPasswordAjax=resetPasswordAjax;
-window.openLoginModal=openLoginModal;
-window.openRegisterModal=openRegisterModal;
-window.showRegisterForm=showRegisterForm;

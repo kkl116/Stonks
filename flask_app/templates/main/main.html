@@ -1,22 +1,18 @@
-{% extends "layout.html" %}
+{% extends "layout_2.html" %}
 
 {% block content %}
 
-
-<div class="console-container">
-    <h1 class='display-2'>Welcome! <i class="far fa-smile"></i></h1>
-</div>
-
 <!-- need to add <a> tag here for create an account button-->
 <!-- also if logged in then should be a slighly different page-->
-<div class='homepage-text-container'>
+<div class='homepage-text'>
+    <h1 class='display-2'>Welcome! <i class="far fa-smile"></i></h1>
     {% if logged_in == 1 %}
         <i class="far fa-hand-point-left"></i> 
         Click a page or 
         <i class="far fa-hand-point-up"></i>
         search for a stock to get started!
     {% else %}
-        <button type="button" class="btn btn-outline-primary" id="create-account-button">Create an account</button>
+        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#registerModal">Create an account</button>
         or search for a stock to get started!
     {% endif %}
 </div>

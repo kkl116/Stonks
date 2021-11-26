@@ -40,7 +40,9 @@ function formAjax(url=null, formId=null, fieldIds=[], successFunc=null, errorFun
     */
    function dataFromFields(fields){
        let data = {};
+       
        Object.keys(fields).forEach((key) => {
+           console.log(key)
            let value = keyFunc(key);
            data[value] = fields[key].input.value
        })

@@ -1,6 +1,7 @@
-{% extends "layout.html" %}
+{% extends "layout_2.html" %}
 
 {% block head %}
+<link href="https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap5.min.css" rel="stylesheet" crossorigin="anonymous">    
 {% endblock %}
 
 {% block content %}
@@ -17,59 +18,42 @@
     <h3 style="margin-top: 7.5%;"> Processing...</h1>
 </div>
 
-<div id="main-content" style="display: none;">
+<div id="main-content" style="display: none; ">
     <h1 class="search-title">Portfolio</h1>
-    <div id="table-div"></div>
+    <div id="table-div" class="tableDiv"></div>
     <p id="empty-message" style="text-align:center;" style="margin-top: 5%; display: none;">
         Your portfolio is currently empty!
     </p>
-    <form method="POST", accept-charset="UTF-8" id="add-form" style="margin-top: 5%;">
-        {{ add_form.csrf_token(id="add-csrf") }}
-        <div class="form-row justify-content-center">
-            <div class="col-auto">
-                {{ add_form.ticker_name(class="mw-25 form-control border-1 small", style="font-size: 14px;") }}
-                <div id="ticker-name-error" class="mw-25 invalid-feedback"></div>
-            </div>
-            <div class="col-auto">
-                {{ add_form.purchase_price(class="mw-25 form-control border-1 small", style="font-size: 14px;")}}
-                <div id="purchase-price-error" class="mw-25 invalid-feedback"></div>
-            </div>
-            <div class="col-auto">
-                {{ add_form.quantity(class="mw-25 form-control border-1 small", style="font-size: 14px;")}}
-                <div id="quantity-error" class="mw-25 invalid-feedback"></div>
-            </div>
-
-            <div class="col-auto">
-                <button type="submit" class="btn btn-dark" style="font-size:14px;" id="add-submit">
-                    <i class="fas fa-plus-square"></i>
-                </button>
-            </div>
-            
+    <form method="POST", accept-charset="UTF-8" id="order-form" class="row g-3 order-form">
+        {{ order_form.csrf_token(id="order-csrf") }}
+        <div class="col-md-6">
+            {{ order_form.order_ticker_name(class="form-control border-1 small", style="font-size: 14px;") }}
+            <div id="order-ticker-name-error" class="mw-25 invalid-feedback"></div>
         </div>
-    </form>
-    <form method="POST", accept-charset="UTF-8" id="sell-form" style="margin-top: 2%;">
-        {{ sell_form.csrf_token(id="sell-csrf") }}
-        <div class="form-row justify-content-center">
-            <div class="col-auto">
-                {{ sell_form.ticker_name(class="mw-25 form-control border-1 small", style="font-size: 14px;") }}
-                <div id="sell-ticker-name-error" class="mw-25 invalid-feedback"></div>
-            </div>
-            <div class="col-auto">
-                {{ sell_form.price(class="mw-25 form-control border-1 small", style="font-size: 14px;") }}
-                <div id="sell-price-error" class="mw-25 invalid-feedback"></div>
-            </div>
-            <div class="col-auto">
-                {{ sell_form.quantity(class="mw-25 form-control border-1 small", style="font-size: 14px;") }}
-                <div id="sell-quantity-error" class="mw-25 invalid-feedback"></div>
-            </div>
-            <div class="col-auto">
-                <button type="submit" class="btn btn-dark" style="font-size:12.5px;" id="sell-submit">
-                    <i class="fas fa-coins"></i>
-                </button>
-            </div>
+        <div class="col-md-6">
+            {{ order_form.order_price(class="form-control border-1 small", style="font-size: 14px;")}}
+            <div id="order-price-error" class="mw-25 invalid-feedback"></div>
+        </div>
+        <div class="col-md-6">
+            {{ order_form.order_quantity(class="form-control border-1 small", style="font-size: 14px;")}}
+            <div id="order-quantity-error" class="mw-25 invalid-feedback"></div>
+        </div>
+        <div class="col-md-4">
+            {% for choice in order_form.order_type%}
+                <div class="form-check form-check-inline">
+                    {{ choice(class="form-check-input")}}
+                    {{ choice.label(class="form-check-label") }}
+                </div>
+            {% endfor %}
         </div>
 
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-dark" style="font-size:14px;" id="add-submit">
+                Submit
+            </button>
+        </div>
     </form>
+
 </div>
 
 {% endblock %}
@@ -77,16 +61,15 @@
 {% block scripts %}
 <script type="module" src="/static/js/portfolio.js"></script>
 <link rel="stylesheet" type='text/css' href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap4.min.css">
-<script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap4.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap5.min.js"></script>
 <script>
     //initialize addform ajax
-    const urlAdd = "{{ url_for('portfolio.add') }}";
+    const urlOrder = "{{ url_for('portfolio.order') }}";
     const urlLoadTable = "{{ url_for('portfolio.get_table') }}";
-    const urlSell = "{{ url_for('portfolio.sell') }}";
 
     $(document).ready(function() {
-        tableAjax(urlAdd, urlLoadTable, urlSell);
+        tableAjax(urlOrder, urlLoadTable);
     });
 
 </script>

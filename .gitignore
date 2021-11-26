@@ -1,9 +1,2 @@
 Flask_tutorial/
 .venv/
-flask_app/static/css/sb-admin-2.css
-flask_app/static/css/sb-admin-2.min.css
-flask_app/static/js/demo/
-flask_app/static/js/sb-admin-2.js
-flask_app/static/js/sb-admin-2.min.js
-flask_app/static/scss
-flask_app/static/vendor

@@ -1,0 +1,128 @@
+body{
+    font-family: 'Open Sans', sans-serif;
+    background: #FBFAFC;
+
+    color: black;
+    font-weight:300;
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+  }
+
+i {
+    margin-right: 5px;
+}
+.sidebar-label{
+    font-size: 14px;
+    display: none;
+}
+
+.sidebar-dropdown-label{
+    font-size: 12px;
+}
+
+/* expanding sidebar */
+#sidebar.active{
+    width: 10rem;
+    transition: width 0.35s;
+}
+
+/*sidebar transition */
+.sidebar{
+    position: fixed;
+    z-index: 10;
+    top: 0;
+    width: 6rem;
+    height: 100%;
+    transition: width 0.35s;
+}
+
+/*navbar styles */
+.navbar{
+    width: 100%;
+    height: 90px;
+    display:block;
+    position: absolute;
+    top: 0;
+    left: 6rem;
+}
+
+.bg-topbar{
+    background-color: #E6EDF2
+}
+
+.bg-sidebar{
+    background-color:#F2F1F0
+}
+
+.navbar-search{
+    width: 25rem;
+    font-size: 0.85rem;
+    height: auto;
+    margin-left: 3rem;
+    margin-top: 5rem;
+}
+
+.homepage-text{
+    position: fixed;
+    margin-top: 15%;
+    margin-left: 25%;
+
+}
+
+.container-fluid{
+    width: 85%;
+    height: calc(100%-6rem);
+    position: absolute;
+    top: 6rem;
+    left: 6rem;
+    color:black;
+}
+
+.error-center{
+    position:fixed;
+    margin-top: 5%;
+    margin-left: 30%
+}
+
+.order-form{
+    margin-top: 5%;
+    width: 50%;
+    margin-left: 25%;
+}
+
+
+.watchlist-form{
+    width: 40%; 
+    margin-top: 2%;
+    margin-left: 10%;
+}
+
+.accordion{
+    width:80%;
+    margin-left: 5%;
+}
+
+.reset-password-field{
+    margin-bottom:2%;
+}
+
+.modal-form{
+    margin-bottom:2%;
+}
+
+.login-submit{
+    margin-top: 2%;
+}
+
+.activated-center{
+    margin-left: 30%;
+    margin-top: 15%;
+}
+
+.password-reset-doglion{
+    margin-left: 5%;
+}
+
+.loading{
+    display: none !important;
+}
