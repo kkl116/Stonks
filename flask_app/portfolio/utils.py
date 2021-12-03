@@ -10,10 +10,10 @@ from flask import url_for, jsonify
 from flask_app import db
 from currency_symbols import CurrencySymbols
 import requests, json
-import stockquotes
 from flask_app import testing
 from datetime import datetime
 from ..utils.helpers import html_formatter
+from batchquotes import get_quotes_asyncio
 
 def query_exchange_rate(from_currency, to_currency):
     """basically check the database to see if there is this entry, if not then get it from api
@@ -101,7 +101,7 @@ def create_new_order_entry(ticker_name, form, form_type='buy'):
 
     if query_item is None:
         ticker_info = get_ticker_info(ticker_name)
-        sector = get_sector(ticker_name, ticker_info=ticker_info)
+        sector = get_sector(ticker_info=ticker_info)
         args_dict.update({'currency': ticker_info['currency'], 
                         'sector': sector})
     else:
@@ -270,9 +270,8 @@ def update_summary_row(position=None, ticker_item=None, request_json=None, ticke
 
     exch_rate = query_exchange_rate(ticker_item.currency, user_currency) if ticker_item.currency != current_user.currency else 1
     if mode == "buy":
-        ticker_current_price = stockquotes.Stock(ticker_item.ticker_name).current_price
+        ticker_current_price = get_quotes_asyncio([ticker_item.ticker_name])[0]['current_price']
         ticker_quantity = ticker_item.quantity
-
         curr_ticker_value = float(ticker_current_price) * float(ticker_quantity) * exch_rate
         new_market_value = round(curr_market_value + float(curr_ticker_value), 2)
     elif mode == 'sell' and position_purchase_value > 0:
@@ -282,7 +281,6 @@ def update_summary_row(position=None, ticker_item=None, request_json=None, ticke
     elif mode == 'sell' and position_purchase_value == 0:
         #forgot to account for if selling last remaining shares
         new_market_value = 0
-
     else:
         raise Exception('invalid mode for updating summary row')
 
@@ -295,6 +293,7 @@ def update_summary_row(position=None, ticker_item=None, request_json=None, ticke
     item.market_value = user_currency_symbol + str(new_market_value)
     item.gain = user_currency_symbol + str(gain)
     item.percent_gain = str(percent_gain)
+
     return item
 
 
@@ -316,7 +315,6 @@ class TickerItem_Portfolio(TickerItem):
         self.quantity = self.empty_or_attr(attr=[], func=self.get_quantity)
         self.market_value = self.empty_or_attr(attr=[], func=self.get_market_value)
         self.arrow_icon = self.empty_or_attr(attr=[], func=self.arrow_icon)
-        self.sell = self.empty_or_attr(attr=[url_for('portfolio.order')], func=self.get_sell_btn)
         #have a sell button? I dunno
         try:
             self.update_html_attrs(self.color_style())
@@ -373,16 +371,6 @@ class TickerItem_Portfolio(TickerItem):
         elif self.gain == 0:
             return html_formatter('i', cls=["fas fa-dot-circle"])
 
-    def get_sell_btn(self, url):
-        return f"""
-        <button type='button'
-        class='btn btn-outline-dark btn-sm'
-        id={self.ticker}-sell_btn
-        data-targ-url={url}
-        onClick="fillSellFormTicker(this)">
-        SELL
-        </button>
-        """
     
     def __repr__(self):
         return f"TickerItem_Portfolio({self.ticker_name})"
@@ -400,7 +388,6 @@ class PortfolioTable(Table_):
     market_value = Col_('MARKET VALUE')
     gain = Col_('GAIN', use_item_attrs=True)
     percent_gain = Col_('PERCENT GAIN', use_item_attrs=True)
-    sell = Col_('SELL', hide_header=True)
     table_id = 'portfolio-table'
 
     def __repr__(self):

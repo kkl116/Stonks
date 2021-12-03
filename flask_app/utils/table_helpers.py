@@ -1,8 +1,6 @@
 from flask_table import Col, Table
 from flask_table.html import element
 from flask import Markup, jsonify, url_for
-import stockquotes
-from ..models import WatchlistItem
 import time 
 from batchquotes import get_quotes_asyncio
 from collections import namedtuple
@@ -36,9 +34,9 @@ class TickerItem:
         self.ticker_link = self.get_ticker_link()
         if self.batch:
             assert ticker_dict is not None
-            self.ticker_obj = pseudo_obj(**ticker_dict)
         else:
-            self.ticker_obj = self.empty_or_attr(attr=ticker, func=stockquotes.Stock)
+            ticker_dict = get_quotes_asyncio([ticker])[0]
+        self.ticker_obj = pseudo_obj(**ticker_dict)
         self.current_price = self.empty_or_attr(attr=[], func=self.get_current_price)
         self.html_attrs = {}
         self.green_hex = "#027E4A"
@@ -54,7 +52,7 @@ class TickerItem:
         return '<i class="fas fa-tag" style="vertical-align: middle;"></i>'
     
     def get_current_price(self):
-        return self.ticker_obj.current_price
+        return float(self.ticker_obj.current_price)
 
     def delete_btn(self, url):
         return f"""
@@ -184,7 +182,7 @@ def query_to_table_items(query_items, item_class):
     During this proces calls batchquotes to get stock_dict for batch tickeritem calls"""
     ticker_names = [q.ticker_name for q in query_items]
     #maybe put a timeout func here in case overloaded server and get blocked
-    ticker_dicts = get_quotes_interval(ticker_names)
+    ticker_dicts = get_quotes_interval(ticker_names, n_splits=max(len(ticker_names)//2, 1))
 
     table_items = [item_class(sym, batch=True, ticker_dict=q) for sym, q in ticker_dicts]
     return table_items

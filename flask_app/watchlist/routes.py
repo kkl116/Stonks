@@ -4,7 +4,7 @@ from ..utils.helpers import (_render_template, confirm_post_request_form, redire
 from ..errors.utils import error_500_handler, form_errors_400
 from .utils import (WatchlistTable, TickerItem_Watchlist, get_notes_tr,
                     create_new_tag_entry, span_from_tag_item, get_sector,
-                    get_sector_btn)
+                    get_sector_btn, watchlist_add_item)
 from ..utils.table_helpers import new_item_json, query_to_table_items
 from flask_login import login_required, current_user
 from .forms import AddForm
@@ -46,10 +46,7 @@ def add():
         if add_form.validate_on_submit():
             #need to add the watchlist item into the db
             ticker_name = format_ticker_name(add_form.ticker_name.data)
-            item = WatchlistItem(ticker_name=ticker_name, user=current_user,
-            sector=get_sector(ticker_name))
-            db.session.add(item)
-            db.session.commit()
+            watchlist_add_item(ticker_name)
             return new_item_json(TickerItem_Watchlist(ticker_name), table_class=WatchlistTable, include_id=False)
         else:
             return form_errors_400(add_form)

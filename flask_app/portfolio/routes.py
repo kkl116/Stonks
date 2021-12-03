@@ -31,8 +31,10 @@ def get_table():
     else:
         #update porfolio stats
         table_items = query_to_table_items(positions, TickerItem_Portfolio)
+        print('table items')
         #create an empty item, then update attrs to make summary row
         table_items.append(get_summary_row(positions, table_items))
+        print('table_items')
         table = PortfolioTable(items=table_items)
         empty = 0
     

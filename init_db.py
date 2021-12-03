@@ -43,10 +43,10 @@ if __name__ == '__main__':
 
     watchlist = [
         'GME', 'LRC-USD',
-        'PLTR', 'NVDA', 'ROO.L', 'MMED.NE', 'ETH-USD',
-        'HBAR-USD', 'DOGE-USD', 'BTC-USD', 'CTXR', 'F', 'AMC',
-        'BB', 'CTXR', 'MRNA', 'BNTX', 'AMC', 'HBAR-USD',
-        'OTLY', '^VIX', 'SPY'
+        # 'PLTR', 'NVDA', 'ROO.L', 'MMED.NE', 'ETH-USD',
+        # 'HBAR-USD', 'DOGE-USD', 'BTC-USD', 'CTXR', 'F', 'AMC',
+        # 'BB', 'CTXR', 'MRNA', 'BNTX', 'AMC', 'HBAR-USD',
+        # 'OTLY', '^VIX', 'SPY'
     ]
     watchlist = list(set(watchlist))
 
@@ -58,7 +58,8 @@ if __name__ == '__main__':
             db.session.add_all([user])
             db.session.commit()
             #commit all the watchlist items and portfolio items 
-            watchlist_items = [WatchlistItem(ticker_name=ticker_name, user=user, sector=get_sector(ticker_name)) for ticker_name in watchlist]
+            watchlist_items = [WatchlistItem(ticker_name=ticker_name, user=user, sector=get_sector(ticker_name=ticker_name),
+            exchange='NYQ', timezone='America/New_York') for ticker_name in watchlist]
             #add portfolio items here as well - 
             portfolio_items = []
             if portfolio_dict:
@@ -69,7 +70,7 @@ if __name__ == '__main__':
                     'price': details[0],
                     'quantity': details[1],
                     'currency': ticker_info['currency'],
-                    'sector': get_sector(ticker_name, ticker_info=ticker_info),
+                    'sector': get_sector(ticker_info=ticker_info),
                     'order_type': '1'}
                     portfolio_items.append(PortfolioItem(**args_dict))
 

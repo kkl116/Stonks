@@ -9,25 +9,33 @@ from ..utils.table_helpers import (Col_, TickerItem, Table_,
 import yfinance as yf
 import pandas as pd
 from ..config import Config
+from .. import db
 
-def get_sector(ticker_name, ticker_info=None):
+def watchlist_add_item(ticker_name):
+    ticker_info = yf.Ticker(ticker_name).info
+    item = WatchlistItem(ticker_name=ticker_name, user=current_user,
+    sector=get_sector(ticker_info=ticker_info), exchange=ticker_info['exchange'],
+    timezone=ticker_info['exchangeTimezoneName'])
+    db.session.add(item)
+    db.session.commit()
+
+def get_sector(ticker_name=None, ticker_info=None):
     try:
         if ticker_info is None:
+            assert ticker_name is not None
             ticker_info = yf.Ticker(ticker_name).info
         sector = ticker_info['sector']
         return sector
     except KeyError:
         #try to see if it's a crypto
-        path = Config.COINS_LIST_PATH
-        coins = pd.read_csv(path)
-        coins = list(coins['coins'])
-        if ticker_name.split('-')[0] in coins:
+        if ticker_info['quoteType'] == 'CRYPTOCURRENCY':
             return 'CreepToe'
         else:
             return 'N/A'
     except Exception as e:
         print(f'Error in obtaining ticker sector: {e}')
         return 'N/A'
+
 
 def create_new_tag_entry(new_tag, ticker_name):
     """check if tag for ticker exists, if it doesn't create new entry, else return exception"""

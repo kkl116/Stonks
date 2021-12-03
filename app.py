@@ -3,7 +3,7 @@ import os
 app = create_app()
 ON_HEROKU = 'ON_HEROKU' in os.environ
 if __name__ == '__main__':
-    app.debug = not ON_HEROKU
+    debug = not ON_HEROKU
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     #start apscheduler
     with app.app_context():
@@ -12,4 +12,4 @@ if __name__ == '__main__':
         if ON_HEROKU:
             db.create_all()
 
-    app.run(threaded=True)
+    app.run(threaded=True, debug=debug)

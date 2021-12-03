@@ -2,9 +2,9 @@ from flask import request, redirect, url_for, render_template, jsonify, request,
 from ..accounts.forms import (LoginForm, RegisterationForm, 
                                     RequestResetForm, ResetPasswordForm)
 import ast
-import stockquotes
-from stockquotes import NetworkError, StockDoesNotExistError
+import yfinance as yf
 from ..models import PortfolioItem
+from batchquotes import get_quotes_asyncio
 
 def get_request_form_keys(request, omit_keys = ['remember', 'submit']):
     if len(list(request.form.keys())) > 0:
@@ -58,16 +58,11 @@ def check_ticker_exists(ticker, flash_msg=True):
     returns a boolean
     """
     try: 
-        stock = stockquotes.Stock(ticker)
-        return True
-    except NetworkError:
-        if flash_msg:
-            flash('Could not connect to Yahoo!Finance. Please try again!', 'warning')
+        return get_quotes_asyncio([ticker])[0]
+    except Exception as e:
+        print(e)
         return False
-    except StockDoesNotExistError:
-        if flash_msg:
-            flash('Symbol is invalid. Please try again!', 'warning')
-        return False
+
 
 def redirect_json(route=None, url=None):
     """returns the json for ajax refresh - provide one of url or route"""

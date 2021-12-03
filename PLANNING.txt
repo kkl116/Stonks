@@ -14,7 +14,7 @@ current TODO:
     - portfolio todos:
         -portfolio history
 
-- price alerts! 
+- price alerts! - if not already in watchlist then add it to watchlist 
 - if want to steadily update quotes on portfolio or watchlist there are two parts - 
 1. use apscheduler to schedule quote collection every min/5min during market hours 
 2. when on watchlist or portfolio establish streams to use sse to update numbers
