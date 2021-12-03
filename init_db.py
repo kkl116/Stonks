@@ -42,12 +42,13 @@ if __name__ == '__main__':
     portfolio_dict = 0
 
     watchlist = [
-        'GME', 'LRC-USD'
-        # 'PLTR', 'NVDA', 'ROO.L', 'MMED.NE', 'ETH-USD',
-        #'HBAR-USD', 'DOGE-USD', 'BTC-USD', 'CTXR', 'F', 'AMC',
-        # 'BB', 'CTXR', 'MRNA', 'BNTX', 'AMC', 'HBAR-USD',
-        # 'OTLY', '^VIX', 'SPY'
+        'GME', 'LRC-USD',
+        'PLTR', 'NVDA', 'ROO.L', 'MMED.NE', 'ETH-USD',
+        'HBAR-USD', 'DOGE-USD', 'BTC-USD', 'CTXR', 'F', 'AMC',
+        'BB', 'CTXR', 'MRNA', 'BNTX', 'AMC', 'HBAR-USD',
+        'OTLY', '^VIX', 'SPY'
     ]
+    watchlist = list(set(watchlist))
 
     #add a dummy user 
     with app.app_context():
@@ -68,7 +69,7 @@ if __name__ == '__main__':
                     'price': details[0],
                     'quantity': details[1],
                     'currency': ticker_info['currency'],
-                    'sector': ticker_info['sector'],
+                    'sector': get_sector(ticker_name, ticker_info=ticker_info),
                     'order_type': '1'}
                     portfolio_items.append(PortfolioItem(**args_dict))
 
@@ -76,3 +77,4 @@ if __name__ == '__main__':
             db.session.add_all(watchlist_items)
             db.session.commit()
             print('db reinitialized')
+

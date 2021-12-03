@@ -4,8 +4,9 @@ from flask import Markup, jsonify, url_for
 import stockquotes
 from ..models import WatchlistItem
 import time 
-from batchquotes import get_batch_quotes
+from batchquotes import get_quotes_asyncio
 from collections import namedtuple
+import random
 
 def get_table_ncols(class_=None):
     item_attrs = class_.__dict__.values()
@@ -21,7 +22,10 @@ def update_attr_dict(attr_dict, new_attr):
         attr_dict.update(new_attr) 
 
 #namedtuple to allow ticker_dict to be accessed like an object, so TickerItem doesn't have to change drastically
-pseudo_obj = namedtuple('pseudo_obj', ['current_price', 'increase_dollars', 'increase_percent'])
+quotes_dict_keys = ['current_price', 'increase_dollars', 'increase_percent', 
+'regular_market_time', 'post_market_time', 'current_price_PM',
+'increase_dollars_PM', 'increase_percent_PM']
+pseudo_obj = namedtuple('pseudo_obj', quotes_dict_keys , defaults=['000']*len(quotes_dict_keys))
 
 class TickerItem:
     """base class to create object to pass to flask table"""
@@ -155,13 +159,33 @@ def new_item_json(item, table_class=None, include_id=False, **kwargs):
         item_dict.update({'id': item.ticker})
     return jsonify(item_dict)
 
+def get_splits(lst, n_splits, shuffle=True):
+    splits = []
+    if shuffle:
+        random.shuffle(lst)
+    for i in range(0, len(lst), n_splits):
+        splits.append(lst[i:i+n_splits])
+    return splits
+
+def get_quotes_interval(ticker_names, n_splits=5):
+    out = []
+    splits = get_splits(ticker_names, n_splits) 
+    for split in splits:
+        interval = random.random()
+        quotes = get_quotes_asyncio(split)
+        for sym, q in zip(split,quotes):
+            out.append((sym, q))
+        time.sleep(interval)
+    return out
+
 
 def query_to_table_items(query_items, item_class):
     """converts db items (which just involves ticker_name, date_posted) to TickerItem object
     During this proces calls batchquotes to get stock_dict for batch tickeritem calls"""
     ticker_names = [q.ticker_name for q in query_items]
-    ticker_dicts = get_batch_quotes(ticker_names)
-    assert len(ticker_names) == len(ticker_dicts)
-    table_items = [item_class(tname, batch=True, ticker_dict=tdict) for tname, tdict in zip(ticker_names, ticker_dicts)]
+    #maybe put a timeout func here in case overloaded server and get blocked
+    ticker_dicts = get_quotes_interval(ticker_names)
+
+    table_items = [item_class(sym, batch=True, ticker_dict=q) for sym, q in ticker_dicts]
     return table_items
 

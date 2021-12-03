@@ -23,6 +23,8 @@ def get_sector(ticker_name, ticker_info=None):
         coins = list(coins['coins'])
         if ticker_name.split('-')[0] in coins:
             return 'CreepToe'
+        else:
+            return 'N/A'
     except Exception as e:
         print(f'Error in obtaining ticker sector: {e}')
         return 'N/A'
@@ -75,11 +77,11 @@ class TickerItem_Watchlist(TickerItem):
             pass
 
     def get_day_gain(self):
-        return self.ticker_obj.increase_dollars
+        return float(self.ticker_obj.increase_dollars)
 
     
     def get_percent_gain(self):
-        return self.ticker_obj.increase_percent
+        return float(self.ticker_obj.increase_percent)
 
             
     @staticmethod

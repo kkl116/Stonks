@@ -1,2 +1,4 @@
 Flask_tutorial/
 .venv/
+venv/
+flask_app/sql/database.db

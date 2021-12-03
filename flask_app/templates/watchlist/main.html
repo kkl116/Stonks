@@ -7,7 +7,7 @@
 <div class="text-center" style="margin-top: 15%;" id='loading'>
     <i class="fas fa-spinner fa-pulse fa-4x"></i>
 
-    <h3 style="margin-top: 7.5%;"> Loading your Watchlist...</h1>
+    <h1 style="margin-top: 7.5%;"> Loading your Watchlist...</h1>
 </div>
 
 <div id="main-content" style="display: none;">
@@ -26,13 +26,13 @@
                 <form method="POST" accept-charset="UTF-8" id='add-form'>
                     {{ add_form.csrf_token(id="add-csrf") }}
                     <div class="input-group offset-md-6">
-                        {{ add_form.ticker_name(class="form-control border-1 small rounded", style="font-size: 14px;") }}
-                        <button type="submit" class="btn btn-dark align-items-center rounded" style="font-size:12px;"
+                        {{ add_form.ticker_name(class="form-control border-1 small rounded modal-form", style="font-size: 14px;") }}
+                        <button type="submit" class="btn btn-dark align-items-center rounded modal-form" style="font-size:12px;"
                         id="add-submit">
                         Submit                      
                         </button>
                     </div>
-                    <div id="ticker-name-error" class="invalid-feedback" style="margin-left:50%;"></div>
+                    <div id="ticker-name-error" class="invalid-feedback modal-form" style="margin-left:50%;"></div>
 
                 </form>
             </div>
