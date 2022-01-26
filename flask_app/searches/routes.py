@@ -1,8 +1,7 @@
 from flask import Blueprint, request, flash, Response, jsonify
-from ..utils.helpers import _render_template, redirect_next_page, check_ticker_exists
-from ..errors.utils import error_500_handler, error_500_response
+from flask_app.utils.helpers import _render_template, redirect_next_page, check_ticker_exists
+from flask_app.errors.utils import error_500_handler, error_500_response
 from .utils import get_hist_vol_json, get_dropdown_items, get_chart_json
-from .. import testing
 
 searches = Blueprint('searches', __name__)
 

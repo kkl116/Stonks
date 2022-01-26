@@ -1,10 +1,10 @@
-from ..models import User
-from .. import mail
+from flask_app.models import User
+from flask_app import mail
 from flask_mail import Message
-from flask import url_for, jsonify
+from flask import url_for
 from string import punctuation, digits
 
-def username_email_query(email_username_data, User=User, return_user=True):
+def user_query(email_username_data, User=User, return_user=True):
     user = [User.query.filter_by(email=email_username_data).first(), User.query.filter_by(username=email_username_data).first()]
     user = [u for u in user if u is not None]
     if len(user) > 0:
@@ -45,7 +45,7 @@ If you did not register an account with Bib Stonks, please ignore this email! :)
     mail.send(msg)
 
 def account_is_activated(login_form):
-    user = username_email_query(login_form.email_username.data, return_user=True)
+    user = user_query(login_form.email_username.data, return_user=True)
     return user.verified
 
 def password_check(password):

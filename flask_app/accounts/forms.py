@@ -3,10 +3,10 @@ from flask_wtf.file import FileField, FileAllowed
 from flask_login import current_user
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, SelectField
 from wtforms.validators import DataRequired, Length, EqualTo, Email, ValidationError
-from ..models import User
-from .. import bcrypt
-from .utils import username_email_query, password_check
-from ..config import Config
+from flask_app.models import User
+from flask_app import bcrypt
+from .utils import user_query, password_check
+from flask_app.config import Config
 import pandas as pd 
 
 currencies_path = Config.CURRENCIES_LIST_PATH
@@ -68,10 +68,10 @@ class LoginForm(FlaskForm):
         """login combination check for loginform"""
         email_username = self.email_username.data
         password = password.data
-        user_check = username_email_query(email_username, return_user=False)
+        user_check = user_query(email_username, return_user=False)
         if not user_check:
             raise ValidationError('Invalid email/username and password combination. Please try again.')
-        user = username_email_query(email_username, return_user=True)
+        user = user_query(email_username, return_user=True)
         if user and bcrypt.check_password_hash(user.password, password):
             pass
         else:

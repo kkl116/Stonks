@@ -1,6 +1,6 @@
 from flask import Blueprint
 from flask_login import current_user
-from ..utils.helpers import _render_template
+from flask_app.utils.helpers import _render_template
 
 main = Blueprint('main', __name__)
 

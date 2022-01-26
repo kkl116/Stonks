@@ -18,6 +18,7 @@
     <h3 style="margin-top: 7.5%;"> Processing...</h1>
 </div>
 
+
 <div id="main-content" style="display: none; ">
     <h1 class="search-title">Portfolio</h1>
     <div id="table-div" class="tableDiv"></div>
@@ -47,10 +48,9 @@
             {% endfor %}
         </div>
 
+
         <div class="col-md-2">
-            <button type="submit" class="btn btn-dark" style="font-size:14px;" id="add-submit">
-                Submit
-            </button>
+            {{ order_form.submit(class="btn btn-dark", style="font-size:14px;")}}
         </div>
     </form>
 
@@ -65,7 +65,7 @@
 <script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap5.min.js"></script>
 <script>
     //initialize addform ajax
-    const urlOrder = "{{ url_for('portfolio.order') }}";
+    const urlOrder = "{{ url_for('portfolio.order') }}"
     const urlLoadTable = "{{ url_for('portfolio.get_table') }}";
 
     $(document).ready(function() {

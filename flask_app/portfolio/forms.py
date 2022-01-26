@@ -1,8 +1,8 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, RadioField
+from wtforms import StringField, RadioField, SubmitField
 from wtforms.validators import DataRequired, ValidationError
-from ..utils.helpers import check_ticker_exists, format_ticker_name
-from ..models import Position
+from flask_app.utils.helpers import check_ticker_exists, format_ticker_name
+from flask_app.models import Position
 from flask_login import current_user
 
 
@@ -33,6 +33,7 @@ class OrderForm(FlaskForm):
     order_type = RadioField('order type',
     render_kw={'id': 'order-type'},
     choices=[('buy', 'Buy'), ('sell', 'Sell')], default='buy')
+    submit = SubmitField()
 
     def validate_order_ticker_name(self, order_ticker_name):
         """just check that ticker exists!"""

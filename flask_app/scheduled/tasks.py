@@ -1,6 +1,8 @@
 import cryptocompare
 import csv 
 from flask_app import scheduler 
-from ..config import Config
+from flask_app.config import Config
+
+
 
 

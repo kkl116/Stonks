@@ -1,5 +1,5 @@
 from flask import Blueprint
-from ..utils.helpers import _render_template
+from flask_app.utils.helpers import _render_template
 
 errors = Blueprint('errors', __name__)
 

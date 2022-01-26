@@ -1,15 +1,16 @@
 from flask import Blueprint, request, jsonify, flash
-from ..utils.helpers import (_render_template, confirm_post_request_form, redirect_json, 
-                            redirect_next_page, format_ticker_name)
-from ..errors.utils import error_500_handler, form_errors_400
+from flask_app.utils.helpers import (_render_template, confirm_post_request_form, redirect_json, 
+                            redirect_next_page, format_ticker_name, unsubscribe_user)
+from flask_app.errors.utils import error_500_handler, form_errors_400
 from .utils import (WatchlistTable, TickerItem_Watchlist, get_notes_tr,
                     create_new_tag_entry, span_from_tag_item, get_sector,
                     get_sector_btn, watchlist_add_item)
-from ..utils.table_helpers import new_item_json, query_to_table_items
+from flask_app.utils.table_helpers import new_item_json, query_to_table_items
+from flask_app.utils.helpers import get_quote_object, still_subscribe
 from flask_login import login_required, current_user
 from .forms import AddForm
-from ..models import WatchlistItem, WatchlistItemTag
-from .. import db
+from flask_app.models import WatchlistItem, WatchlistItemTag, User
+from flask_app import db
 
 watchlist = Blueprint('watchlist', __name__)
 
@@ -46,7 +47,7 @@ def add():
         if add_form.validate_on_submit():
             #need to add the watchlist item into the db
             ticker_name = format_ticker_name(add_form.ticker_name.data)
-            watchlist_add_item(ticker_name)
+            watchlist_add_item(ticker_name, user_id=current_user.get_id())
             return new_item_json(TickerItem_Watchlist(ticker_name), table_class=WatchlistTable, include_id=False)
         else:
             return form_errors_400(add_form)
@@ -62,8 +63,12 @@ def delete():
     item = WatchlistItem.query.filter_by(user=current_user, ticker_name=del_ticker).first()
     db.session.delete(item)
     db.session.commit()
+    #remove relationship from current user 
+    quote = get_quote_object(del_ticker)
+    user = User.query.get(current_user.get_id())
+    #but what if it's still in portfolio? then shouldn't just remove subscription willy nilly 
+    unsubscribe_user(user, quote)
     return jsonify({'message': 'ticker has been deleted'})
-
 
 
 @watchlist.route('/watchlist/save_notes', methods=["POST"])

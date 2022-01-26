@@ -6,12 +6,11 @@ from .config import Config
 from flask_mail import Mail
 from flask_heroku import Heroku
 import os 
-import pandas
 from flask_apscheduler import APScheduler
+from yfQuotes import Streamer
 
 # if testing=True auto delete and create db if db file doesn't exist
 testing = True
-init_db = False
 
 db = SQLAlchemy()
 bcrypt = Bcrypt()
@@ -24,18 +23,16 @@ scheduler = APScheduler()
 
 heroku = Heroku()
 
-if testing and init_db:
-    db_path = './sql/database.db'
-    if os.path.exists(db_path):
-        os.remove(db_path)
-    db.create_all()
-    print('***** db file deleted and reinitialized *****')
+streamer = Streamer()
+#add on_message function here
+
+db_path = './sql/database.db'
 
 
 #instead of importing app in from flask_app now from flask import current_app
 def create_app(config_class=Config):
     app = Flask(__name__)
-    app.config.from_object(Config)
+    app.config.from_object(config_class)
 
     db.init_app(app)
     bcrypt.init_app(app)

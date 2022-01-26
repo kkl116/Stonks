@@ -1,10 +1,10 @@
-from flask import Blueprint, request, jsonify, url_for
-from ..utils.helpers import _render_template, format_ticker_name, redirect_next_page
-from ..errors.utils import error_500_handler, form_errors_400
-from ..utils.table_helpers import query_to_table_items, new_item_json
-from ..models import Position
+from flask import Blueprint, request, jsonify, url_for, redirect
+from flask_app.utils.helpers import _render_template, format_ticker_name, redirect_next_page
+from flask_app.errors.utils import error_500_handler, form_errors_400
+from flask_app.utils.table_helpers import query_to_table_items, new_item_json
+from flask_app.models import Position
 from .forms import OrderForm
-from .utils import (PortfolioTable, TickerItem_Portfolio, get_unique_ticker_names,
+from .utils import (PortfolioTable, TickerItem_Portfolio,
                     get_summary_row, create_new_order_entry, update_summary_row,
                     update_position)
 from datetime import datetime
@@ -26,20 +26,18 @@ def main():
 def get_table():
     positions = Position.query.filter_by(user=current_user).all()
     if len(positions) == 0:
+        print('*** empty table ***')
         table = PortfolioTable(items=[get_summary_row(None, None, empty=True)])
         empty = 1
     else:
         #update porfolio stats
         table_items = query_to_table_items(positions, TickerItem_Portfolio)
-        print('table items')
         #create an empty item, then update attrs to make summary row
         table_items.append(get_summary_row(positions, table_items))
-        print('table_items')
         table = PortfolioTable(items=table_items)
         empty = 0
     
     return jsonify({'table': table, 'empty': empty})
-
 
 
 @portfolio.route('/portfolio/order', methods=["GET", "POST"])
@@ -62,11 +60,8 @@ def order():
             update_position(ticker_name, item, mode=order_type)
             current_position = Position.query.filter_by(user=current_user).all()
             #update summary row - instead of creating new one, just subtract current values from deleted row and current sum row 
-            return new_item_json(TickerItem_Portfolio(ticker_name), table_class=PortfolioTable, include_id=True,
-                                summary=update_summary_row(position=current_position, ticker_item=item,
-                                                        request_json=request.json, mode=order_type))        
+            return jsonify({'main_url': url_for('portfolio.main')})   
         else:
-            print(order_form.errors)
             return form_errors_400(order_form)
     else:
         redirect_next_page()

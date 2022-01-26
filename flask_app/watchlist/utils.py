@@ -3,20 +3,25 @@ from flask_table.html import _format_attrs, element
 from flask import url_for
 from flask_login import current_user
 import itertools
-from ..models import WatchlistItem, WatchlistItemTag
-from ..utils.table_helpers import (Col_, TickerItem, Table_,
+from flask_app.models import WatchlistItem, WatchlistItemTag, Quote, User
+from flask_app.utils.table_helpers import (Col_, TickerItem, Table_,
                                     get_table_ncols)
+from flask_app.utils.helpers import get_quote_object, create_quote_object, subscribe_user
 import yfinance as yf
-import pandas as pd
-from ..config import Config
-from .. import db
+from flask_app import db
 
-def watchlist_add_item(ticker_name):
+def watchlist_add_item(ticker_name, user_id=None):
+    current_user = User.query.get(int(user_id))
+    assert current_user is not None
     ticker_info = yf.Ticker(ticker_name).info
     item = WatchlistItem(ticker_name=ticker_name, user=current_user,
-    sector=get_sector(ticker_info=ticker_info), exchange=ticker_info['exchange'],
-    timezone=ticker_info['exchangeTimezoneName'])
+    sector=get_sector(ticker_info=ticker_info))
     db.session.add(item)
+    db.session.commit()
+    #get or create quote object if it doesnt exist already 
+    quote = get_quote_object(ticker_name, ticker_info)
+    #check if user has relationship with quote - if not then add relationship
+    subscribe_user(current_user, quote)
     db.session.commit()
 
 def get_sector(ticker_name=None, ticker_info=None):
@@ -85,11 +90,11 @@ class TickerItem_Watchlist(TickerItem):
             pass
 
     def get_day_gain(self):
-        return float(self.ticker_obj.increase_dollars)
+        return float(self.quote.change)
 
     
     def get_percent_gain(self):
-        return float(self.ticker_obj.increase_percent)
+        return float(self.quote.change_percent)
 
             
     @staticmethod

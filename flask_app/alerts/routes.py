@@ -1,7 +1,7 @@
 """module to handle routes to alert centre and flask-sse methods"""
 from flask import Blueprint, Response, jsonify
 from flask_login import current_user 
-from ..utils.helpers import _render_template
+from flask_app.utils.helpers import _render_template
 import time 
 import json 
 

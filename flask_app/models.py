@@ -4,11 +4,16 @@ from itsdangerous import TimedJSONWebSignatureSerializer as TimedSerializer
 from itsdangerous import JSONWebSignatureSerializer as Serializer
 from flask import current_app
 from datetime import datetime
-from sqlalchemy.orm import backref
 
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
+#create association table for users and quotes?
+user_subscriptions = db.Table('user_subscriptions',
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
+    db.Column('quote_id', db.Integer, db.ForeignKey('quote.id'))
+)
 
 class User(db.Model, UserMixin):
     """static methods cant modify instnace or class state - provides a way to restrict the data
@@ -23,15 +28,19 @@ class User(db.Model, UserMixin):
     currency = db.Column(db.String(), nullable=False, default='GBP')
 
     """here lazily load b/c no need to load it unless in the watchlist page..."""
+    #one to many relationships
     watchlistItems = db.relationship('WatchlistItem', backref='user', lazy=True,
                                         cascade="all, delete, delete-orphan", passive_deletes=True)
-    portfolioItems = db.relationship('PortfolioItem', backref='user', lazy=True,
+    portfolioOrders = db.relationship('PortfolioOrder', backref='user', lazy=True,
                                 cascade="all, delete, delete-orphan", passive_deletes=True)
     positions = db.relationship('Position', backref='user', lazy=True,
                                 cascade='all, delete, delete-orphan', passive_deletes=True)
     alerts = db.relationship('Alert', backref='user', lazy=True,
                                 cascade='all, delete, delete-orphan', passive_deletes=True)
-    
+    #many to many relationships 
+    subscriptions = db.relationship('Quote', secondary=user_subscriptions,
+                            backref=db.backref('users', lazy=True),
+                            lazy=True)
     
     def get_reset_token(self, expires_sec=1800):
         s = TimedSerializer(current_app.config['SECRET_KEY'], expires_sec)
@@ -59,14 +68,13 @@ class User(db.Model, UserMixin):
         return f"User('{self.username}', '{self.email}')"
 
 #just create 1-many like post, then set on delete cascade for watchlisttickers
+#if there were more users would change watchlistitem to many to many relationship to save space, but not really necessary here...
 class WatchlistItem(db.Model):
     __tablename__ = 'watchlist_item'
     id = db.Column(db.Integer, primary_key=True)
     ticker_name = db.Column(db.String(), unique=False, nullable=False)
     notes = db.Column(db.String(), nullable=False, default='')
     sector = db.Column(db.String(), nullable=False)
-    exchange = db.Column(db.String(), nullable=False)
-    timezone = db.Column(db.String(), nullable=False)
     date_added = db.Column(db.DateTime, nullable=False, default=datetime.today())
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete="CASCADE"), nullable=False)
     tags = db.relationship('WatchlistItemTag', backref='item', lazy=True,
@@ -85,7 +93,7 @@ class WatchlistItemTag(db.Model):
     def __repr__(self):
         return f"WatchlistItemTag('{self.tag_content}', '{self.ticker_id}')"
 
-class PortfolioItem(db.Model):
+class PortfolioOrder(db.Model):
     __tablename__ = 'portfolio_item'
     id = db.Column(db.Integer, primary_key=True)
     ticker_name = db.Column(db.String(), unique=False, nullable=False)
@@ -99,7 +107,7 @@ class PortfolioItem(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete="CASCADE"), nullable=False)
 
     def __repr__(self):
-        return f"PortfolioItem('{self.ticker_name}', '{self.price}', '{self.quantity}', '{self.order_type}')"
+        return f"PortfolioOrder('{self.ticker_name}', '{self.price}', '{self.quantity}', '{self.order_type}')"
 
 class Position(db.Model):
     __tablename__ = 'position'
@@ -131,7 +139,30 @@ class Alert(db.Model):
     ticker_name = db.Column(db.String(), unique=False, nullable=False)
     price_level = db.Column(db.Float(), unique=False, nullable=True)
     percentage_change = db.Column(db.Float(), unique=False, nullable=True)
-    date_added = db.Column(db.DateTime, nullable=False)
     date_added = db.Column(db.DateTime, nullable=False, default=datetime.utcnow())
     email_alert = db.Column(db.Boolean(), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete="CASCADE"), nullable=False)
+
+    def __repr__(self):
+        return f'Alert({self.ticker_name}, {self.price_level}, {self.percentage_change}, {self.date_added}, {self.user_id})'
+
+#Create a quote table that can store streaming yfinance quotes 
+class Quote(db.Model):
+    __tablename__ = 'quote'
+    id = db.Column(db.Integer, primary_key=True)
+    #initiated when Quote object is first created
+    ticker_name = db.Column(db.String(), nullable=False, unique=True)
+    exchange = db.Column(db.String(), nullable=False)
+    timezone = db.Column(db.String(), nullable=False)
+    current_price = db.Column(db.String(), nullable=False)
+    change = db.Column(db.String(), nullable=False)
+    change_percent = db.Column(db.String(), nullable=False)
+    last_updated = db.Column(db.DateTime, nullable=False)
+    #other things that are are updated by streamer 
+    day_high = db.Column(db.String(), nullable=True)
+    day_low = db.Column(db.String(), nullable=True)
+    day_volume = db.Column(db.String(), nullable=True)
+
+    def __repr__(self):
+        return f'Quote({self.ticker_name}, {self.current_price}, {self.last_updated})'
+

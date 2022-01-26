@@ -10,7 +10,7 @@ import plotly
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 import pandas as pd 
-from ..utils.helpers import check_ticker_exists
+from flask_app.utils.helpers import check_ticker_exists
 
 #Remember to update yfinance package if any errors.
 

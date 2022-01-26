@@ -2,8 +2,8 @@ from flask_table import Col, Table
 from flask_table.html import element
 from flask import Markup, jsonify, url_for
 import time 
-from batchquotes import get_quotes_asyncio
-from collections import namedtuple
+from yfQuotes import get_quotes_asyncio
+from flask_app.utils.helpers import get_quote_object
 import random
 
 def get_table_ncols(class_=None):
@@ -19,24 +19,13 @@ def update_attr_dict(attr_dict, new_attr):
     else:
         attr_dict.update(new_attr) 
 
-#namedtuple to allow ticker_dict to be accessed like an object, so TickerItem doesn't have to change drastically
-quotes_dict_keys = ['current_price', 'increase_dollars', 'increase_percent', 
-'regular_market_time', 'post_market_time', 'current_price_PM',
-'increase_dollars_PM', 'increase_percent_PM']
-pseudo_obj = namedtuple('pseudo_obj', quotes_dict_keys , defaults=['000']*len(quotes_dict_keys))
-
 class TickerItem:
     """base class to create object to pass to flask table"""
-    def __init__(self, ticker, batch=False, ticker_dict=None):
-        self.batch = batch
+    def __init__(self, ticker):
         self.empty = ticker == 'empty'
         self.ticker = self.empty_or_attr(ticker.upper())
         self.ticker_link = self.get_ticker_link()
-        if self.batch:
-            assert ticker_dict is not None
-        else:
-            ticker_dict = get_quotes_asyncio([ticker])[0]
-        self.ticker_obj = pseudo_obj(**ticker_dict)
+        self.quote = self.empty_or_attr(attr=[ticker, None], func=get_quote_object)
         self.current_price = self.empty_or_attr(attr=[], func=self.get_current_price)
         self.html_attrs = {}
         self.green_hex = "#027E4A"
@@ -52,7 +41,7 @@ class TickerItem:
         return '<i class="fas fa-tag" style="vertical-align: middle;"></i>'
     
     def get_current_price(self):
-        return float(self.ticker_obj.current_price)
+        return float(self.quote.current_price)
 
     def delete_btn(self, url):
         return f"""
@@ -179,11 +168,8 @@ def get_quotes_interval(ticker_names, n_splits=5):
 
 def query_to_table_items(query_items, item_class):
     """converts db items (which just involves ticker_name, date_posted) to TickerItem object
-    During this proces calls batchquotes to get stock_dict for batch tickeritem calls"""
+    During this proces calls yfQuotes to get stock_dict for batch tickeritem calls"""
     ticker_names = [q.ticker_name for q in query_items]
-    #maybe put a timeout func here in case overloaded server and get blocked
-    ticker_dicts = get_quotes_interval(ticker_names, n_splits=max(len(ticker_names)//2, 1))
-
-    table_items = [item_class(sym, batch=True, ticker_dict=q) for sym, q in ticker_dicts]
+    table_items = [item_class(ticker) for ticker in ticker_names]
     return table_items
 

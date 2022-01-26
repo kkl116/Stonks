@@ -14,9 +14,13 @@ current TODO:
     - portfolio todos:
         -portfolio history
 
+- need to change website to be more static... (remove ajaxs for dynamic adding and deleting of tickers?)
+^ Portfolio when deleting positions remove ajax... and just refresh page-
+
+- add logging for app https://logtail.com/tutorials/how-to-start-logging-with-python/
 - price alerts! - if not already in watchlist then add it to watchlist 
 - if want to steadily update quotes on portfolio or watchlist there are two parts - 
-1. use apscheduler to schedule quote collection every min/5min during market hours 
+1. write on_message function so that quote object is updated everytime a message is received in streamer
 2. when on watchlist or portfolio establish streams to use sse to update numbers
 - learn how to write simple tests! - test endpoints, and test some functions?
 

@@ -1,19 +1,18 @@
 from flask_table import Col
-from ..utils.table_helpers import (Col_, TickerItem, 
-                                Table_, get_table_ncols)
+from flask_app.utils.table_helpers import (Col_, TickerItem, 
+                                Table_)
 from flask_login import current_user 
-from ..watchlist.utils import get_sector
-from ..models import PortfolioItem, ExchangeRate, Position
+from flask_app.watchlist.utils import get_sector
+from flask_app.models import PortfolioOrder, ExchangeRate, Position, User
 import numpy as np 
 import yfinance as yf
-from flask import url_for, jsonify
 from flask_app import db
 from currency_symbols import CurrencySymbols
-import requests, json
-from flask_app import testing
+import requests
 from datetime import datetime
-from ..utils.helpers import html_formatter
-from batchquotes import get_quotes_asyncio
+from flask_app.utils.helpers import html_formatter, subscribe_user, unsubscribe_user
+from yfQuotes import get_quotes_asyncio
+from flask_app.utils.helpers import get_quote_object
 
 def query_exchange_rate(from_currency, to_currency):
     """basically check the database to see if there is this entry, if not then get it from api
@@ -66,7 +65,7 @@ def get_unique_ticker_names(query_items):
     ticker_names = [q.ticker_name for q in query_items]
     return list(set(ticker_names))
 
-def get_ticker_info(ticker_name, **kwargs):
+def get_ticker_info(ticker_name):
     ticker = yf.Ticker(ticker_name)
     return ticker.info
 
@@ -84,7 +83,7 @@ def create_new_order_entry(ticker_name, form, form_type='buy'):
     can populate some fields using existing information"""
     #HERE for sell order entries need to add current avg purchase price 
     #check if similar ticker already exists 
-    query_item = PortfolioItem.query.filter_by(user=current_user, ticker_name=ticker_name).first()
+    query_item = PortfolioOrder.query.filter_by(user=current_user, ticker_name=ticker_name).first()
     args_dict = {'user': current_user,
     'ticker_name': ticker_name, 
     'quantity': form.order_quantity.data,
@@ -107,7 +106,7 @@ def create_new_order_entry(ticker_name, form, form_type='buy'):
     else:
         args_dict.update({'currency': query_item.currency, 
                         'sector': query_item.sector})
-    item = PortfolioItem(**args_dict)
+    item = PortfolioOrder(**args_dict)
 
     db.session.add(item)
     db.session.commit()
@@ -132,11 +131,16 @@ def update_position(ticker_name, item, mode='buy'):
             weights=[current_quantity, item_quantity])
             position.quantity = current_quantity + item_quantity
             db.session.commit()
+
         elif mode == 'sell':
             #update quantity
             if current_quantity - item_quantity == 0:
                 db.session.delete(position)
                 db.session.commit()
+
+                #check if should still subscribe - if not then remove relationship
+                quote = get_quote_object(ticker_name, None)
+                unsubscribe_user(User.query.get(current_user.get_id()), quote)
             else:
                 position.quantity = current_quantity - item_quantity
                 db.session.commit()
@@ -147,6 +151,10 @@ def update_position(ticker_name, item, mode='buy'):
         currency=item.currency, user=current_user)
         db.session.add(position)
         db.session.commit()
+        #b/c it's a new buy order and not subscribed to quote, subscribe here 
+        ticker_info = yf.Ticker(ticker_name).info
+        quote = get_quote_object(ticker_name, ticker_info)
+        subscribe_user(User.query.get(current_user.get_id()), quote)
 
     elif not position and mode == 'sell':
         raise Exception('Cannot create sell order without owning any shares!')
@@ -255,6 +263,7 @@ def get_position_purchase_value(position):
 
     return purchase_value
 
+#this function needs to be updated --- summary row will ONLY be based on database positions
 def update_summary_row(position=None, ticker_item=None, request_json=None, ticker_currency=None, mode="buy"):
     """updates summary rows for adding or deleting ticker
     add arguments - query_items, ticker_item, sum_market_value
@@ -328,7 +337,6 @@ class TickerItem_Portfolio(TickerItem):
         return round(price, self.n_places)
 
     def get_quantity(self):
-        print('quantity')
         """need to account for shares sold"""
         n_shares = float(self.position.quantity)
         print(n_shares)

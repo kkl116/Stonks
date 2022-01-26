@@ -4,6 +4,11 @@ import { escapeSpecialChars, tickerFromId, formAjax, modifyErrorKeys, deleteRow}
 //modules' functions reside within script itself, and cannot be accessed from html directly
 //not the best practice, but can set functions as global var so that it can be called directly. 
 
+function toggleLoading(){
+    $('#wait').toggle()
+    $('#main-content').toggle()
+}
+
 function addAjax(url){
 
     function successFunc(success, fields){
@@ -16,6 +21,8 @@ function addAjax(url){
         }
         table.insertAdjacentHTML('afterbegin', success.newItem);
         
+        toggleLoading();
+
         //remove error message and clear search bar
         fields['ticker-name'].input.value = '';
         document.getElementById('ticker-name').classList.remove('is-invalid');
@@ -40,10 +47,15 @@ function addAjax(url){
                 }
             }
         })
+        toggleLoading();
     };
 
     function keyFunc(key){
         return key.replace('-', '_')
+    }
+
+    function waitFunc(){
+        toggleLoading();
     }
 
     let formId = 'add-form';
@@ -51,7 +63,7 @@ function addAjax(url){
 
     formAjax(url=url, formId=formId,
     fieldIds=fieldIds, successFunc=successFunc, errorFunc=errorFunc,
-    keyFunc=keyFunc);
+    keyFunc=keyFunc, waitFunc=waitFunc);
 }
 
 

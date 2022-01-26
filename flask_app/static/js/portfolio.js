@@ -8,35 +8,8 @@ function toggleLoading(){
 function orderAjax(url){
 
     function successFunc(success, fields){
-        const emptyMessage = document.getElementById('empty-message');
-        const table = document.getElementById('portfolio-table')
-        if (emptyMessage){
-            emptyMessage.style.display="none";
-        }
-        //append item to table - 
-        //actually here it's a bit different - replaces original row if it's the same ticker
-        let row = document.getElementById(success.id)
-        if (row){
-            $('#'+success.id).replaceWith(success.newItem)
-        } else{
-            table.insertAdjacentHTML('afterbegin', success.newItem);
-        }
-        //replace summary row 
-        $('#summary').replaceWith(success.summary);
-
-        toggleLoading();
-
-        //remove error messages and clear fields
-        Object.keys(fields).forEach((key) => {
-            if (key != 'csrf_token'){
-                if (!key.includes('order-type')){
-                    fields[key].input.value= '';
-                    fields[key].input.classList.remove('is-valid');
-                    fields[key].input.classList.remove('is-invalid');
-                    fields[key].error.style.display="none";    
-                }
-            }
-        })
+        //redirect page back to main
+        window.location.replace(success.main_url);
     }
     function errorFunc(errors, fields){
 

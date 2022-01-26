@@ -1,5 +1,7 @@
-from flask_app import create_app, scheduler, db
+from flask_app import create_app, scheduler, db, streamer
+import pytest
 import os
+
 app = create_app()
 ON_HEROKU = 'ON_HEROKU' in os.environ
 if __name__ == '__main__':
@@ -12,4 +14,7 @@ if __name__ == '__main__':
         if ON_HEROKU:
             db.create_all()
 
+    #start streamer 
+    streamer.connect()
     app.run(threaded=True, debug=debug)
+

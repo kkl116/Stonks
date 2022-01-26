@@ -3,13 +3,13 @@ from .forms import (LoginForm, RegisterationForm,
                     RequestResetForm, ResetPasswordForm,
                     ChangePasswordForm, ChangeUsernameForm,
                     ChangeEmailForm, ChangeSettingsForm)
-from ..models import User
-from .. import db, bcrypt, login_manager
-from ..utils.helpers import (redirect_next_page, confirm_post_request_form, _render_template, 
+from flask_app.models import User
+from flask_app import db, bcrypt, login_manager
+from flask_app.utils.helpers import (redirect_next_page, confirm_post_request_form, _render_template, 
                             redirect_json)
-from ..errors.utils import form_errors_400
+from flask_app.errors.utils import form_errors_400
 from flask_login import login_user, logout_user, login_required, current_user
-from .utils import (username_email_query, send_reset_email, 
+from .utils import (user_query, send_reset_email, 
                     send_verification_email, account_is_activated)
 
 accounts = Blueprint('accounts', __name__)
@@ -41,7 +41,7 @@ def login():
     if request.method == "POST" and confirm_post_request_form(request, login_form):
         if login_form.validate_on_submit() and account_is_activated(login_form):
             print('login validated')
-            user = username_email_query(login_form.email_username.data, return_user=True)
+            user = user_query(login_form.email_username.data, return_user=True)
             login_user(user, remember=login_form.remember.data)
             flash('You have logged in successfully!', 'success')
             return redirect_json(route="main.home")
@@ -66,7 +66,7 @@ def request_reset():
     if request.method == "POST" and confirm_post_request_form(request, request_reset_form):
         #need to pass in forms to _render_template
         if request_reset_form.validate_on_submit():
-            user = username_email_query(request_reset_form.email.data, return_user=True)
+            user = user_query(request_reset_form.email.data, return_user=True)
             if user:
                 send_reset_email(user)
             return jsonify({'message': 'done!'})
