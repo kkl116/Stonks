@@ -14,8 +14,8 @@ current TODO:
     - portfolio todos:
         -portfolio history
 
-- need to change website to be more static... (remove ajaxs for dynamic adding and deleting of tickers?)
-^ Portfolio when deleting positions remove ajax... and just refresh page-
+- summary rows - how or when to update??? b/c quotes are updated on message, but what about multiple users' summary rows?
+^ is it possible to send sse to client only when it's on certain page? 
 
 - add logging for app https://logtail.com/tutorials/how-to-start-logging-with-python/
 - price alerts! - if not already in watchlist then add it to watchlist 

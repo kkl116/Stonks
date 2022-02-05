@@ -5,7 +5,6 @@ from flask_login import LoginManager
 from .config import Config
 from flask_mail import Mail
 from flask_heroku import Heroku
-import os 
 from flask_apscheduler import APScheduler
 from yfQuotes import Streamer
 
@@ -23,8 +22,7 @@ scheduler = APScheduler()
 
 heroku = Heroku()
 
-streamer = Streamer()
-#add on_message function here
+streamer = Streamer(stream_log=False)
 
 db_path = './sql/database.db'
 
@@ -34,12 +32,18 @@ def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
 
+
     db.init_app(app)
     bcrypt.init_app(app)
     login_manager.init_app(app)
     mail.init_app(app)
     scheduler.init_app(app)
     heroku.init_app(app)
+
+    from .streaming import on_message
+    streamer.on_message = on_message
+    streamer.init_socket()
+    streamer.init_app(app)
 
     from .accounts.routes import accounts
     from .main.routes import main 

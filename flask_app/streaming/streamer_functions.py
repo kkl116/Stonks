@@ -1,15 +1,55 @@
-from flask_app import db 
-from flask_app.models import User, Quote
+from flask_app import db, streamer
+from flask_app.models import Quote
+from yfQuotes.streamquotes import Decoder 
+from datetime import datetime
+from .eventhandler import EventHandler
 
-#functions to handle quote streaming 
+quotes_queue = EventHandler()
+
+#functions used by streamer
 def on_message(app, message):
-    pass
+    decoded = Decoder(message)
+    ticker_name = decoded.id
+    data = data_adaptor(decoded.data)
 
-#functions to handle db upon subscription and unsubscription
-def subscribe(user, ticker_name):
-    pass 
+    with app.flask_app.app_context():
+        update_db_quote(ticker_name, data)
 
-def unsubscribe(user, ticker_name):
-    pass
+    quotes_queue.add_all(data)
+    return 
 
-#function to handle alert sse push and emails
+def update_db_quote(ticker_name, data):
+    #update quote object in database 
+    quote = Quote.query.filter_by(ticker_name=ticker_name).first()
+    for key, val in data.items():
+        setattr(quote, key, val)
+    
+    streamer._logger.info(str(quote))
+    db.session.commit()
+
+#function to fix some of the fields from inbound message to match sql model fields 
+def data_adaptor(data):
+    #adjust names of fields 
+    to_dict = {
+    'price': 'current_price',
+    'changePercent': 'change_percent',
+    'change': 'change',
+    'dayLow': 'day_low',
+    'dayHigh': 'day_high',
+    'dayVolume': 'day_volume'
+    }
+
+    #remove keys that are not in to_dict 
+    remove_keys = [key for key in data.keys() if key not in to_dict.keys()]
+    for key in remove_keys:
+        del data[key]
+
+    for key in to_dict:
+        data[to_dict[key]] = str(data[key])
+        del data[key]
+
+    data.update({'last_updated': datetime.now()})
+
+    return data 
+
+#function to handle alert sse push (to watchlists and portfolios) and emails

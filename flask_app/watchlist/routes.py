@@ -1,16 +1,17 @@
-from flask import Blueprint, request, jsonify, flash
+from flask import Blueprint, request, jsonify, Response
 from flask_app.utils.helpers import (_render_template, confirm_post_request_form, redirect_json, 
                             redirect_next_page, format_ticker_name, unsubscribe_user)
 from flask_app.errors.utils import error_500_handler, form_errors_400
 from .utils import (WatchlistTable, TickerItem_Watchlist, get_notes_tr,
-                    create_new_tag_entry, span_from_tag_item, get_sector,
+                    create_new_tag_entry, span_from_tag_item,
                     get_sector_btn, watchlist_add_item)
 from flask_app.utils.table_helpers import new_item_json, query_to_table_items
-from flask_app.utils.helpers import get_quote_object, still_subscribe
+from flask_app.utils.helpers import get_quote_object
 from flask_login import login_required, current_user
 from .forms import AddForm
 from flask_app.models import WatchlistItem, WatchlistItemTag, User
 from flask_app import db
+from flask_app.streaming import quotes_queue
 
 watchlist = Blueprint('watchlist', __name__)
 
@@ -134,6 +135,19 @@ def edit_sector():
     db.session.commit()
     newBtn = get_sector_btn(current_user, ticker)
     return jsonify({'newBtn': newBtn})
+
+#SSE connection here 
+@watchlist.route('/watchlist/stream', methods=["GET"])
+@login_required 
+def stream():
+    def watchlist_stream():
+        quotes_queue.add_queue('watchlist')
+        while True:
+            #queue.Queue.get() blocks until new item is available (is async) -- GENIUS
+            quote = quotes_queue.listen('watchlist')
+            yield jsonify(quote)
+    
+    return Response(watchlist_stream(), mimetype='text/event-stream')
 
 
         

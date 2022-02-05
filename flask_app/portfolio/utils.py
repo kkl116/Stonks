@@ -263,48 +263,6 @@ def get_position_purchase_value(position):
 
     return purchase_value
 
-#this function needs to be updated --- summary row will ONLY be based on database positions
-def update_summary_row(position=None, ticker_item=None, request_json=None, ticker_currency=None, mode="buy"):
-    """updates summary rows for adding or deleting ticker
-    add arguments - query_items, ticker_item, sum_market_value
-    sell arguments - """
-    item = init_summary_row_item()
-    user_currency = current_user.currency
-    user_currency_symbol = CurrencySymbols.get_symbol(user_currency)
-    curr_market_value = float(request_json['summary-market_value'].strip(user_currency_symbol))
-
-    #get purchase value, subtract from market_value to get gain, and get current value of ticker
-    #query purchase_value is just getting the purchase value of all current position -- calculating from db b/c no such column in table
-    position_purchase_value = get_position_purchase_value(position)
-
-    exch_rate = query_exchange_rate(ticker_item.currency, user_currency) if ticker_item.currency != current_user.currency else 1
-    if mode == "buy":
-        ticker_current_price = get_quotes_asyncio([ticker_item.ticker_name])[0]['current_price']
-        ticker_quantity = ticker_item.quantity
-        curr_ticker_value = float(ticker_current_price) * float(ticker_quantity) * exch_rate
-        new_market_value = round(curr_market_value + float(curr_ticker_value), 2)
-    elif mode == 'sell' and position_purchase_value > 0:
-        ticker_current_price = float(request_json['ticker-current-price']) * exch_rate
-        shares_sold = int(request_json['order_quantity'])
-        new_market_value = round(curr_market_value  - (ticker_current_price * shares_sold * exch_rate))
-    elif mode == 'sell' and position_purchase_value == 0:
-        #forgot to account for if selling last remaining shares
-        new_market_value = 0
-    else:
-        raise Exception('invalid mode for updating summary row')
-
-    if position_purchase_value > 0:
-        gain = round(new_market_value - position_purchase_value, 2)
-        percent_gain = round((gain/position_purchase_value)*100, 2)
-    else:
-        gain = percent_gain = 0
-
-    item.market_value = user_currency_symbol + str(new_market_value)
-    item.gain = user_currency_symbol + str(gain)
-    item.percent_gain = str(percent_gain)
-
-    return item
-
 
 #edit tickeritem portfolio so that it consolidates all the purchase orders
 class TickerItem_Portfolio(TickerItem):

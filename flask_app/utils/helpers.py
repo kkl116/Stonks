@@ -1,5 +1,4 @@
 from flask import request, redirect, url_for, render_template, jsonify, request
-from pandas import DateOffset
 from flask_app.accounts.forms import (LoginForm, RegisterationForm, 
                                     RequestResetForm, ResetPasswordForm)
 from flask_app.models import Quote, WatchlistItem, Position
@@ -7,23 +6,31 @@ import ast
 import yfinance as yf 
 from yfQuotes import get_quotes_asyncio
 from datetime import datetime
-from flask_app import db
+from flask_app import db, streamer
 
 def unsubscribe_user(user, quote):
     if not still_subscribe(user, quote.ticker_name):
         print(f'{user} unsubscribed from {quote.ticker_name}')
         user.subscriptions.remove(quote)
 
-    if len(quote.users) == 0:
-        db.session.delete(quote)
-    db.session.commit()
+        if len(quote.users) == 0:
+            db.session.delete(quote)
+            streamer.remove([quote.ticker_name])
+            print(f'current streamer subscriptions: {streamer.subscribed}')
+
+        db.session.commit()
 
 
 def subscribe_user(user, quote):
     if quote not in user.subscriptions:
         print(f'{user} subscribed to {quote.ticker_name}')
         user.subscriptions.append(quote) 
-    db.session.commit()
+
+        if quote.ticker_name not in streamer.subscribed:
+            streamer.add([quote.ticker_name])
+            print(f'current streamer subscriptions: {streamer.subscribed}')
+
+        db.session.commit()
 
 #need to write function that creates Quote Object if not created already
 def create_quote_object(ticker_name, ticker_info=None):

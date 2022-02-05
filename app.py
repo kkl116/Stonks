@@ -1,5 +1,4 @@
 from flask_app import create_app, scheduler, db, streamer
-import pytest
 import os
 
 app = create_app()
@@ -16,5 +15,7 @@ if __name__ == '__main__':
 
     #start streamer 
     streamer.connect()
+    #testing 
+    streamer.add(['LRC-USD'])
     app.run(threaded=True, debug=debug)
 

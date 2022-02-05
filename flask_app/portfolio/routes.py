@@ -5,8 +5,7 @@ from flask_app.utils.table_helpers import query_to_table_items, new_item_json
 from flask_app.models import Position
 from .forms import OrderForm
 from .utils import (PortfolioTable, TickerItem_Portfolio,
-                    get_summary_row, create_new_order_entry, update_summary_row,
-                    update_position)
+                    get_summary_row, create_new_order_entry, update_position)
 from datetime import datetime
 from flask_login import current_user, login_required
 from flask_app import db

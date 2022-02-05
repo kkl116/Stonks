@@ -1,4 +1,4 @@
-from . import db, login_manager
+from flask_app import db, login_manager
 from flask_login import UserMixin
 from itsdangerous import TimedJSONWebSignatureSerializer as TimedSerializer
 from itsdangerous import JSONWebSignatureSerializer as Serializer
@@ -90,6 +90,7 @@ class WatchlistItemTag(db.Model):
     tag_content = db.Column(db.String(), nullable=False)
     ticker_id = db.Column(db.Integer, db.ForeignKey('watchlist_item.id', ondelete="CASCADE"), nullable=False)
     db.UniqueConstraint(ticker_id, tag_content)
+    
     def __repr__(self):
         return f"WatchlistItemTag('{self.tag_content}', '{self.ticker_id}')"
 
@@ -165,4 +166,6 @@ class Quote(db.Model):
 
     def __repr__(self):
         return f'Quote({self.ticker_name}, {self.current_price}, {self.last_updated})'
+
+    
 
