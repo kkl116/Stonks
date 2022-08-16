@@ -12,6 +12,7 @@ from .forms import AddForm
 from flask_app.models import WatchlistItem, WatchlistItemTag, User
 from flask_app import db
 from flask_app.streaming import quotes_queue
+from flask_app.streaming.classes import SSEMessage
 
 watchlist = Blueprint('watchlist', __name__)
 
@@ -137,15 +138,17 @@ def edit_sector():
     return jsonify({'newBtn': newBtn})
 
 #SSE connection here 
-@watchlist.route('/watchlist/stream', methods=["GET"])
+@watchlist.route('/watchlist/stream', methods=['GET'])
 @login_required 
+@error_500_handler
 def stream():
     def watchlist_stream():
         quotes_queue.add_queue('watchlist')
         while True:
             #queue.Queue.get() blocks until new item is available (is async) -- GENIUS
             quote = quotes_queue.listen('watchlist')
-            yield jsonify(quote)
+            #check if user is subscribed to this quote 
+            yield SSEMessage(data=quote, type='quote').message()
     
     return Response(watchlist_stream(), mimetype='text/event-stream')
 

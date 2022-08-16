@@ -2,6 +2,7 @@
 #  to be shared across the application for sse streaming
 
 from queue import Queue 
+import json
 
 class EventHandler:
     def __init__(self, queue_names: list=[], queue_sizes=0):
@@ -50,4 +51,28 @@ class EventHandler:
     def add_all(self, item):
         for name in self.queue_names:
             getattr(self, name).put(item)
+
+class SSEMessage:
+    def __init__(self, data: dict=None, id: str=None, type: str=None):
+        self.data = data 
+        self.id = id 
+        self.type = type
     
+    def data_string(self):
+        if self.data is not None:
+            return f"data:{json.dumps(self.data)}\n"
+    
+    def id_string(self):
+        if self.id is not None:
+            return f"id:{self.id}\n"
+        else:
+            return ""
+
+    def type_string(self):
+        if self.type is not None:
+            return f"event:{self.type}\n"
+        else:
+            return ""
+        
+    def message(self):
+        return self.type_string() + self.data_string() + self.id_string()  + '\n'

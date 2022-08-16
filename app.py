@@ -17,5 +17,5 @@ if __name__ == '__main__':
     streamer.connect()
     #testing 
     streamer.add(['LRC-USD'])
-    app.run(threaded=True, debug=debug)
+    app.run(threaded=True, debug=True)
 

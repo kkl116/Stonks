@@ -47,10 +47,10 @@ def query_exchange_rate(from_currency, to_currency):
 def get_exchange_rate(from_currency, to_currency, apikey='761WW05Z48CV56CK', testing=False):
     if not testing:
         """Get fx rate from alphavantage free api:)"""
-        url = f'https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE&from_currency={from_currency}&to_currency={to_currency}&apikey={apikey}'
+        url = f'https://www.alphavantage.co/query?function=FX_DAILY&from_symbol={from_currency}&to_symbol={to_currency}&apikey={apikey}'
         r = requests.get(url)
-        r = r.json()['Realtime Currency Exchange Rate']
-        rate = float(r['5. Exchange Rate'])
+        r = r.json()['Time Series FX (Daily)'][datetime.today().strftime('%Y-%m-%d')]
+        rate = float(list(r.values())[-1])
         #here adjust for fact that GBp indicates trading in pence
         if from_currency == 'GBp':
             rate /= 100

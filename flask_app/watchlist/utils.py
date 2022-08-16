@@ -155,7 +155,7 @@ class WatchlistTable(Table_):
     classes = ['table', 'table-hover', 'table-sm', 'table-collapse']
     tag_icon = Col_('ICON', hide_header=True, td_html_attrs={"style": "color: #274156; font-size: 12.5px;" })
     ticker_link = Col_('TICKER')
-    current_price = Col('CURRENT PRICE')
+    current_price = Col_('CURRENT PRICE')
     day_gain = Col_('DAY GAIN', use_item_attrs=True)
     percent_gain = Col_('PERCENT GAIN', use_item_attrs=True)
     tags = Col_('TAGS')

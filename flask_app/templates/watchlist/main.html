@@ -59,9 +59,30 @@
     const urlAddTag = "{{ url_for('watchlist.add_tag') }}"
     const urlEditSector = "{{ url_for('watchlist.edit_sector') }}"
     const urlLoadTable = "{{ url_for('watchlist.get_table') }}"
+    const urlStream = "{{ url_for('watchlist.stream') }}"
+
     $(document).ready(function() {
             //this is previous function to reopen modal if any form errors were found
             tableAjax(urlAdd, urlAddTag, urlEditSector, urlLoadTable);
         });
+
+        
+        //maybe shift all this to a function
+        let eventSource = new EventSource(urlStream);
+        //eventSource addeventlistner is more specific, and incoming would require a bit more formatting
+        eventSource.addEventListener('quote', function(event){
+            //change the element of the corresponding quote if it exists
+            let data = JSON.parse(event.data);
+            let ticker = data.ticker_name;
+            if ($('#' + ticker)) { 
+                $('#' + ticker + '-current_price').text(data.current_price);
+                //take care of color changes here as well
+                $('#' + ticker + '-day_gain').text(data.change);
+                $('#' + ticker + '-percent_gain').text(data.change_percent);
+
+                console.log('changed');
+            }
+        })
+
 </script>
 {% endblock %}

@@ -1,4 +1,3 @@
-2022-02-05 01:15:35,752 ; DEBUG ; streamer ; init_socket ; WebSocketApp Initiated
-2022-02-05 01:15:36,167 ; DEBUG ; streamer ; connect ; Connection initiated.
-2022-02-05 01:15:38,169 ; DEBUG ; streamer ; add ; subscribed to {'LRC-USD'}
-2022-02-05 01:15:52,363 ; INFO ; streamer_functions ; update_db_quote ; Quote(LRC-USD, 0.9246947765350342, 2022-02-05 01:15:52.280465)
+2022-08-16 17:13:21,374 ; DEBUG ; streamer ; init_socket ; WebSocketApp Initiated
+2022-08-16 17:13:22,082 ; DEBUG ; streamer ; connect ; Connection initiated.
+2022-08-16 17:13:24,083 ; DEBUG ; streamer ; add ; subscribed to {'LRC-USD'}

@@ -2,7 +2,7 @@ from flask_app import db, streamer
 from flask_app.models import Quote
 from yfQuotes.streamquotes import Decoder 
 from datetime import datetime
-from .eventhandler import EventHandler
+from .classes import EventHandler
 
 quotes_queue = EventHandler()
 
@@ -15,6 +15,7 @@ def on_message(app, message):
     with app.flask_app.app_context():
         update_db_quote(ticker_name, data)
 
+    data['ticker_name'] = ticker_name
     quotes_queue.add_all(data)
     return 
 
@@ -24,11 +25,13 @@ def update_db_quote(ticker_name, data):
     for key, val in data.items():
         setattr(quote, key, val)
     
+    quote.last_updated = datetime.now()
+
     streamer._logger.info(str(quote))
     db.session.commit()
 
 #function to fix some of the fields from inbound message to match sql model fields 
-def data_adaptor(data):
+def data_adaptor(data, n_places=5):
     #adjust names of fields 
     to_dict = {
     'price': 'current_price',
@@ -45,10 +48,9 @@ def data_adaptor(data):
         del data[key]
 
     for key in to_dict:
-        data[to_dict[key]] = str(data[key])
-        del data[key]
-
-    data.update({'last_updated': datetime.now()})
+        data[to_dict[key]] = str(round(data[key], n_places))
+        if key != 'change':
+            del data[key]
 
     return data 
 
