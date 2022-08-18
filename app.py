@@ -1,4 +1,5 @@
 from flask_app import create_app, scheduler, db, streamer
+from flask_app.models import User
 import os
 
 app = create_app()
@@ -13,9 +14,12 @@ if __name__ == '__main__':
         if ON_HEROKU:
             db.create_all()
 
-    #start streamer 
-    streamer.connect()
-    #testing 
-    streamer.add(['LRC-USD'])
+        #start streamer
+        streamer.connect()
+        user = User.query.filter_by(username='test').first()
+        if user:
+            subs = [sub.ticker_name for sub in user.subscriptions]
+            streamer.add(subs)
+
     app.run(threaded=True, debug=True)
 

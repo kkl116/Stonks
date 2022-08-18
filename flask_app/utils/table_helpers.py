@@ -6,6 +6,7 @@ from yfQuotes import get_quotes_asyncio
 from flask_app.utils.helpers import get_quote_object
 import random
 
+
 def get_table_ncols(class_=None):
     item_attrs = class_.__dict__.values()
     n_cols = len([a for a in item_attrs if isinstance(a, Col)])
@@ -83,7 +84,11 @@ class TickerItem:
 
 
 class Col_(Col):
-    def __init__(self, *args, use_item_attrs=False, hide_header=False, **kwargs):
+    def __init__(self, 
+                *args, 
+                use_item_attrs=False, 
+                hide_header=False, 
+                **kwargs):
         super(Col_, self).__init__(*args, **kwargs)
         self.use_item_attrs = use_item_attrs
         self.hide_header = hide_header

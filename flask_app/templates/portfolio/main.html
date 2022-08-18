@@ -67,10 +67,75 @@
     //initialize addform ajax
     const urlOrder = "{{ url_for('portfolio.order') }}"
     const urlLoadTable = "{{ url_for('portfolio.get_table') }}";
+    const urlStream = "{{ url_for('portfolio.stream' )}}"
 
     $(document).ready(function() {
         tableAjax(urlOrder, urlLoadTable);
     });
+
+    function round(value, n_places){
+        let string = value.toString();
+        return string.substring(0, string.indexOf('.') + n_places+1)
+    }
+    //maybe shift all this to a function
+    let eventSource = new EventSource(urlStream);
+    //eventSource addeventlistner is more specific, and incoming would require a bit more formatting
+
+    //console.log(sum_market_value, user_currency_symbol, sum_gain)
+    eventSource.addEventListener('quote', function(event){
+        //change the element of the corresponding quote if it exists
+
+        let data = JSON.parse(event.data);
+        let ticker = data.ticker_name;
+        let n_places = 2;
+        if ($('#' + ticker)) { 
+            let quantity = parseFloat($('#' + ticker + '-quantity').text());
+            let purchase_price = parseFloat($('#' + ticker + '-purchase_price').text());
+            let gain = parseFloat($('#' + ticker + '-gain').text());
+
+            let new_gain = parseFloat(data.current_price) - purchase_price; 
+            let new_percent_gain = new_gain/purchase_price * 100;
+            let new_market_value = quantity * data.current_price; 
+            let ticker_currency_symbol = $('#' + ticker + '-market_value').text().charAt(0)
+
+            $('#' + ticker + '-percent_gain').text(round(new_percent_gain, n_places));
+            $('#' + ticker + '-gain').text(round(new_gain, n_places));
+            $('#' + ticker + '-market_value').text(ticker_currency_symbol + round(new_market_value, n_places));
+            $('#' + ticker + '-current_price').text(round(data.current_price, n_places));
+            
+            let gain_diff = new_gain - gain;
+            let ticker_exch_rate = parseFloat($('#' + ticker + '-exch_rate').text())
+            let abs_gain_diff = gain_diff * quantity * ticker_exch_rate;
+
+            //new to update market value row - recalculate pls
+            let table = document.getElementById('portfolio-table');
+            let tbody = table.getElementsByTagName('tbody')[0];
+            let rows = tbody.getElementsByTagName('tr');
+
+            let new_sum_market_value = 0;
+            let new_sum_gain = 0;
+            let user_currency_symbol = $('#summary-market_value').text()[0];
+            
+            for (var i = 0; i < rows.length; i++) {
+                let ticker = rows[i].id 
+                if (ticker != 'summary'){ 
+                    let quantity = parseFloat($('#' + ticker + '-quantity').text());
+                    let purchase_price = parseFloat($('#' + ticker + '-purchase_price').text());
+                    let current_price = parseFloat($('#' + ticker + '-current_price').text());
+                    let exch_rate = parseFloat($('#' + ticker + '-exch_rate').text());
+                    
+                    let gain = current_price - purchase_price;
+                    new_sum_gain = new_sum_gain + (gain * quantity * exch_rate);
+                    new_sum_market_value = new_sum_market_value + (quantity * current_price * exch_rate);
+                }
+            }
+
+            let new_sum_percent_gain = new_sum_gain / new_sum_market_value * 100;
+            $('#summary-market_value').text(user_currency_symbol + round(new_sum_market_value,n_places));
+            $('#summary-gain').text(user_currency_symbol + round(new_sum_gain, n_places));
+            $('#summary-percent_gain').text(round(new_sum_percent_gain, n_places));
+        }
+    })
 
 </script>
 {% endblock %}

@@ -21,7 +21,7 @@ def query_exchange_rate(from_currency, to_currency):
     if query:
         #check if it has been updated today 
         if query.date_updated == str(datetime.today().date()):
-            print('rate up to date')
+            #print('rate up to date')
             return float(query.rate)
         else:
             rate = get_exchange_rate(from_currency, to_currency)
@@ -32,7 +32,7 @@ def query_exchange_rate(from_currency, to_currency):
             reverse.rate = str(1/rate)
             reverse.date_updated = str(datetime.today().date())
             db.session.commit()
-            print('rate updated at: ', query.date_updated)
+            #print('rate updated at: ', query.date_updated)
             return rate
     else:
         #query does not exist 
@@ -201,7 +201,7 @@ def get_positions_exch_rates(position):
     exch_rates = dict(zip(currencies, exch_rates))
     return exch_rates
 
-def get_summary_row(positions, table_items, empty=False):
+def get_summary_row(table_items, empty=False):
     """makes more sense to use table_items as well b/c already obtained current prices and everything"""
 
     def current_price_from_table_items(ticker_name, table_items):
@@ -211,9 +211,9 @@ def get_summary_row(positions, table_items, empty=False):
         return item.current_price
 
     #initialize an empty item 
-    if positions is None:
+    if table_items is None:
         empty = True
-    elif len(positions) == 0:
+    elif len(table_items) == 0:
         empty = True
 
     item = init_summary_row_item()
@@ -222,6 +222,7 @@ def get_summary_row(positions, table_items, empty=False):
 
     #mainly need to modify this function... no need to use consolidate query itesm 
     if not empty:
+        positions = [item.position for item in table_items]
         original_value = 0
         market_value = 0
         gain = 0
@@ -267,7 +268,7 @@ def get_position_purchase_value(position):
 #edit tickeritem portfolio so that it consolidates all the purchase orders
 class TickerItem_Portfolio(TickerItem):
     """object to pass to portfolio table -- 
-    returns the total position across all purchases of the ticker"""
+    returns the total position across all purchases/sales of the ticker"""
     def __init__(self, *args, **kwargs):
         super(TickerItem_Portfolio, self).__init__(*args, **kwargs)
         self.n_places = 2
@@ -281,7 +282,8 @@ class TickerItem_Portfolio(TickerItem):
         self.percent_gain = self.empty_or_attr(attr=[], func=self.get_percent_gain)
         self.quantity = self.empty_or_attr(attr=[], func=self.get_quantity)
         self.market_value = self.empty_or_attr(attr=[], func=self.get_market_value)
-        self.arrow_icon = self.empty_or_attr(attr=[], func=self.arrow_icon)
+        self.arrow_icon = self.empty_or_attr(attr=[], func=self.get_arrow_icon)
+        self.exch_rate = self.empty_or_attr(attr=[], func=self.get_exch_rate)
         #have a sell button? I dunno
         try:
             self.update_html_attrs(self.color_style())
@@ -290,6 +292,10 @@ class TickerItem_Portfolio(TickerItem):
         
         print('TickerItemPortfolio initialised')
             
+    def get_exch_rate(self):
+        rate = get_positions_exch_rates([self.position])
+        return list(rate.values())[0]
+
     def get_purchase_price(self):
         price = float(self.position.avg_purchase_price)
         return round(price, self.n_places)
@@ -328,7 +334,7 @@ class TickerItem_Portfolio(TickerItem):
                 color = self.red_hex
         return {'style': f"color: {color} !important;"}
 
-    def arrow_icon(self):
+    def get_arrow_icon(self):
         """give an green up arrow or red down arrow depending on status"""
         if self.gain > 0:
             return html_formatter('i', cls=["fas fa-arrow-alt-circle-up"],style="color:#027E4A;")
@@ -354,6 +360,8 @@ class PortfolioTable(Table_):
     market_value = Col_('MARKET VALUE')
     gain = Col_('GAIN', use_item_attrs=True)
     percent_gain = Col_('PERCENT GAIN', use_item_attrs=True)
+    exch_rate = Col_('EXCH RATE')
+
     table_id = 'portfolio-table'
 
     def __repr__(self):

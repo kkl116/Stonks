@@ -1,15 +1,16 @@
-from flask import Blueprint, request, jsonify, url_for, redirect
+from flask import Blueprint, request, jsonify, url_for, Response, current_app
 from flask_app.utils.helpers import _render_template, format_ticker_name, redirect_next_page
 from flask_app.errors.utils import error_500_handler, form_errors_400
-from flask_app.utils.table_helpers import query_to_table_items, new_item_json
+from flask_app.utils.table_helpers import query_to_table_items
 from flask_app.models import Position
 from .forms import OrderForm
 from .utils import (PortfolioTable, TickerItem_Portfolio,
                     get_summary_row, create_new_order_entry, update_position)
-from datetime import datetime
 from flask_login import current_user, login_required
-from flask_app import db
+from flask_app.streaming import quotes_queue
+from flask_app.streaming.classes import SSEMessage
 import json
+import time
 
 portfolio = Blueprint('portfolio', __name__)
 
@@ -26,13 +27,13 @@ def get_table():
     positions = Position.query.filter_by(user=current_user).all()
     if len(positions) == 0:
         print('*** empty table ***')
-        table = PortfolioTable(items=[get_summary_row(None, None, empty=True)])
+        table = PortfolioTable(items=[get_summary_row(None, empty=True)])
         empty = 1
     else:
         #update porfolio stats
         table_items = query_to_table_items(positions, TickerItem_Portfolio)
         #create an empty item, then update attrs to make summary row
-        table_items.append(get_summary_row(positions, table_items))
+        table_items.append(get_summary_row(table_items))
         table = PortfolioTable(items=table_items)
         empty = 0
     
@@ -65,4 +66,22 @@ def order():
     else:
         redirect_next_page()
 
+
+#SSE connection here 
+@portfolio.route('/portfolio/stream', methods=['GET'])
+@login_required 
+@error_500_handler
+def stream():
+    #need to pass exch rate to watchlist_stream
+    def watchlist_stream():
+        quotes_queue.add_queue('portfolio')
+        while True:
+            #queue.Queue.get() blocks until new item is available (is async) -- GENIUS
+            quote = quotes_queue.listen('portfolio')
+            #check if user is subscribed to this quote 
+            #need to add additional data here to update summary row...
+            #this isn't the smartest way, but we're not dealing with a ton of data so - 
+            yield SSEMessage(data=quote, type='quote').message()
+
+    return Response(watchlist_stream(), mimetype='text/event-stream')
 
